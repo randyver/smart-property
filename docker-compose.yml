@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - FLASK_ENV=development
+      - DEBUG=True
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=smartproperty
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - MAPID_API_KEY=${MAPID_API_KEY}
+    depends_on:
+      - db
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
+      - NEXT_PUBLIC_MAPID_API_KEY=${MAPID_API_KEY}
+    depends_on:
+      - backend
+    restart: always
+
+  db:
+    image: postgres:14
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=smartproperty
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  postgres_data:

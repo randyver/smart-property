@@ -1,0 +1,12 @@
+Flask
+Flask-Cors
+psycopg2-binary
+scikit-learn
+tensorflow
+pandas
+numpy
+geopandas
+matplotlib
+gunicorn
+python-dotenv
+requests

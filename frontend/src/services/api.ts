@@ -49,6 +49,11 @@ export const propertyAPI = {
   getProperty: async (id: number) => {
     return fetchFromAPI<any>(`/api/properties/${id}`);
   },
+
+  // Get Bandung properties
+  getBandungProperties: async () => {
+    return fetchFromAPI<any>('/api/properties/bandung');
+  },
   
   // Compare multiple properties
   compareProperties: async (ids: number[]) => {

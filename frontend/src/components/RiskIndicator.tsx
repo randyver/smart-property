@@ -33,11 +33,11 @@ export default function RiskIndicator({
   const getSizeClasses = (size: string): string => {
     switch (size) {
       case 'sm':
-        return 'w-8 h-8 text-xs';
+        return 'w-6 h-6 text-xs';
       case 'lg':
-        return 'w-16 h-16 text-lg';
+        return 'w-14 h-14 text-lg';
       default:
-        return 'w-12 h-12 text-sm';
+        return 'w-10 h-10 text-sm';
     }
   };
   

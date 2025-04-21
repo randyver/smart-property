@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, memo } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -12,9 +12,22 @@ interface Property {
     longitude: number;
   };
   price: number;
+  bedrooms: number;
+  bathrooms: number;
+  land_area: number;
+  building_area: number;
   climate_risk_score: number;
-  // Other property fields...
+  risks: {
+    flood: string;
+    temperature: string;
+    air_quality: string;
+    landslide: string;
+  };
+  address: string;
+  district: string;
+  city: string;
 }
+
 
 interface MapComponentProps {
   properties?: Property[];
@@ -22,6 +35,7 @@ interface MapComponentProps {
   onMarkerClick?: (propertyId: number) => void;
   center?: [number, number];
   zoom?: number;
+  mapRef?: React.MutableRefObject<any>;
 }
 
 // Helper function to load GeoJSON data
@@ -35,66 +49,86 @@ const loadGeoJSON = async (url: string) => {
   }
 };
 
-export default function MapComponent({
+// The component is wrapped with React.memo to prevent unnecessary re-renders
+const MapComponent = memo(({
   properties = [],
   activeLayer,
   onMarkerClick,
   center = [107.6096, -6.9147], // Default to Bandung
   zoom = 12,
-}: MapComponentProps) {
+  mapRef
+}: MapComponentProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<maplibregl.Map | null>(null);
+  const mapInstance = useRef<maplibregl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const markersRef = useRef<{ [key: number]: maplibregl.Marker }>({});
+  const propertiesRef = useRef(properties);
   
   const mapidApiKey = process.env.NEXT_PUBLIC_MAPID_API_KEY || 'your_mapid_api_key';
 
-  // Initialize map
+  // Initialize map only once
   useEffect(() => {
-    if (map.current) return; // Map already initialized
+    if (mapInstance.current) return; // Map already initialized
     
     if (mapContainer.current) {
-      map.current = new maplibregl.Map({
+      mapInstance.current = new maplibregl.Map({
         container: mapContainer.current,
         style: `https://basemap.mapid.io/styles/basic/style.json?key=${mapidApiKey}`,
         center: center,
         zoom: zoom
       });
       
-      map.current.on('load', () => {
+      mapInstance.current.on('load', () => {
         setMapLoaded(true);
       });
       
+      // Expose map to parent through ref
+      if (mapRef) {
+        mapRef.current = mapInstance.current;
+      }
+      
       // Add navigation controls
-      map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
+      mapInstance.current.addControl(new maplibregl.NavigationControl(), 'top-right');
     }
     
     // Cleanup on unmount
     return () => {
-      if (map.current) {
-        map.current.remove();
-        map.current = null;
+      if (mapInstance.current) {
+        if (mapRef) {
+          mapRef.current = null;
+        }
+        mapInstance.current.remove();
+        mapInstance.current = null;
       }
     };
-  }, [mapidApiKey, center, zoom]);
+  }, [mapidApiKey, center, zoom, mapRef]);
 
-  // Add property markers to map
+  // Update markers only when properties change (by reference)
   useEffect(() => {
-    if (!mapLoaded || !map.current) return;
+    // Update the ref to latest properties
+    propertiesRef.current = properties;
     
-    // Ensure style is fully loaded before adding markers
+    if (!mapLoaded || !mapInstance.current) return;
+    
     const addMarkers = () => {
-      if (!map.current) return;
+      if (!mapInstance.current) return;
       
-      // Remove existing markers
-      Object.values(markersRef.current).forEach(marker => marker.remove());
-      markersRef.current = {};
+      // We'll store a set of property IDs to track removed properties
+      const currentPropertyIds = new Set(properties.map(p => p.id));
       
-      // Add markers for each property
+      // First pass: Update existing markers or add new ones
       properties.forEach(property => {
-        if (!map.current) return;
+        if (!mapInstance.current) return;
         
-        // Create marker element
+        const existingMarker = markersRef.current[property.id];
+        
+        // If marker already exists, just update its position
+        if (existingMarker) {
+          existingMarker.setLngLat([property.location.longitude, property.location.latitude]);
+          return;
+        }
+        
+        // Create marker element for new property
         const el = document.createElement('div');
         el.className = 'property-marker';
         
@@ -117,7 +151,7 @@ export default function MapComponent({
         // Add marker to map
         const marker = new maplibregl.Marker(el)
           .setLngLat([property.location.longitude, property.location.latitude])
-          .addTo(map.current);
+          .addTo(mapInstance.current);
         
         // Add click handler
         el.addEventListener('click', () => {
@@ -127,28 +161,37 @@ export default function MapComponent({
         // Store marker reference
         markersRef.current[property.id] = marker;
       });
+      
+      // Second pass: Remove markers for properties that no longer exist
+      Object.keys(markersRef.current).forEach(id => {
+        const numId = parseInt(id);
+        if (!currentPropertyIds.has(numId)) {
+          markersRef.current[numId].remove();
+          delete markersRef.current[numId];
+        }
+      });
     };
     
     // Check if style is loaded before adding markers
-    if (map.current.isStyleLoaded()) {
+    if (mapInstance.current.isStyleLoaded()) {
       addMarkers();
     } else {
-      map.current.once('style.load', addMarkers);
+      mapInstance.current.once('style.load', addMarkers);
     }
   }, [properties, mapLoaded, onMarkerClick]);
   
-  // Handle active layer changes
+  // Handle active layer changes separately
   useEffect(() => {
-    if (!mapLoaded || !map.current || !activeLayer) return;
+    if (!mapLoaded || !mapInstance.current || !activeLayer) return;
     
     // Function to ensure the style is loaded before adding layers
     const initializeLayers = async () => {
-      if (!map.current) return;
+      if (!mapInstance.current) return;
       
       // Make sure style is loaded
-      if (!map.current.isStyleLoaded()) {
+      if (!mapInstance.current.isStyleLoaded()) {
         await new Promise<void>((resolve) => {
-          map.current?.once('style.load', () => resolve());
+          mapInstance.current?.once('style.load', () => resolve());
         });
       }
       
@@ -158,23 +201,11 @@ export default function MapComponent({
     
     // Add all map layers
     const addAllLayers = async () => {
-      if (!map.current) return;
+      if (!mapInstance.current) return;
       
       // Add layers if they don't exist yet
-      if (!map.current.getSource('flood-risk-source')) {
+      if (!mapInstance.current.getSource('flood-risk-source')) {
         addFloodRiskLayer();
-      }
-      
-      if (!map.current.getSource('temperature-source')) {
-        await addTemperatureLayer();
-      }
-      
-      if (!map.current.getSource('air-quality-source')) {
-        addAirQualityLayer();
-      }
-      
-      if (!map.current.getSource('green-space-source')) {
-        addGreenSpaceLayer();
       }
       
       // Update visibility of layers
@@ -183,7 +214,7 @@ export default function MapComponent({
     
     // Mock GIS layers implementation
     const addFloodRiskLayer = () => {
-      if (!map.current || map.current.getSource('flood-risk-source')) return;
+      if (!mapInstance.current || mapInstance.current.getSource('flood-risk-source')) return;
       
       // This would be replaced with actual GeoJSON data in a real implementation
       const mockGeoJson = {
@@ -236,12 +267,12 @@ export default function MapComponent({
       
       try {
         // Add source and layer
-        map.current.addSource('flood-risk-source', {
+        mapInstance.current.addSource('flood-risk-source', {
           type: 'geojson',
           data: mockGeoJson
         });
         
-        map.current.addLayer({
+        mapInstance.current.addLayer({
           id: 'flood-risk-layer',
           type: 'fill',
           source: 'flood-risk-source',
@@ -262,7 +293,7 @@ export default function MapComponent({
         });
         
         // Add outline
-        map.current.addLayer({
+        mapInstance.current.addLayer({
           id: 'flood-risk-outline',
           type: 'line',
           source: 'flood-risk-source',
@@ -277,351 +308,28 @@ export default function MapComponent({
       }
     };
     
-    const addTemperatureLayer = async () => {
-      if (!map.current) return;
-      if (map.current.getSource('temperature-source')) {
-        // If source exists, just toggle visibility
-        return;
-      }
-      
-      try {
-        // For demonstration, using mock data similar to Bandung area
-        const mockLstData = {
-          type: 'FeatureCollection',
-          features: [
-            {
-              type: 'Feature',
-              properties: { temp_class: 1 },
-              geometry: {
-                type: 'Polygon',
-                coordinates: [[
-                  [107.58, -6.89],
-                  [107.63, -6.89],
-                  [107.63, -6.94],
-                  [107.58, -6.94],
-                  [107.58, -6.89]
-                ]]
-              }
-            },
-            {
-              type: 'Feature',
-              properties: { temp_class: 3 },
-              geometry: {
-                type: 'Polygon',
-                coordinates: [[
-                  [107.63, -6.89],
-                  [107.68, -6.89],
-                  [107.68, -6.94],
-                  [107.63, -6.94],
-                  [107.63, -6.89]
-                ]]
-              }
-            },
-            {
-              type: 'Feature',
-              properties: { temp_class: 5 },
-              geometry: {
-                type: 'Polygon',
-                coordinates: [[
-                  [107.63, -6.94],
-                  [107.68, -6.94],
-                  [107.68, -6.98],
-                  [107.63, -6.98],
-                  [107.63, -6.94]
-                ]]
-              }
-            }
-          ]
-        };
-        
-        // Try to load actual GeoJSON if available, otherwise use mock data
-        let lstData;
-        try {
-          lstData = await loadGeoJSON('/data/bdg_lst.geojson');
-          if (!lstData) lstData = mockLstData;
-        } catch (error) {
-          console.warn('Using mock temperature data:', error);
-          lstData = mockLstData;
-        }
-        
-        if (!map.current) return;
-        
-        // Add source
-        map.current.addSource('temperature-source', {
-          type: 'geojson',
-          data: lstData
-        });
-        
-        // Add fill layer
-        map.current.addLayer({
-          id: 'temperature-layer',
-          type: 'fill',
-          source: 'temperature-source',
-          layout: { visibility: 'none' },
-          paint: {
-            'fill-color': [
-              'interpolate',
-              ['linear'],
-              ['get', 'temp_class'], // or 'mean' depending on your GeoJSON structure
-              1, '#313695', // Below Average
-              2, '#4575b4', // Slightly Below Average
-              3, '#74add1', // Average
-              4, '#abd9e9', // Slightly Above Average
-              5, '#e0f3f8', // Above Average
-              6, '#ffffbf', // Moderate High
-              7, '#fee090', // High
-              8, '#fdae61', // Very High
-              9, '#f46d43', // Extremely High
-              10, '#d73027'  // Dangerously High
-            ],
-            'fill-opacity': 0.7
-          }
-        });
-        
-        // Add outline
-        map.current.addLayer({
-          id: 'temperature-outline',
-          type: 'line',
-          source: 'temperature-source',
-          layout: { visibility: 'none' },
-          paint: {
-            'line-color': '#000',
-            'line-width': 1
-          }
-        });
-      } catch (error) {
-        console.error('Error adding temperature layer:', error);
-      }
-    };
-    
-    const addAirQualityLayer = () => {
-      if (!map.current || map.current.getSource('air-quality-source')) return;
-      
-      // This would be replaced with actual GeoJSON data
-      const mockGeoJson = {
-        type: 'FeatureCollection',
-        features: [
-          {
-            type: 'Feature',
-            properties: { quality_level: 1 },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [107.58, -6.89],
-                [107.64, -6.89],
-                [107.64, -6.95],
-                [107.58, -6.95],
-                [107.58, -6.89]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { quality_level: 3 },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [107.64, -6.89],
-                [107.69, -6.89],
-                [107.69, -6.95],
-                [107.64, -6.95],
-                [107.64, -6.89]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { quality_level: 5 },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [107.61, -6.95],
-                [107.67, -6.95],
-                [107.67, -6.99],
-                [107.61, -6.99],
-                [107.61, -6.95]
-              ]]
-            }
-          }
-        ]
-      };
-      
-      try {
-        // Add source and layer
-        map.current.addSource('air-quality-source', {
-          type: 'geojson',
-          data: mockGeoJson
-        });
-        
-        map.current.addLayer({
-          id: 'air-quality-layer',
-          type: 'fill',
-          source: 'air-quality-source',
-          layout: { visibility: 'none' },
-          paint: {
-            'fill-color': [
-              'interpolate',
-              ['linear'],
-              ['get', 'quality_level'],
-              0, '#cc0033',
-              1, '#ff9933',
-              2, '#ffde33',
-              3, '#99cc33',
-              4, '#00ccbc',
-              5, '#66ffff'
-            ],
-            'fill-opacity': 0.7
-          }
-        });
-        
-        // Add outline
-        map.current.addLayer({
-          id: 'air-quality-outline',
-          type: 'line',
-          source: 'air-quality-source',
-          layout: { visibility: 'none' },
-          paint: {
-            'line-color': '#000',
-            'line-width': 1
-          }
-        });
-      } catch (error) {
-        console.error('Error adding air quality layer:', error);
-      }
-    };
-    
-    const addGreenSpaceLayer = () => {
-      if (!map.current || map.current.getSource('green-space-source')) return;
-      
-      // This would be replaced with actual GeoJSON data
-      const mockGeoJson = {
-        type: 'FeatureCollection',
-        features: [
-          {
-            type: 'Feature',
-            properties: { vegetation_level: 0 },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [107.58, -6.89],
-                [107.63, -6.89],
-                [107.63, -6.93],
-                [107.58, -6.93],
-                [107.58, -6.89]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { vegetation_level: 3 },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [107.63, -6.89],
-                [107.67, -6.89],
-                [107.67, -6.93],
-                [107.63, -6.93],
-                [107.63, -6.89]
-              ]]
-            }
-          },
-          {
-            type: 'Feature',
-            properties: { vegetation_level: 5 },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [107.63, -6.93],
-                [107.67, -6.93],
-                [107.67, -6.97],
-                [107.63, -6.97],
-                [107.63, -6.93]
-              ]]
-            }
-          }
-        ]
-      };
-      
-      try {
-        // Add source and layer
-        map.current.addSource('green-space-source', {
-          type: 'geojson',
-          data: mockGeoJson
-        });
-        
-        map.current.addLayer({
-          id: 'green-space-layer',
-          type: 'fill',
-          source: 'green-space-source',
-          layout: { visibility: 'none' },
-          paint: {
-            'fill-color': [
-              'interpolate',
-              ['linear'],
-              ['get', 'vegetation_level'],
-              0, '#f7f7f7',
-              1, '#e6f5d0',
-              2, '#b8e186',
-              3, '#7fbc41',
-              4, '#4d9221',
-              5, '#276419'
-            ],
-            'fill-opacity': 0.7
-          }
-        });
-        
-        // Add outline
-        map.current.addLayer({
-          id: 'green-space-outline',
-          type: 'line',
-          source: 'green-space-source',
-          layout: { visibility: 'none' },
-          paint: {
-            'line-color': '#000',
-            'line-width': 1
-          }
-        });
-      } catch (error) {
-        console.error('Error adding green space layer:', error);
-      }
-    };
-    
     // Update layer visibility based on activeLayer
     const updateLayerVisibility = () => {
-      if (!map.current) return;
+      if (!mapInstance.current) return;
       
       // Helper function to toggle layer visibility
       const toggleLayerVisibility = (layerId: string, outlineId: string, isVisible: boolean) => {
-        if (!map.current) return;
+        if (!mapInstance.current) return;
         
-        if (map.current.getLayer(layerId)) {
-          map.current.setLayoutProperty(layerId, 'visibility', isVisible ? 'visible' : 'none');
+        if (mapInstance.current.getLayer(layerId)) {
+          mapInstance.current.setLayoutProperty(layerId, 'visibility', isVisible ? 'visible' : 'none');
         }
-        if (map.current.getLayer(outlineId)) {
-          map.current.setLayoutProperty(outlineId, 'visibility', isVisible ? 'visible' : 'none');
+        if (mapInstance.current.getLayer(outlineId)) {
+          mapInstance.current.setLayoutProperty(outlineId, 'visibility', isVisible ? 'visible' : 'none');
         }
       };
       
       // Hide all layers first
       toggleLayerVisibility('flood-risk-layer', 'flood-risk-outline', false);
-      toggleLayerVisibility('temperature-layer', 'temperature-outline', false);
-      toggleLayerVisibility('air-quality-layer', 'air-quality-outline', false);
-      toggleLayerVisibility('green-space-layer', 'green-space-outline', false);
       
       // Show only the active layer
-      switch (activeLayer) {
-        case 'flood_risk':
-          toggleLayerVisibility('flood-risk-layer', 'flood-risk-outline', true);
-          break;
-        case 'temperature':
-          toggleLayerVisibility('temperature-layer', 'temperature-outline', true);
-          break;
-        case 'air_quality':
-          toggleLayerVisibility('air-quality-layer', 'air-quality-outline', true);
-          break;
-        case 'green_space':
-          toggleLayerVisibility('green-space-layer', 'green-space-outline', true);
-          break;
+      if (activeLayer === 'flood_risk') {
+        toggleLayerVisibility('flood-risk-layer', 'flood-risk-outline', true);
       }
     };
     
@@ -633,53 +341,6 @@ export default function MapComponent({
   return (
     <div className="w-full h-full rounded-lg overflow-hidden shadow-lg border border-gray-200">
       <div ref={mapContainer} className="w-full h-full" />
-      
-      {/* Temperature Legend */}
-      {activeLayer === 'temperature' && (
-        <div className="absolute bottom-4 right-4 bg-white p-3 rounded-md shadow-md z-10 max-h-60 overflow-y-auto">
-          <h4 className="text-sm font-bold mb-2">Land Surface Temperature</h4>
-          <div className="flex items-center mb-1">
-            <div className="w-4 h-4 bg-[#313695] mr-2"></div>
-            <span className="text-xs">Below Average</span>
-          </div>
-          <div className="flex items-center mb-1">
-            <div className="w-4 h-4 bg-[#4575b4] mr-2"></div>
-            <span className="text-xs">Slightly Below Average</span>
-          </div>
-          <div className="flex items-center mb-1">
-            <div className="w-4 h-4 bg-[#74add1] mr-2"></div>
-            <span className="text-xs">Average</span>
-          </div>
-          <div className="flex items-center mb-1">
-            <div className="w-4 h-4 bg-[#abd9e9] mr-2"></div>
-            <span className="text-xs">Slightly Above Average</span>
-          </div>
-          <div className="flex items-center mb-1">
-            <div className="w-4 h-4 bg-[#e0f3f8] mr-2"></div>
-            <span className="text-xs">Above Average</span>
-          </div>
-          <div className="flex items-center mb-1">
-            <div className="w-4 h-4 bg-[#ffffbf] mr-2"></div>
-            <span className="text-xs">Moderate High</span>
-          </div>
-          <div className="flex items-center mb-1">
-            <div className="w-4 h-4 bg-[#fee090] mr-2"></div>
-            <span className="text-xs">High</span>
-          </div>
-          <div className="flex items-center mb-1">
-            <div className="w-4 h-4 bg-[#fdae61] mr-2"></div>
-            <span className="text-xs">Very High</span>
-          </div>
-          <div className="flex items-center mb-1">
-            <div className="w-4 h-4 bg-[#f46d43] mr-2"></div>
-            <span className="text-xs">Extremely High</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-4 h-4 bg-[#d73027] mr-2"></div>
-            <span className="text-xs">Dangerously High</span>
-          </div>
-        </div>
-      )}
       
       {/* Custom map styles for property markers */}
       <style jsx global>{`
@@ -698,4 +359,9 @@ export default function MapComponent({
       `}</style>
     </div>
   );
-}
+});
+
+// Display name for debugging purposes
+MapComponent.displayName = 'MapComponent';
+
+export default MapComponent;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import RiskIndicator from "@/components/RiskIndicator";
 
 interface Property {
   id: number;
@@ -31,6 +32,7 @@ interface PropertyCardProps {
   onViewDetails?: (property: Property) => void;
   onCompare?: (property: Property) => void;
   isComparing?: boolean;
+  imageUrl?: string;
 }
 
 export default function PropertyCard({
@@ -38,6 +40,7 @@ export default function PropertyCard({
   onViewDetails,
   onCompare,
   isComparing = false,
+  imageUrl = "https://savasa.id/upload/202306/article/Harga-Perumahan-di-Bekasi-Big-Header_1686363768.jpg",
 }: PropertyCardProps) {
   const [showDetails, setShowDetails] = useState(false);
 
@@ -97,48 +100,57 @@ export default function PropertyCard({
     return levels[level] || level;
   };
 
+  // Handle details click
+  const handleDetailsClick = () => {
+    if (onViewDetails) {
+      onViewDetails(property);
+    }
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition duration-300 relative mb-4">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition duration-300 relative mb-3">
       {/* Score badge */}
       <div
         className={`absolute top-2 right-2 ${getScoreColor(
           property.climate_risk_score
-        )} text-white font-bold p-2 rounded-full w-10 h-10 flex items-center justify-center`}
+        )} text-white font-bold p-2 rounded-full w-8 h-8 flex items-center justify-center z-10`}
       >
         {property.climate_risk_score}
       </div>
 
-      {/* Property Image (placeholder) */}
-      <div className="h-40 bg-gray-300 flex items-center justify-center">
-        <span className="text-gray-700 font-medium">Property Image</span>
+      {/* Property Image */}
+      <div 
+        className="h-32 bg-cover bg-center" 
+        style={{ backgroundImage: `url(${imageUrl})` }}
+      >
       </div>
 
       {/* Property Details */}
-      <div className="p-4">
-        <h3 className="font-bold text-lg mb-2 pr-12 text-gray-800">
+      <div className="p-3">
+        <h3 className="font-bold text-base mb-1 pr-8 text-gray-800 truncate">
           {property.title}
         </h3>
-        <p className="text-blue-700 font-bold text-xl mb-2">
+        <p className="text-blue-700 font-bold text-lg mb-1">
           Rp {formatPrice(property.price)}
         </p>
 
-        <div className="flex justify-between text-sm text-gray-700 mb-4">
+        <div className="flex justify-between text-xs text-gray-700 mb-2">
           <span>{property.bedrooms} Beds</span>
           <span>{property.building_area} m²</span>
           <span>{property.land_area} m² land</span>
         </div>
 
         {showDetails && (
-          <div className="mt-4 border-t pt-4">
-            <h4 className="font-bold mb-2 text-gray-800">
+          <div className="mt-2 border-t pt-2">
+            <h4 className="font-bold mb-1 text-sm text-gray-800">
               Climate Risk Assessment
             </h4>
-            <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="flex items-center">
                 <span
-                  className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
+                  className={`inline-block w-2 h-2 rounded-full ${getRiskColor(
                     property.risks.flood
-                  )} mr-2`}
+                  )} mr-1`}
                 ></span>
                 <span className="text-gray-700">
                   Flood: {formatRiskLevel(property.risks.flood)}
@@ -146,9 +158,9 @@ export default function PropertyCard({
               </div>
               <div className="flex items-center">
                 <span
-                  className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
+                  className={`inline-block w-2 h-2 rounded-full ${getRiskColor(
                     property.risks.temperature
-                  )} mr-2`}
+                  )} mr-1`}
                 ></span>
                 <span className="text-gray-700">
                   Temp: {formatRiskLevel(property.risks.temperature)}
@@ -156,9 +168,9 @@ export default function PropertyCard({
               </div>
               <div className="flex items-center">
                 <span
-                  className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
+                  className={`inline-block w-2 h-2 rounded-full ${getRiskColor(
                     property.risks.air_quality
-                  )} mr-2`}
+                  )} mr-1`}
                 ></span>
                 <span className="text-gray-700">
                   Air: {formatRiskLevel(property.risks.air_quality)}
@@ -166,9 +178,9 @@ export default function PropertyCard({
               </div>
               <div className="flex items-center">
                 <span
-                  className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
+                  className={`inline-block w-2 h-2 rounded-full ${getRiskColor(
                     property.risks.landslide
-                  )} mr-2`}
+                  )} mr-1`}
                 ></span>
                 <span className="text-gray-700">
                   Landslide: {formatRiskLevel(property.risks.landslide)}
@@ -176,26 +188,26 @@ export default function PropertyCard({
               </div>
             </div>
 
-            <p className="mt-3 text-sm text-gray-600">{property.address}</p>
-            <p className="text-sm text-gray-600">
+            <p className="mt-2 text-xs text-gray-600 truncate">{property.address}</p>
+            <p className="text-xs text-gray-600">
               {property.district}, {property.city}
             </p>
           </div>
         )}
 
-        <div className="mt-4 flex justify-between">
+        <div className="mt-2 flex justify-between">
           <button
             onClick={() => setShowDetails(!showDetails)}
-            className="text-blue-700 text-sm hover:underline"
+            className="text-blue-700 text-xs hover:underline"
           >
             {showDetails ? "Hide Details" : "Show Details"}
           </button>
 
-          <div className="flex space-x-2">
+          <div className="flex space-x-1">
             {onCompare && (
               <button
                 onClick={() => onCompare(property)}
-                className={`px-3 py-1 text-sm rounded ${
+                className={`px-2 py-1 text-xs rounded ${
                   isComparing
                     ? "bg-gray-300 text-gray-700"
                     : "bg-blue-100 text-blue-700 hover:bg-blue-200"
@@ -206,14 +218,12 @@ export default function PropertyCard({
               </button>
             )}
 
-            {onViewDetails && (
-              <button
-                onClick={() => onViewDetails(property)}
-                className="px-3 py-1 text-sm bg-blue-700 text-white rounded hover:bg-blue-800"
-              >
-                Details
-              </button>
-            )}
+            <button
+              onClick={handleDetailsClick}
+              className="px-2 py-1 text-xs bg-blue-700 text-white rounded hover:bg-blue-800"
+            >
+              Details
+            </button>
           </div>
         </div>
       </div>

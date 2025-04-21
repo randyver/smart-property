@@ -11,7 +11,7 @@ property_bp = Blueprint('property', __name__)
 import pandas as pd
 import os
 
-@property_bp.route('/api/properties/bandung', methods=['GET'])
+@property_bp.route('/api/properties', methods=['GET'])
 def get_bandung_properties():
     """Get properties from Bandung CSV file"""
     try:

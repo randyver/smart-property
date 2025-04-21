@@ -38,17 +38,6 @@ interface MapComponentProps {
   mapRef?: React.MutableRefObject<any>;
 }
 
-// Helper function to load GeoJSON data
-const loadGeoJSON = async (url: string) => {
-  try {
-    const response = await fetch(url);
-    return await response.json();
-  } catch (error) {
-    console.error('Error loading GeoJSON:', error);
-    return null;
-  }
-};
-
 // The component is wrapped with React.memo to prevent unnecessary re-renders
 const MapComponent = memo(({
   properties = [],
@@ -62,7 +51,6 @@ const MapComponent = memo(({
   const mapInstance = useRef<maplibregl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const markersRef = useRef<{ [key: number]: maplibregl.Marker }>({});
-  const propertiesRef = useRef(properties);
   
   const mapidApiKey = process.env.NEXT_PUBLIC_MAPID_API_KEY || 'your_mapid_api_key';
 
@@ -103,12 +91,35 @@ const MapComponent = memo(({
     };
   }, [mapidApiKey, center, zoom, mapRef]);
 
-  // Update markers only when properties change (by reference)
-  useEffect(() => {
-    // Update the ref to latest properties
-    propertiesRef.current = properties;
+  // Custom click handler function
+  const handleMarkerClick = (propertyId: number) => {
+    // Find the property by ID
+    const property = properties.find(p => p.id === propertyId);
+    if (!property || !mapInstance.current) return;
     
+    console.log(`Marker clicked: Property ID ${propertyId}`);
+    
+    // Fly to property location
+    mapInstance.current.flyTo({
+      center: [property.location.longitude, property.location.latitude],
+      zoom: 16,
+      duration: 1000
+    });
+    
+    // Call the parent's onClick handler after a small delay
+    setTimeout(() => {
+      if (onMarkerClick) {
+        console.log(`Triggering onMarkerClick for property ID ${propertyId}`);
+        onMarkerClick(propertyId);
+      }
+    }, 300);
+  };
+
+  // Update markers only when properties change
+  useEffect(() => {
     if (!mapLoaded || !mapInstance.current) return;
+    
+    console.log(`Updating markers for ${properties.length} properties`);
     
     const addMarkers = () => {
       if (!mapInstance.current) return;
@@ -116,21 +127,20 @@ const MapComponent = memo(({
       // We'll store a set of property IDs to track removed properties
       const currentPropertyIds = new Set(properties.map(p => p.id));
       
-      // First pass: Update existing markers or add new ones
+      // First remove all existing markers
+      Object.keys(markersRef.current).forEach(id => {
+        markersRef.current[parseInt(id)].remove();
+      });
+      markersRef.current = {};
+      
+      // Add all markers fresh
       properties.forEach(property => {
         if (!mapInstance.current) return;
         
-        const existingMarker = markersRef.current[property.id];
-        
-        // If marker already exists, just update its position
-        if (existingMarker) {
-          existingMarker.setLngLat([property.location.longitude, property.location.latitude]);
-          return;
-        }
-        
-        // Create marker element for new property
+        // Create marker element
         const el = document.createElement('div');
         el.className = 'property-marker';
+        el.setAttribute('data-property-id', property.id.toString());
         
         // Get color based on climate risk score
         const getScoreColor = (score: number): string => {
@@ -149,26 +159,22 @@ const MapComponent = memo(({
         `;
         
         // Add marker to map
-        const marker = new maplibregl.Marker(el)
+        const marker = new maplibregl.Marker({
+          element: el,
+          anchor: 'bottom'
+        })
           .setLngLat([property.location.longitude, property.location.latitude])
           .addTo(mapInstance.current);
         
         // Add click handler
-        el.addEventListener('click', () => {
-          if (onMarkerClick) onMarkerClick(property.id);
-        });
+        el.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleMarkerClick(property.id);
+        };
         
         // Store marker reference
         markersRef.current[property.id] = marker;
-      });
-      
-      // Second pass: Remove markers for properties that no longer exist
-      Object.keys(markersRef.current).forEach(id => {
-        const numId = parseInt(id);
-        if (!currentPropertyIds.has(numId)) {
-          markersRef.current[numId].remove();
-          delete markersRef.current[numId];
-        }
       });
     };
     
@@ -351,10 +357,16 @@ const MapComponent = memo(({
           display: flex;
           justify-content: center;
           align-items: center;
+          z-index: 10;
         }
         
         .maplibregl-popup {
-          z-index: 1;
+          z-index: 20;
+        }
+        
+        .property-marker:hover {
+          transform: scale(1.1);
+          transition: transform 0.2s ease;
         }
       `}</style>
     </div>

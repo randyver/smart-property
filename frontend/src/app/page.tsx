@@ -68,6 +68,8 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [displayedProperties, setDisplayedProperties] = useState<Property[]>([]);
 
+  console.log('Home component rendered');
+
   // Format price to IDR
   const formatPrice = (price: number | null | undefined): string => {
     if (price == null) {
@@ -110,10 +112,13 @@ export default function Home() {
     const fetchInitialData = async () => {
       try {
         setLoading(true);
+        console.log('Fetching initial data...');
         
         // Fetch properties
         const propertiesResponse = await propertyAPI.getProperties();
         const propertiesData = propertiesResponse.data || [];
+        console.log(`Fetched ${propertiesData.length} properties`);
+        
         setAllProperties(propertiesData);
         setListDisplayProperties(propertiesData);
         setMapDisplayProperties(propertiesData);
@@ -123,8 +128,8 @@ export default function Home() {
         setAvailableLayers(layersResponse.data || []);
         
       } catch (err) {
+        console.error('Error fetching initial data:', err);
         setError('Failed to load initial data. Please refresh the page.');
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -205,6 +210,7 @@ export default function Home() {
   // When Search button is clicked - update map properties
   const handleSearch = useCallback(() => {
     setLoading(true);
+    console.log('Search button clicked');
     
     // Apply all filters and update map
     const filteredResults = applyFiltersToList(true);
@@ -215,6 +221,7 @@ export default function Home() {
   
   // Handle reset filters
   const handleResetFilters = useCallback(() => {
+    console.log('Reset filters');
     setPriceRange([undefined, undefined]);
     setBedrooms(undefined);
     setMinScore(undefined);
@@ -246,9 +253,14 @@ export default function Home() {
   
   // Handle marker click on map
   const handleMarkerClick = useCallback((propertyId: number) => {
+    console.log(`Marker clicked for property ID: ${propertyId}`);
+    
     const property = allProperties.find(p => p.id === propertyId);
     if (property) {
+      console.log(`Found property: ${property.title}`);
       setSelectedProperty(property);
+    } else {
+      console.error(`Property with ID ${propertyId} not found!`);
     }
   }, [allProperties]);
   
@@ -267,15 +279,19 @@ export default function Home() {
   
   // Handle view property details
   const handleViewDetails = useCallback((property: Property) => {
+    console.log(`View details for property: ${property.title}`);
     setSelectedProperty(property);
     
     // Fly to the property location on the map
     if (mapRef.current && property.location) {
+      console.log(`Flying to [${property.location.longitude}, ${property.location.latitude}]`);
       mapRef.current.flyTo({
         center: [property.location.longitude, property.location.latitude],
-        zoom: 15,
+        zoom: 16,
         duration: 1500
       });
+    } else {
+      console.error('Map reference not available or property location missing');
     }
   }, []);
   
@@ -525,7 +541,7 @@ export default function Home() {
           
           {/* Selected property popup */}
           {selectedProperty && (
-            <div className="absolute bottom-4 left-4 right-4 max-w-md mx-auto bg-white rounded-md shadow-lg p-4 z-10">
+            <div className="absolute bottom-4 left-4 right-4 max-w-md mx-auto bg-white rounded-md shadow-lg p-4 z-20">
               <button 
                 onClick={() => setSelectedProperty(null)}
                 className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-xl"
@@ -604,7 +620,7 @@ export default function Home() {
           
           {/* Comparison bar */}
           {compareProperties.length > 0 && (
-            <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md p-4 z-20">
+            <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md p-4 z-30">
               <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-bold">Comparing {compareProperties.length} properties</h3>

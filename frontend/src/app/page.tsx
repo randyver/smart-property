@@ -1,4 +1,4 @@
-// Modified page.tsx with climate layer controls
+// Modified page.tsx with improved map layer controls
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
@@ -245,17 +245,46 @@ export default function Home() {
     }, 300);
   }, [listDisplayProperties, page]);
 
-  // Handle layer change - updated to toggle layers
+  // Metode yang diperbarui - menangani perubahan layer
   const handleLayerChange = useCallback(
     (layerId: ClimateLayerType) => {
+      // Jika layer yang sama diklik, matikan layer
       setActiveLayer(activeLayer === layerId ? undefined : layerId);
     },
     [activeLayer]
   );
 
-  // Handle marker click on map
+  // Handle marker click on map atau layer selection
   const handleMarkerClick = useCallback(
     (propertyId: number) => {
+      // Kasus khusus untuk pengelolaan layer
+      if (propertyId === 0) {
+        // Clear all layers
+        setActiveLayer(undefined);
+        return;
+      }
+      else if (propertyId === 1) {
+        // LST layer
+        setActiveLayer('lst');
+        return;
+      }
+      else if (propertyId === 2) {
+        // NDVI layer
+        setActiveLayer('ndvi');
+        return;
+      }
+      else if (propertyId === 3) {
+        // UHI layer
+        setActiveLayer('uhi');
+        return;
+      }
+      else if (propertyId === 4) {
+        // UTFVI layer
+        setActiveLayer('utfvi');
+        return;
+      }
+      
+      // Jika bukan kasus khusus, ini adalah click pada marker properti
       console.log(`Marker clicked for property ID: ${propertyId}`);
 
       const property = allProperties.find((p) => p.id === propertyId);
@@ -266,7 +295,7 @@ export default function Home() {
         console.error(`Property with ID ${propertyId} not found!`);
       }
     },
-    [allProperties]
+    [allProperties, setActiveLayer]
   );
 
   // Handle property selection for comparison
@@ -546,45 +575,7 @@ export default function Home() {
             mapRef={mapRef}
           />
 
-          {/* Improved layer control with more options */}
-          <div className="absolute top-4 right-4 bg-white rounded-md shadow-md p-3 z-10">
-            <h3 className="text-sm font-bold mb-2 px-2 text-gray-800">
-              Climate Map Layers
-            </h3>
-            <div className="space-y-1">
-              {layerOptions.map(layer => (
-                <button
-                  key={layer.id}
-                  onClick={() => handleLayerChange(layer.id as ClimateLayerType)}
-                  className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
-                    activeLayer === layer.id
-                      ? "bg-blue-600 text-white"
-                      : "hover:bg-gray-100 text-gray-700"
-                  }`}
-                >
-                  <div className={`w-3 h-3 rounded-full mr-2 ${
-                    activeLayer === layer.id ? "bg-white" : "bg-blue-600"
-                  }`}></div>
-                  {layer.name}
-                </button>
-              ))}
-              
-              {activeLayer && (
-                <button
-                  onClick={() => setActiveLayer(undefined)}
-                  className="w-full text-center px-3 py-1 mt-2 text-xs text-gray-600 hover:text-gray-800"
-                >
-                  Clear All Layers
-                </button>
-              )}
-            </div>
-            
-            <div className="mt-4 pt-3 border-t border-gray-200">
-              <p className="text-xs text-gray-500 px-2">
-                These layers show climate data for the Bandung area, including temperature, vegetation, and urban heat factors.
-              </p>
-            </div>
-          </div>
+          {/* MapComponent saja, layer controls sudah terintegrasi dalam komponen */}
 
           {/* Selected property popup */}
           {selectedProperty && (

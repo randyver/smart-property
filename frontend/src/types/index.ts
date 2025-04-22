@@ -30,3 +30,6 @@ export interface Property {
       landslide: string;
     };
   }
+  
+  // Climate layer types for map display
+  export type ClimateLayerType = 'lst' | 'ndvi' | 'uhi' | 'utfvi' | undefined;

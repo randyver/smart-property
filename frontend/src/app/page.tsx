@@ -1,8 +1,9 @@
+// Modified page.tsx with climate layer controls
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import MapComponent from "@/components/MapComponent";
+import MapComponent, { ClimateLayerType } from "@/components/MapComponent";
 import PropertyCard from "@/components/PropertyCard";
 import RiskIndicator from "@/components/RiskIndicator";
 import { propertyAPI, climateAPI } from "@/services/api";
@@ -33,8 +34,10 @@ export default function Home() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeLayer, setActiveLayer] = useState<string | undefined>(undefined);
-  const [availableLayers, setAvailableLayers] = useState<any[]>([]);
+  
+  // Changed to ClimateLayerType to have better type safety
+  const [activeLayer, setActiveLayer] = useState<ClimateLayerType>(undefined);
+  
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
     null
   );
@@ -55,6 +58,14 @@ export default function Home() {
   const [displayedProperties, setDisplayedProperties] = useState<Property[]>(
     []
   );
+
+  // Layer configuration
+  const layerOptions = useMemo(() => [
+    { id: "lst", name: "Land Surface Temperature" },
+    { id: "ndvi", name: "Vegetation Index" },
+    { id: "uhi", name: "Urban Heat Island" },
+    { id: "utfvi", name: "Urban Thermal Field" }
+  ], []);
 
   console.log("Home component rendered");
 
@@ -110,10 +121,6 @@ export default function Home() {
         setAllProperties(propertiesData);
         setListDisplayProperties(propertiesData);
         setMapDisplayProperties(propertiesData);
-
-        // Fetch available map layers
-        const layersResponse = await climateAPI.getRiskLayers();
-        setAvailableLayers(layersResponse.data || []);
       } catch (err) {
         console.error("Error fetching initial data:", err);
         setError("Failed to load initial data. Please refresh the page.");
@@ -238,9 +245,9 @@ export default function Home() {
     }, 300);
   }, [listDisplayProperties, page]);
 
-  // Handle layer change
+  // Handle layer change - updated to toggle layers
   const handleLayerChange = useCallback(
-    (layerId: string) => {
+    (layerId: ClimateLayerType) => {
       setActiveLayer(activeLayer === layerId ? undefined : layerId);
     },
     [activeLayer]
@@ -531,7 +538,7 @@ export default function Home() {
 
         {/* Right content - Map */}
         <div className="w-3/4 relative overflow-hidden">
-          {/* Using our optimized MapComponent */}
+          {/* Using our updated MapComponent */}
           <MapComponent
             properties={mapDisplayProperties}
             activeLayer={activeLayer}
@@ -539,55 +546,45 @@ export default function Home() {
             mapRef={mapRef}
           />
 
-          {/* Fixed position layer control */}
-          <div className="absolute top-4 right-4 bg-white rounded-md shadow-md p-2 z-10">
+          {/* Improved layer control with more options */}
+          <div className="absolute top-4 right-4 bg-white rounded-md shadow-md p-3 z-10">
             <h3 className="text-sm font-bold mb-2 px-2 text-gray-800">
-              Map Layers
+              Climate Map Layers
             </h3>
             <div className="space-y-1">
-              <button
-                onClick={() => handleLayerChange("flood_risk")}
-                className={`w-full text-left px-2 py-1 text-sm rounded-md ${
-                  activeLayer === "flood_risk"
-                    ? "bg-blue-600 text-white"
-                    : "hover:bg-gray-100 text-gray-700"
-                }`}
-              >
-                Flood Risk
-              </button>
+              {layerOptions.map(layer => (
+                <button
+                  key={layer.id}
+                  onClick={() => handleLayerChange(layer.id as ClimateLayerType)}
+                  className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
+                    activeLayer === layer.id
+                      ? "bg-blue-600 text-white"
+                      : "hover:bg-gray-100 text-gray-700"
+                  }`}
+                >
+                  <div className={`w-3 h-3 rounded-full mr-2 ${
+                    activeLayer === layer.id ? "bg-white" : "bg-blue-600"
+                  }`}></div>
+                  {layer.name}
+                </button>
+              ))}
+              
+              {activeLayer && (
+                <button
+                  onClick={() => setActiveLayer(undefined)}
+                  className="w-full text-center px-3 py-1 mt-2 text-xs text-gray-600 hover:text-gray-800"
+                >
+                  Clear All Layers
+                </button>
+              )}
+            </div>
+            
+            <div className="mt-4 pt-3 border-t border-gray-200">
+              <p className="text-xs text-gray-500 px-2">
+                These layers show climate data for the Bandung area, including temperature, vegetation, and urban heat factors.
+              </p>
             </div>
           </div>
-
-          {/* Fixed position legend at bottom-right */}
-          {activeLayer === "flood_risk" && (
-            <div className="absolute bottom-4 right-4 bg-white p-3 rounded-md shadow-md z-10 max-w-xs">
-              <h4 className="text-sm font-bold mb-2 text-gray-800">
-                Flood Risk
-              </h4>
-              <div className="space-y-1">
-                <div className="flex items-center">
-                  <div className="w-4 h-4 bg-[#a6cee3] mr-2"></div>
-                  <span className="text-xs text-gray-700">Very Low Risk</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-4 h-4 bg-[#1f78b4] mr-2"></div>
-                  <span className="text-xs text-gray-700">Low Risk</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-4 h-4 bg-[#b2df8a] mr-2"></div>
-                  <span className="text-xs text-gray-700">Medium Risk</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-4 h-4 bg-[#33a02c] mr-2"></div>
-                  <span className="text-xs text-gray-700">High Risk</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-4 h-4 bg-[#fb9a99] mr-2"></div>
-                  <span className="text-xs text-gray-700">Very High Risk</span>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Selected property popup */}
           {selectedProperty && (

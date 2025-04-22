@@ -20,8 +20,15 @@ async function fetchFromAPI<T>(
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    return data;
+    const text = await response.text();
+    try {
+      const data = JSON.parse(text);
+      return data;
+    } catch (error) {
+      console.error('Error parsing JSON:', error);
+      console.error('Raw response:', text);
+      throw new Error('Failed to parse API response');
+    }
   } catch (error) {
     console.error('API request failed:', error);
     throw error;
@@ -96,30 +103,34 @@ export const climateAPI = {
   }
 };
 
-// Analytics API
+// Analytics API - Updated with real data endpoints
 export const analyticsAPI = {
-  // Get price trends
-  getPriceTrends: async (region?: string) => {
-    const query = region ? `?region=${region}` : '';
-    return fetchFromAPI<any>(`/api/analytics/price-trends${query}`);
+  // Get price by district
+  getPriceByDistrict: async () => {
+    return fetchFromAPI<any>('/api/analytics/price-by-district');
   },
   
-  // Get climate risk analysis
-  getClimateRisks: async () => {
-    return fetchFromAPI<any>('/api/analytics/climate-risks');
+  // Get climate scores by district
+  getClimateByDistrict: async () => {
+    return fetchFromAPI<any>('/api/analytics/climate-by-district');
   },
   
-  // Get property distribution statistics
+  // Get price distribution and property types
   getPropertyDistribution: async () => {
-    return fetchFromAPI<any>('/api/analytics/property-distribution');
+    return fetchFromAPI<any>('/api/analytics/price-distribution');
   },
   
-  // Get climate impact analysis
+  // Get bedroom distribution
+  getBedroomDistribution: async () => {
+    return fetchFromAPI<any>('/api/analytics/bedroom-distribution');
+  },
+  
+  // Get climate impact on property prices
   getClimateImpact: async () => {
     return fetchFromAPI<any>('/api/analytics/climate-impact');
   },
   
-  // Get dashboard summary
+  // Get dashboard summary statistics
   getDashboardSummary: async () => {
     return fetchFromAPI<any>('/api/analytics/dashboard-summary');
   }

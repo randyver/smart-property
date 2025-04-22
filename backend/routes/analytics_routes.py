@@ -1,185 +1,299 @@
 from flask import Blueprint, jsonify, request
 import json
-import random
-from datetime import datetime, timedelta
+import os
+import pandas as pd
+from datetime import datetime
+import numpy as np
 
 analytics_bp = Blueprint('analytics', __name__)
 
-# Mock data for demonstration purposes
-def generate_price_trend_data():
-    """Generate mock price trend data for the last 12 months"""
-    end_date = datetime.now()
-    start_date = end_date - timedelta(days=365)
+# Helper function to read property data from CSV
+def get_property_data():
+    try:
+        csv_path = os.path.join(os.path.dirname(__file__), '../data/properti_bandung_rumah.csv')
+        df = pd.read_csv(csv_path)
+        return df
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return pd.DataFrame()  # Return empty dataframe if file not found
+
+# Process data for the analytics dashboard
+def process_property_data(df):
+    # Convert price to numeric, handling errors
+    df['HARGA PROPERTI NET (RP)'] = pd.to_numeric(df['HARGA PROPERTI NET (RP)'], errors='coerce')
+    df['LUAS TANAH (M²)'] = pd.to_numeric(df['LUAS TANAH (M²)'], errors='coerce')
+    df['LUAS BANGUNAN (M²)'] = pd.to_numeric(df['LUAS BANGUNAN (M²)'], errors='coerce')
+    df['JUMLAH KAMAR TIDUR'] = pd.to_numeric(df['JUMLAH KAMAR TIDUR'], errors='coerce')
     
-    # Generate monthly data points
-    months = []
-    current_date = start_date
-    while current_date <= end_date:
-        months.append(current_date.strftime("%Y-%m"))
-        # Move to next month
-        if current_date.month == 12:
-            current_date = current_date.replace(year=current_date.year+1, month=1)
-        else:
-            current_date = current_date.replace(month=current_date.month+1)
+    # Filter out properties with missing prices
+    df = df.dropna(subset=['HARGA PROPERTI NET (RP)'])
     
-    # Generate price trends for different regions
-    regions = {
-        "Central Jakarta": {
-            "base_price": 25000000,  # IDR per square meter
-            "trend": [random.uniform(0.98, 1.03) for _ in range(len(months))]
-        },
-        "North Jakarta": {
-            "base_price": 18000000,
-            "trend": [random.uniform(0.97, 1.04) for _ in range(len(months))]
-        },
-        "West Jakarta": {
-            "base_price": 20000000,
-            "trend": [random.uniform(0.99, 1.02) for _ in range(len(months))]
-        },
-        "South Jakarta": {
-            "base_price": 30000000,
-            "trend": [random.uniform(0.98, 1.05) for _ in range(len(months))]
-        },
-        "East Jakarta": {
-            "base_price": 15000000,
-            "trend": [random.uniform(0.96, 1.03) for _ in range(len(months))]
-        }
-    }
+    # Add climate scores for analysis if they don't exist
+    if 'score_LST' not in df.columns:
+        # These are placeholder scores - your data may already have these
+        for col in ['score_LST', 'score_NDVI', 'score_UTFVI', 'score_UHI', 'Overall_Score']:
+            if col not in df.columns:
+                # Create scores based on location hash value for consistency
+                df[col] = df.apply(
+                    lambda row: ((hash(str(row.get('LATITUDE', 0)) + str(row.get('LONGITUDE', 0))) % 50) + 50) 
+                    if not pd.isna(row.get('LATITUDE')) and not pd.isna(row.get('LONGITUDE')) 
+                    else np.nan, 
+                    axis=1
+                )
     
-    # Calculate price trends
+    return df
+
+@analytics_bp.route('/api/analytics/price-by-district', methods=['GET'])
+def get_price_by_district():
+    """Get average property prices by district"""
+    df = get_property_data()
+    
+    if df.empty:
+        return jsonify({
+            "status": "error",
+            "message": "Failed to load property data"
+        }), 500
+    
+    df = process_property_data(df)
+    
+    # Group by district and calculate average price
+    price_by_district = df.groupby('KECAMATAN')['HARGA PROPERTI NET (RP)'].agg(['mean', 'count']).reset_index()
+    price_by_district.columns = ['district', 'average_price', 'property_count']
+    
+    # Convert to native Python types for JSON serialization
     result = []
-    for region, data in regions.items():
-        price = data["base_price"]
-        prices = []
-        
-        # Apply trend factors
-        for factor in data["trend"]:
-            price *= factor
-            prices.append(round(price))
-        
+    for _, row in price_by_district.iterrows():
         result.append({
-            "region": region,
-            "data": [{"month": month, "price": price} for month, price in zip(months, prices)]
+            'district': row['district'],
+            'average_price': float(row['average_price']),
+            'property_count': int(row['property_count'])
         })
     
-    return result
-
-def generate_climate_risk_data():
-    """Generate mock climate risk data for different regions"""
-    regions = ["Central Jakarta", "North Jakarta", "West Jakarta", "South Jakarta", "East Jakarta"]
-    risk_factors = ["flood_risk", "temperature", "air_quality", "landslide_risk", "green_space"]
+    # Sort by average price descending
+    result = sorted(result, key=lambda x: x['average_price'], reverse=True)
     
-    result = []
-    for region in regions:
-        region_data = {
-            "region": region,
-            "overall_score": random.randint(50, 95)
+    return jsonify({
+        "status": "success",
+        "data": result
+    })
+
+@analytics_bp.route('/api/analytics/climate-by-district', methods=['GET'])
+def get_climate_by_district():
+    """Get average climate scores by district"""
+    df = get_property_data()
+    
+    if df.empty:
+        return jsonify({
+            "status": "error",
+            "message": "Failed to load property data"
+        }), 500
+    
+    df = process_property_data(df)
+    
+    # Group by district and calculate average climate scores
+    climate_cols = ['score_LST', 'score_NDVI', 'score_UTFVI', 'score_UHI', 'Overall_Score']
+    
+    # Create a list to store district data
+    district_climate_data = []
+    
+    # Calculate average scores for each district
+    districts = df['KECAMATAN'].unique()
+    for district in districts:
+        district_df = df[df['KECAMATAN'] == district]
+        
+        # Convert to native Python types for JSON serialization
+        district_data = {
+            'district': district,
+            'property_count': int(len(district_df)),
+            'lst_score': float(district_df['score_LST'].mean()),
+            'ndvi_score': float(district_df['score_NDVI'].mean()),
+            'utfvi_score': float(district_df['score_UTFVI'].mean()),
+            'uhi_score': float(district_df['score_UHI'].mean()),
+            'overall_score': float(district_df['Overall_Score'].mean())
         }
         
-        # Generate random scores for each risk factor
-        for factor in risk_factors:
-            region_data[factor] = random.randint(30, 100)
-        
-        result.append(region_data)
+        district_climate_data.append(district_data)
     
-    return result
-
-@analytics_bp.route('/api/analytics/price-trends', methods=['GET'])
-def get_price_trends():
-    """Get property price trends over time"""
-    region = request.args.get('region', default=None)
-    
-    trend_data = generate_price_trend_data()
-    
-    # Filter by region if specified
-    if region:
-        trend_data = [item for item in trend_data if item["region"] == region]
+    # Sort by overall score
+    district_climate_data = sorted(
+        district_climate_data, 
+        key=lambda x: x['overall_score'] if not pd.isna(x['overall_score']) else 0, 
+        reverse=True
+    )
     
     return jsonify({
         "status": "success",
-        "data": trend_data
+        "data": district_climate_data
     })
 
-@analytics_bp.route('/api/analytics/climate-risks', methods=['GET'])
-def get_climate_risks():
-    """Get climate risk analysis by region"""
-    risk_data = generate_climate_risk_data()
+@analytics_bp.route('/api/analytics/price-distribution', methods=['GET'])
+def get_price_distribution():
+    """Get property price distribution statistics"""
+    df = get_property_data()
     
-    return jsonify({
-        "status": "success",
-        "data": risk_data
-    })
-
-@analytics_bp.route('/api/analytics/property-distribution', methods=['GET'])
-def get_property_distribution():
-    """Get property distribution statistics"""
-    # Generate mock distribution data
-    price_ranges = [
-        {"range": "< 1B", "count": random.randint(50, 200)},
-        {"range": "1B - 2B", "count": random.randint(100, 300)},
-        {"range": "2B - 5B", "count": random.randint(80, 250)},
-        {"range": "5B - 10B", "count": random.randint(30, 120)},
-        {"range": "> 10B", "count": random.randint(10, 50)}
+    if df.empty:
+        return jsonify({
+            "status": "error",
+            "message": "Failed to load property data"
+        }), 500
+    
+    df = process_property_data(df)
+    
+    # Define price ranges in billions (IDR)
+    ranges = [
+        {"range": "< 1B", "min": 0, "max": 1000000000},
+        {"range": "1B - 2B", "min": 1000000000, "max": 2000000000},
+        {"range": "2B - 5B", "min": 2000000000, "max": 5000000000},
+        {"range": "5B - 10B", "min": 5000000000, "max": 10000000000},
+        {"range": "> 10B", "min": 10000000000, "max": 9999999999999}  # Use a very large number instead of infinity
     ]
     
-    property_types = [
-        {"type": "House", "count": random.randint(200, 500)},
-        {"type": "Apartment", "count": random.randint(150, 400)},
-        {"type": "Villa", "count": random.randint(50, 150)},
-        {"type": "Townhouse", "count": random.randint(80, 200)},
-        {"type": "Land", "count": random.randint(30, 100)}
-    ]
+    # Count properties in each range
+    for r in ranges:
+        count = len(df[(df['HARGA PROPERTI NET (RP)'] >= r['min']) & (df['HARGA PROPERTI NET (RP)'] < r['max'])])
+        r['count'] = int(count)
+    
+    # Get property type distribution
+    property_types = df['TIPE'].value_counts().reset_index()
+    property_types.columns = ['type', 'count']
+    
+    # Convert to native Python types for JSON serialization
+    property_type_distribution = []
+    for _, row in property_types.iterrows():
+        property_type_distribution.append({
+            'type': row['type'],
+            'count': int(row['count'])
+        })
     
     return jsonify({
         "status": "success",
         "data": {
-            "price_distribution": price_ranges,
-            "property_type_distribution": property_types
+            "price_distribution": ranges,
+            "property_type_distribution": property_type_distribution
         }
+    })
+
+@analytics_bp.route('/api/analytics/bedroom-distribution', methods=['GET'])
+def get_bedroom_distribution():
+    """Get bedroom count distribution"""
+    df = get_property_data()
+    
+    if df.empty:
+        return jsonify({
+            "status": "error",
+            "message": "Failed to load property data"
+        }), 500
+    
+    df = process_property_data(df)
+    
+    # Count properties by number of bedrooms
+    bedrooms = df['JUMLAH KAMAR TIDUR'].value_counts().reset_index()
+    bedrooms.columns = ['bedrooms', 'count']
+    
+    # Convert to native Python types for JSON serialization
+    bedroom_distribution = []
+    for _, row in bedrooms.iterrows():
+        bedroom_distribution.append({
+            'bedrooms': str(int(row['bedrooms']) if not pd.isna(row['bedrooms']) else 'Unknown'),
+            'count': int(row['count'])
+        })
+    
+    return jsonify({
+        "status": "success",
+        "data": bedroom_distribution
     })
 
 @analytics_bp.route('/api/analytics/climate-impact', methods=['GET'])
 def get_climate_impact():
     """Get analysis of climate impact on property prices"""
-    impact_factors = [
-        {
-            "factor": "Flood Risk",
-            "impact_percentage": random.uniform(-30, -15),
-            "affected_regions": ["North Jakarta", "East Jakarta"],
-            "description": "Properties in flood-prone areas show significant price depreciation"
-        },
-        {
-            "factor": "Air Quality",
-            "impact_percentage": random.uniform(-20, -5),
-            "affected_regions": ["Central Jakarta", "West Jakarta"],
-            "description": "Poor air quality correlates with moderate price reductions"
-        },
-        {
-            "factor": "Green Space Proximity",
-            "impact_percentage": random.uniform(10, 25),
-            "affected_regions": ["South Jakarta"],
-            "description": "Properties near parks and green spaces command premium prices"
-        },
-        {
-            "factor": "Urban Heat Island",
-            "impact_percentage": random.uniform(-15, -5),
-            "affected_regions": ["Central Jakarta", "East Jakarta"],
-            "description": "Areas with higher surface temperatures show lower property values"
-        }
+    df = get_property_data()
+    
+    if df.empty:
+        return jsonify({
+            "status": "error",
+            "message": "Failed to load property data"
+        }), 500
+    
+    df = process_property_data(df)
+    
+    # Calculate average price for properties with different climate scores
+    climate_factors = [
+        {'factor': 'LST Score', 'score_column': 'score_LST'},
+        {'factor': 'NDVI Score', 'score_column': 'score_NDVI'},
+        {'factor': 'UTFVI Score', 'score_column': 'score_UTFVI'},
+        {'factor': 'UHI Score', 'score_column': 'score_UHI'},
+        {'factor': 'Overall Climate Score', 'score_column': 'Overall_Score'},
     ]
+    
+    # Define score ranges
+    score_ranges = [
+        {'range': 'Low (0-40)', 'min': 0, 'max': 40},
+        {'range': 'Medium (41-70)', 'min': 41, 'max': 70},
+        {'range': 'High (71-100)', 'min': 71, 'max': 100}
+    ]
+    
+    # Calculate average price for each climate factor and score range
+    impact_data = []
+    
+    for factor in climate_factors:
+        factor_name = factor['factor']
+        score_column = factor['score_column']
+        
+        # Calculate overall average price for normalization
+        overall_avg_price = df['HARGA PROPERTI NET (RP)'].mean()
+        
+        range_data = []
+        for score_range in score_ranges:
+            range_df = df[(df[score_column] >= score_range['min']) & (df[score_column] <= score_range['max'])]
+            if len(range_df) > 0:
+                avg_price = range_df['HARGA PROPERTI NET (RP)'].mean()
+                price_difference = ((avg_price - overall_avg_price) / overall_avg_price) * 100
+                
+                range_data.append({
+                    'score_range': score_range['range'],
+                    'avg_price': float(avg_price),
+                    'property_count': int(len(range_df)),
+                    'price_impact_percentage': float(price_difference)
+                })
+        
+        impact_data.append({
+            'factor': factor_name,
+            'data': range_data
+        })
     
     return jsonify({
         "status": "success",
-        "data": impact_factors
+        "data": impact_data
     })
 
 @analytics_bp.route('/api/analytics/dashboard-summary', methods=['GET'])
 def get_dashboard_summary():
     """Get summary statistics for the analytics dashboard"""
-    total_properties = random.randint(800, 1500)
-    average_price = random.randint(2000000000, 3500000000)  # In IDR
-    climate_safe_percentage = random.randint(40, 70)
-    price_trend = random.uniform(-5, 15)  # Annual percentage change
+    df = get_property_data()
+    
+    if df.empty:
+        return jsonify({
+            "status": "error",
+            "message": "Failed to load property data"
+        }), 500
+    
+    df = process_property_data(df)
+    
+    # Calculate summary statistics
+    total_properties = len(df)
+    average_price = float(df['HARGA PROPERTI NET (RP)'].mean())
+    
+    # Calculate percentage of climate-safe properties (Overall_Score >= 70)
+    climate_safe_count = len(df[df['Overall_Score'] >= 70])
+    climate_safe_percentage = float((climate_safe_count / total_properties) * 100 if total_properties > 0 else 0)
+    
+    # Get average climate scores
+    avg_lst = float(df['score_LST'].mean())
+    avg_ndvi = float(df['score_NDVI'].mean())
+    avg_utfvi = float(df['score_UTFVI'].mean())
+    avg_uhi = float(df['score_UHI'].mean())
+    avg_overall = float(df['Overall_Score'].mean())
     
     return jsonify({
         "status": "success",
@@ -187,7 +301,13 @@ def get_dashboard_summary():
             "total_properties": total_properties,
             "average_price": average_price,
             "climate_safe_percentage": climate_safe_percentage,
-            "price_trend": price_trend,
+            "avg_climate_scores": {
+                "lst": avg_lst,
+                "ndvi": avg_ndvi,
+                "utfvi": avg_utfvi,
+                "uhi": avg_uhi,
+                "overall": avg_overall
+            },
             "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
     })

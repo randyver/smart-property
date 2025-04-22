@@ -74,6 +74,10 @@ export const propertyAPI = {
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
     return fetchFromAPI<any>(`/api/properties/recommend${query}`);
   },
+
+  getPropertyById: async (id: number) => {
+    return fetchFromAPI<any>(`/api/properties/${id}`);
+  },
   
   // Predict property price
   predictPrice: async (propertyData: Record<string, any>) => {

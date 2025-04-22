@@ -2,30 +2,7 @@
 
 import { useState } from "react";
 import RiskIndicator from "@/components/RiskIndicator";
-
-interface Property {
-  id: number;
-  title: string;
-  location: {
-    latitude: number;
-    longitude: number;
-  };
-  price: number;
-  bedrooms: number;
-  bathrooms: number;
-  land_area: number;
-  building_area: number;
-  climate_risk_score: number;
-  address: string;
-  district: string;
-  city: string;
-  risks: {
-    flood: string;
-    temperature: string;
-    air_quality: string;
-    landslide: string;
-  };
-}
+import { Property } from '@/types';
 
 interface PropertyCardProps {
   property: Property;
@@ -60,10 +37,13 @@ export default function PropertyCard({
   };
 
   // Get color based on risk score
-  const getScoreColor = (score: number): string => {
-    if (score >= 80) return "bg-green-600"; // Darker green for better contrast
-    if (score >= 60) return "bg-yellow-600"; // Darker yellow
-    return "bg-red-600"; // Darker red
+  const getScoreColor = (score: number | null | undefined): string => {
+    if (score == null) return "bg-gray-500";
+    if (score >= 85) return "bg-green-600"; // Darker green for better contrast
+    if (score >= 75) return "bg-green-500"; // Medium green
+    if (score >= 65) return "bg-yellow-500"; // Yellow
+    if (score >= 55) return "bg-orange-500"; // Orange
+    return "bg-red-600"; // Red for poor scores
   };
 
   // Get color based on risk level
@@ -71,14 +51,14 @@ export default function PropertyCard({
     const colors: { [key: string]: string } = {
       very_low: "bg-green-600",
       low: "bg-green-500",
-      medium: "bg-yellow-600",
-      high: "bg-red-600",
-      very_high: "bg-red-800",
+      medium: "bg-yellow-500",
+      high: "bg-orange-500",
+      very_high: "bg-red-600",
       excellent: "bg-green-600",
       good: "bg-green-500",
-      moderate: "bg-yellow-600",
-      poor: "bg-red-600",
-      very_poor: "bg-red-800",
+      moderate: "bg-yellow-500",
+      poor: "bg-orange-500",
+      very_poor: "bg-red-600",
     };
     return colors[level] || "bg-gray-500";
   };
@@ -100,11 +80,30 @@ export default function PropertyCard({
     return levels[level] || level;
   };
 
+  // Get score label based on numeric value
+  const getScoreLabel = (score: number | null | undefined): string => {
+    if (score == null) return "Tidak Ada Data";
+    if (score >= 80) return "Sangat Baik";
+    if (score >= 60) return "Baik";
+    if (score >= 40) return "Sedang";
+    if (score >= 20) return "Buruk";
+    return "Sangat Buruk";
+  };
+
   // Handle details click
   const handleDetailsClick = () => {
     if (onViewDetails) {
       onViewDetails(property);
     }
+  };
+
+  // Climate scores explanation
+  const climateScoreExplanations = {
+    lst_score: "Land Surface Temperature - Suhu permukaan tanah di area properti",
+    ndvi_score: "Vegetation Index - Ketersediaan ruang hijau di sekitar properti",
+    utfvi_score: "Urban Thermal Field Variance Index - Variasi suhu perkotaan",
+    uhi_score: "Urban Heat Island - Efek pulau panas perkotaan",
+    overall_score: "Overall Climate Score - Skor keseluruhan keamanan iklim"
   };
 
   return (
@@ -115,7 +114,7 @@ export default function PropertyCard({
           property.climate_risk_score
         )} text-white font-bold p-2 rounded-full w-8 h-8 flex items-center justify-center z-10`}
       >
-        {property.climate_risk_score}
+        {property.climate_risk_score || "?"}
       </div>
 
       {/* Property Image */}
@@ -187,6 +186,45 @@ export default function PropertyCard({
                 </span>
               </div>
             </div>
+
+            {/* Detailed Climate Scores */}
+            {property.climate_scores && (
+              <div className="mt-3">
+                <h4 className="font-bold mb-1 text-xs text-gray-800">
+                  Detailed Climate Scores
+                </h4>
+                <div className="space-y-2 mt-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-700">LST Score:</span>
+                    <div className="flex items-center text-black">
+                      <span className={`inline-block w-2 h-2 rounded-full ${getScoreColor(property.climate_scores.lst_score)} mr-1`}></span>
+                      <span className="text-xs">{property.climate_scores.lst_score || '?'}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-700">NDVI Score:</span>
+                    <div className="flex items-center text-black">
+                      <span className={`inline-block w-2 h-2 rounded-full ${getScoreColor(property.climate_scores.ndvi_score)} mr-1`}></span>
+                      <span className="text-xs">{property.climate_scores.ndvi_score || '?'}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-700">UTFVI Score:</span>
+                    <div className="flex items-center text-black">
+                      <span className={`inline-block w-2 h-2 rounded-full ${getScoreColor(property.climate_scores.utfvi_score)} mr-1`}></span>
+                      <span className="text-xs">{property.climate_scores.utfvi_score || '?'}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-700">UHI Score:</span>
+                    <div className="flex items-center text-black">
+                      <span className={`inline-block w-2 h-2 rounded-full ${getScoreColor(property.climate_scores.uhi_score)} mr-1`}></span>
+                      <span className="text-xs">{property.climate_scores.uhi_score || '?'}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <p className="mt-2 text-xs text-gray-600 truncate">{property.address}</p>
             <p className="text-xs text-gray-600">

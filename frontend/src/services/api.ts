@@ -67,20 +67,6 @@ export const propertyAPI = {
     const idString = ids.join(',');
     return fetchFromAPI<any>(`/api/properties/compare?ids=${idString}`);
   },
-  
-  // Get property recommendations
-  getRecommendations: async (params: Record<string, any> = {}) => {
-    const queryParams = new URLSearchParams();
-    
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        queryParams.append(key, String(value));
-      }
-    });
-    
-    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    return fetchFromAPI<any>(`/api/properties/recommend${query}`);
-  },
 
   getPropertyById: async (id: number) => {
     return fetchFromAPI<any>(`/api/properties/${id}`);

@@ -99,12 +99,6 @@ export default function ComparisonPage() {
             >
               Analytics
             </a>
-            <a
-              href="/recommendation"
-              className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
-            >
-              Recommendations
-            </a>
           </nav>
         </div>
       </header>
@@ -375,12 +369,6 @@ export default function ComparisonPage() {
                   className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-100"
                 >
                   Return to Map
-                </a>
-                <a
-                  href="/recommendation"
-                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                  More Recommendations
                 </a>
               </div>
             </div>

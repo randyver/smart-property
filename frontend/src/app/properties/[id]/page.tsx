@@ -180,7 +180,6 @@ export default function PropertyDetailsPage() {
           <nav className="flex space-x-4">
             <a href="/" className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900">Map</a>
             <a href="/analytics" className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900">Analytics</a>
-            <a href="/recommendation" className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900">Recommendations</a>
           </nav>
         </div>
       </header>

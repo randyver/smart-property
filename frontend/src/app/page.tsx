@@ -404,12 +404,6 @@ export default function Home() {
             >
               Analytics
             </a>
-            <a
-              href="/recommendation"
-              className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
-            >
-              Recommendations
-            </a>
           </nav>
         </div>
       </header>

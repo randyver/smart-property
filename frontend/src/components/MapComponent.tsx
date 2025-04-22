@@ -379,7 +379,7 @@ const MapComponent = memo(
             layout: { visibility: "none" }, // Hidden by default
             paint: {
               "line-color": "#000",
-              "line-width": 0.5,
+              "line-width": 0,
               "line-opacity": 0.3,
             },
           });

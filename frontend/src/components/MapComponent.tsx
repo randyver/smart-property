@@ -1,4 +1,4 @@
-// MapComponent.tsx dengan Layer Properti dan Gridcode yang Benar
+// MapComponent.tsx with fixed hook usage
 "use client";
 
 import { useEffect, useRef, useState, memo, useMemo } from "react";
@@ -40,7 +40,6 @@ const MapComponent = memo(
         lst: {
           name: "Land Surface Temperature",
           description: "Temperature measured from the land surface",
-          source: "/data/lst.geojson",
           colors: [
             "#91cf60", // gridcode 1 - Very Low (Better)
             "#d9ef8b", // gridcode 2 - Low
@@ -60,7 +59,6 @@ const MapComponent = memo(
         ndvi: {
           name: "Vegetation Index",
           description: "Normalized Difference Vegetation Index",
-          source: "/data/ndvi.geojson",
           colors: [
             "#1a9850", // gridcode 1 - High Vegetation (Better)
             "#66bd63", // gridcode 2
@@ -80,7 +78,6 @@ const MapComponent = memo(
         uhi: {
           name: "Urban Heat Island",
           description: "Urban Heat Island effect measurements",
-          source: "/data/uhi.geojson",
           colors: [
             "#91cf60", // gridcode 1 - Minimal (Better)
             "#a8db74", // gridcode 2
@@ -106,7 +103,6 @@ const MapComponent = memo(
         utfvi: {
           name: "Urban Thermal Field Variance Index",
           description: "Urban thermal variation measurements",
-          source: "/data/utfvi.geojson",
           colors: [
             "#91cf60", // gridcode 1 - Very Low (Better)
             "#d9ef8b", // gridcode 2 - Low
@@ -320,14 +316,21 @@ const MapComponent = memo(
         if (map.getSource(sourceId)) return;
 
         try {
-          // Fetch GeoJSON data
-          const response = await fetch(layerInfo.source);
+          // Fetch GeoJSON data from backend API instead of local file
+          const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+          const response = await fetch(`${API_BASE_URL}/api/data/geojson/${layerType}`);
+          
           if (!response.ok) {
             throw new Error(
               `Failed to load ${layerType} data: ${response.statusText}`
             );
           }
-          const geojsonData = await response.json();
+          
+          // Parse the response JSON
+          const responseData = await response.json();
+          
+          // Extract the GeoJSON data from the response
+          const geojsonData = responseData.data;
 
           // Add source
           map.addSource(sourceId, {

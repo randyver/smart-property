@@ -21,10 +21,9 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
+              <li><a href="/" className="text-gray-400 hover:text-smartproperty">Home</a></li>
               <li><a href="/dashboard" className="text-gray-400 hover:text-smartproperty">Dashboard</a></li>
-              <li><a href="/map" className="text-gray-400 hover:text-smartproperty">Interactive Maps</a></li>
               <li><a href="/analytics" className="text-gray-400 hover:text-smartproperty">Analytics</a></li>
-              <li><a href="/about" className="text-gray-400 hover:text-smartproperty">About Us</a></li>
             </ul>
           </div>
           

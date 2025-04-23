@@ -5,6 +5,7 @@ import AnalyticsChart from "@/components/AnalyticsChart";
 import { analyticsAPI } from "@/services/api";
 import { formatter } from "@/utils/formatter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Footer from "@/components/Footer";
 
 export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
@@ -138,7 +139,7 @@ export default function AnalyticsPage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col bg-gray-50">
+    <main className="h-screen flex flex-col mt-20">
       {/* Main content */}
       <div className="flex-1 p-6">
         <div className="max-w-7xl mx-auto">
@@ -686,6 +687,7 @@ export default function AnalyticsPage() {
           )}
         </div>
       </div>
+      <Footer/>
     </main>
   );
 }

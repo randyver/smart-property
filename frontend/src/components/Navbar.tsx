@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { House } from "lucide-react";
 
@@ -12,25 +12,45 @@ const Navbar = () => {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <a href="/" className="flex items-center gap-2">
           <House className="h-6 w-6 text-smartproperty" />
-          <span className="text-xl font-bold text-smartproperty-dark">SmartProperty</span>
+          <span className="text-xl font-bold text-smartproperty-dark">
+            SmartProperty
+          </span>
         </a>
 
         {/* Desktop menu */}
         <nav className="hidden md:flex items-center space-x-6">
-        <a href="/" className="text-gray-600 hover:text-smartproperty font-medium">Home</a>
-          <a href="/dashboard" className="text-gray-600 hover:text-smartproperty font-medium">Dashboard</a>
-          <a href="/analytics" className="text-gray-600 hover:text-smartproperty font-medium">Analytics</a>
+          <a
+            href="/"
+            className="text-gray-600 hover:text-smartproperty font-medium"
+          >
+            Home
+          </a>
+          <a
+            href="/dashboard"
+            className="text-gray-600 hover:text-smartproperty font-medium"
+          >
+            Dashboard
+          </a>
+          <a
+            href="/analytics"
+            className="text-gray-600 hover:text-smartproperty font-medium"
+          >
+            Analytics
+          </a>
         </nav>
 
         {/* Mobile menu button */}
-        <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-          <svg 
-            className="w-6 h-6 text-gray-600" 
-            fill="none" 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth="2" 
-            viewBox="0 0 24 24" 
+        <button
+          className="md:hidden"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+        >
+          <svg
+            className="w-6 h-6 text-gray-600"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
             stroke="currentColor"
           >
             {isMenuOpen ? (
@@ -46,11 +66,24 @@ const Navbar = () => {
       {isMenuOpen && (
         <div className="md:hidden bg-white px-4 py-3 shadow-md">
           <nav className="flex flex-col space-y-3">
-            <a href="/dashboard" className="text-gray-600 hover:text-smartproperty font-medium py-2">Dashboard</a>
-            <a href="/map" className="text-gray-600 hover:text-smartproperty font-medium py-2">Map</a>
-            <a href="/analytics" className="text-gray-600 hover:text-smartproperty font-medium py-2">Analytics</a>
-            <a href="/about" className="text-gray-600 hover:text-smartproperty font-medium py-2">About Us</a>
-            <Button className="bg-smartproperty hover:bg-smartproperty-dark w-full">Login</Button>
+            <a
+              href="/"
+              className="text-gray-600 hover:text-smartproperty font-medium"
+            >
+              Home
+            </a>
+            <a
+              href="/dashboard"
+              className="text-gray-600 hover:text-smartproperty font-medium"
+            >
+              Dashboard
+            </a>
+            <a
+              href="/analytics"
+              className="text-gray-600 hover:text-smartproperty font-medium"
+            >
+              Analytics
+            </a>
           </nav>
         </div>
       )}

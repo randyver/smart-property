@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from "next/navigation";
 import RiskIndicator from "@/components/RiskIndicator";
 import { propertyAPI } from "@/services/api";
 import { Property } from '@/types';
 
 
-export default function ComparisonPage() {
+function ComparisonContent() {
   const searchParams = useSearchParams();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -376,5 +376,20 @@ export default function ComparisonPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ComparisonPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-gray-600">Loading comparison data...</p>
+        </div>
+      </main>
+    }>
+      <ComparisonContent />
+    </Suspense>
   );
 }

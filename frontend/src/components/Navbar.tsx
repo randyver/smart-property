@@ -17,10 +17,9 @@ const Navbar = () => {
 
         {/* Desktop menu */}
         <nav className="hidden md:flex items-center space-x-6">
+        <a href="/" className="text-gray-600 hover:text-smartproperty font-medium">Home</a>
           <a href="/dashboard" className="text-gray-600 hover:text-smartproperty font-medium">Dashboard</a>
-          <a href="/map" className="text-gray-600 hover:text-smartproperty font-medium">Map</a>
           <a href="/analytics" className="text-gray-600 hover:text-smartproperty font-medium">Analytics</a>
-          <a href="/about" className="text-gray-600 hover:text-smartproperty font-medium">About Us</a>
         </nav>
 
         {/* Mobile menu button */}

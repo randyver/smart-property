@@ -139,27 +139,6 @@ export default function AnalyticsPage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b px-4 py-2">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <h1 className="text-xl font-bold text-blue-700">SmartProperty</h1>
-          <nav className="flex space-x-4">
-            <a
-              href="/"
-              className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
-            >
-              Map
-            </a>
-            <a
-              href="/analytics"
-              className="px-3 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600"
-            >
-              Analytics
-            </a>
-          </nav>
-        </div>
-      </header>
-
       {/* Main content */}
       <div className="flex-1 p-6">
         <div className="max-w-7xl mx-auto">

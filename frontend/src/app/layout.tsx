@@ -1,5 +1,6 @@
 import './globals.css'
 import ChatbotProvider from '@/components/ChatbotProvider'
+import Navbar from '@/components/Navbar'
 
 export default function RootLayout({
   children,
@@ -9,6 +10,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <Navbar />
         {children}
         <ChatbotProvider />
       </body>

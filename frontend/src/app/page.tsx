@@ -378,8 +378,8 @@ export default function Home() {
   // Price range options
   const priceOptions = [
     { label: "Any", min: undefined, max: undefined },
-    { label: "< 100Jt", min: 0, max: 100000000 },
-    { label: "100Jt - 1B", min: 100000000, max: 1000000000 },
+    { label: "< 100M", min: 0, max: 100000000 },
+    { label: "100M - 1B", min: 100000000, max: 1000000000 },
     { label: "1B - 5B", min: 1000000000, max: 5000000000 },
     { label: "5B - 10B", min: 5000000000, max: 10000000000 },
     { label: "> 10B", min: 10000000000, max: undefined },
@@ -619,7 +619,7 @@ export default function Home() {
                     )} mr-2`}
                   ></span>
                   <span className="text-gray-700">
-                    Flood:{" "}
+                  Surface Temperature:{" "}
                     {formatRiskLevel(selectedProperty.risks?.flood || "medium")}
                   </span>
                 </div>
@@ -630,7 +630,7 @@ export default function Home() {
                     )} mr-2`}
                   ></span>
                   <span className="text-gray-700">
-                    Temperature:{" "}
+                  Heat Stress:{" "}
                     {formatRiskLevel(
                       selectedProperty.risks?.temperature || "medium"
                     )}
@@ -643,7 +643,7 @@ export default function Home() {
                     )} mr-2`}
                   ></span>
                   <span className="text-gray-700">
-                    Air Quality:{" "}
+                  Green Cover:{" "}
                     {formatRiskLevel(
                       selectedProperty.risks?.air_quality || "medium"
                     )}
@@ -656,7 +656,7 @@ export default function Home() {
                     )} mr-2`}
                   ></span>
                   <span className="text-gray-700">
-                    Landslide:{" "}
+                  Heat Zone:{" "}
                     {formatRiskLevel(
                       selectedProperty.risks?.landslide || "medium"
                     )}

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import RiskIndicator from "@/components/RiskIndicator";
-import { Property } from '@/types';
+import { Property } from "@/types";
 
 interface PropertyCardProps {
   property: Property;
@@ -66,16 +66,16 @@ export default function PropertyCard({
   // Format risk level to readable string
   const formatRiskLevel = (level: string): string => {
     const levels: { [key: string]: string } = {
-      very_low: "Sangat Rendah",
-      low: "Rendah",
-      medium: "Sedang",
-      high: "Tinggi",
-      very_high: "Sangat Tinggi",
-      excellent: "Sangat Baik",
-      good: "Baik",
-      moderate: "Sedang",
-      poor: "Buruk",
-      very_poor: "Sangat Buruk",
+      very_low: "Very Low",
+      low: "Low",
+      medium: "Medium",
+      high: "High",
+      very_high: "Very High",
+      excellent: "Excellent",
+      good: "Good",
+      moderate: "Moderate",
+      poor: "Poor",
+      very_poor: "Very Poor",
     };
     return levels[level] || level;
   };
@@ -99,11 +99,13 @@ export default function PropertyCard({
 
   // Climate scores explanation
   const climateScoreExplanations = {
-    lst_score: "Land Surface Temperature - Suhu permukaan tanah di area properti",
-    ndvi_score: "Vegetation Index - Ketersediaan ruang hijau di sekitar properti",
+    lst_score:
+      "Land Surface Temperature - Suhu permukaan tanah di area properti",
+    ndvi_score:
+      "Vegetation Index - Ketersediaan ruang hijau di sekitar properti",
     utfvi_score: "Urban Thermal Field Variance Index - Variasi suhu perkotaan",
     uhi_score: "Urban Heat Island - Efek pulau panas perkotaan",
-    overall_score: "Overall Climate Score - Skor keseluruhan keamanan iklim"
+    overall_score: "Overall Climate Score - Skor keseluruhan keamanan iklim",
   };
 
   return (
@@ -118,11 +120,10 @@ export default function PropertyCard({
       </div>
 
       {/* Property Image */}
-      <div 
-        className="h-32 bg-cover bg-center" 
+      <div
+        className="h-32 bg-cover bg-center"
         style={{ backgroundImage: `url(${imageUrl})` }}
-      >
-      </div>
+      ></div>
 
       {/* Property Details */}
       <div className="p-3">
@@ -152,7 +153,7 @@ export default function PropertyCard({
                   )} mr-1`}
                 ></span>
                 <span className="text-gray-700">
-                  Flood: {formatRiskLevel(property.risks.flood)}
+                Surface Temperature: {formatRiskLevel(property.risks.flood)}
                 </span>
               </div>
               <div className="flex items-center">
@@ -162,7 +163,7 @@ export default function PropertyCard({
                   )} mr-1`}
                 ></span>
                 <span className="text-gray-700">
-                  Temp: {formatRiskLevel(property.risks.temperature)}
+                Heat Stress: {formatRiskLevel(property.risks.temperature)}
                 </span>
               </div>
               <div className="flex items-center">
@@ -172,7 +173,7 @@ export default function PropertyCard({
                   )} mr-1`}
                 ></span>
                 <span className="text-gray-700">
-                  Air: {formatRiskLevel(property.risks.air_quality)}
+                Green Cover: {formatRiskLevel(property.risks.air_quality)}
                 </span>
               </div>
               <div className="flex items-center">
@@ -182,7 +183,7 @@ export default function PropertyCard({
                   )} mr-1`}
                 ></span>
                 <span className="text-gray-700">
-                  Landslide: {formatRiskLevel(property.risks.landslide)}
+                Heat Zone: {formatRiskLevel(property.risks.landslide)}
                 </span>
               </div>
             </div>
@@ -197,36 +198,62 @@ export default function PropertyCard({
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-700">LST Score:</span>
                     <div className="flex items-center text-black">
-                      <span className={`inline-block w-2 h-2 rounded-full ${getScoreColor(property.climate_scores.lst_score)} mr-1`}></span>
-                      <span className="text-xs">{property.climate_scores.lst_score || '?'}</span>
+                      <span
+                        className={`inline-block w-2 h-2 rounded-full ${getScoreColor(
+                          property.climate_scores.lst_score
+                        )} mr-1`}
+                      ></span>
+                      <span className="text-xs">
+                        {property.climate_scores.lst_score || "?"}
+                      </span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-700">NDVI Score:</span>
                     <div className="flex items-center text-black">
-                      <span className={`inline-block w-2 h-2 rounded-full ${getScoreColor(property.climate_scores.ndvi_score)} mr-1`}></span>
-                      <span className="text-xs">{property.climate_scores.ndvi_score || '?'}</span>
+                      <span
+                        className={`inline-block w-2 h-2 rounded-full ${getScoreColor(
+                          property.climate_scores.ndvi_score
+                        )} mr-1`}
+                      ></span>
+                      <span className="text-xs">
+                        {property.climate_scores.ndvi_score || "?"}
+                      </span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-700">UTFVI Score:</span>
                     <div className="flex items-center text-black">
-                      <span className={`inline-block w-2 h-2 rounded-full ${getScoreColor(property.climate_scores.utfvi_score)} mr-1`}></span>
-                      <span className="text-xs">{property.climate_scores.utfvi_score || '?'}</span>
+                      <span
+                        className={`inline-block w-2 h-2 rounded-full ${getScoreColor(
+                          property.climate_scores.utfvi_score
+                        )} mr-1`}
+                      ></span>
+                      <span className="text-xs">
+                        {property.climate_scores.utfvi_score || "?"}
+                      </span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-700">UHI Score:</span>
                     <div className="flex items-center text-black">
-                      <span className={`inline-block w-2 h-2 rounded-full ${getScoreColor(property.climate_scores.uhi_score)} mr-1`}></span>
-                      <span className="text-xs">{property.climate_scores.uhi_score || '?'}</span>
+                      <span
+                        className={`inline-block w-2 h-2 rounded-full ${getScoreColor(
+                          property.climate_scores.uhi_score
+                        )} mr-1`}
+                      ></span>
+                      <span className="text-xs">
+                        {property.climate_scores.uhi_score || "?"}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            <p className="mt-2 text-xs text-gray-600 truncate">{property.address}</p>
+            <p className="mt-2 text-xs text-gray-600 truncate">
+              {property.address}
+            </p>
             <p className="text-xs text-gray-600">
               {property.district}, {property.city}
             </p>

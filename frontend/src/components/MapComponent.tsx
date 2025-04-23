@@ -41,18 +41,18 @@ const MapComponent = memo(
           name: "Land Surface Temperature",
           description: "Temperature measured from the land surface",
           colors: [
-            "#91cf60", // gridcode 1 - Very Low (Better)
-            "#d9ef8b", // gridcode 2 - Low
-            "#fee08b", // gridcode 3 - Medium
-            "#fc8d59", // gridcode 4 - High
-            "#d73027", // gridcode 5 - Very High (Worse)
+            "#F5F500", // gridcode 1 - Very Cool (<24°C)
+            "#F5B800", // gridcode 2 - Cool (24-28°C)
+            "#F57A00", // gridcode 3 - Moderate (28-32°C)
+            "#F53D00", // gridcode 4 - Hot (32-36°C)
+            "#F50000", // gridcode 5 - Very Hot (>36°C)
           ],
           legend: [
-            { color: "#91cf60", label: "Very Low" },
-            { color: "#d9ef8b", label: "Low" },
-            { color: "#fee08b", label: "Medium" },
-            { color: "#fc8d59", label: "High" },
-            { color: "#d73027", label: "Very High" },
+            { color: "#F5F500", label: "Very Cool (<24°C)" },
+            { color: "#F5B800", label: "Cool (24-28°C)" },
+            { color: "#F57A00", label: "Moderate (28-32°C)" },
+            { color: "#F53D00", label: "Hot (32-36°C)" },
+            { color: "#F50000", label: "Very Hot (>36°C)" },
           ],
           gridcodeCount: 5,
         },
@@ -60,18 +60,18 @@ const MapComponent = memo(
           name: "Vegetation Index",
           description: "Normalized Difference Vegetation Index",
           colors: [
-            "#1a9850", // gridcode 1 - High Vegetation (Better)
-            "#66bd63", // gridcode 2
-            "#a6d96a", // gridcode 3
-            "#d9ef8b", // gridcode 4
-            "#fee08b", // gridcode 5 - Low Vegetation (Worse)
+            "#A50026", // gridcode 1 - Non-vegetation/Water/Built-up (<0.2)
+            "#FF0000", // gridcode 2 - Very Sparse Vegetation (0.2-0.4)
+            "#FFFF00", // gridcode 3 - Sparse Vegetation (0.4-0.6)
+            "#86CB66", // gridcode 4 - Moderate Vegetation (0.6-0.8)
+            "#4C7300", // gridcode 5 - Dense Vegetation (>0.8)
           ],
           legend: [
-            { color: "#1a9850", label: "High Vegetation" },
-            { color: "#66bd63", label: "Good Vegetation" },
-            { color: "#a6d96a", label: "Moderate Vegetation" },
-            { color: "#d9ef8b", label: "Low Vegetation" },
-            { color: "#fee08b", label: "Very Low Vegetation" },
+            { color: "#A50026", label: "Non-vegetation (<0.2)" },
+            { color: "#FF0000", label: "Very Sparse (0.2-0.4)" },
+            { color: "#FFFF00", label: "Sparse (0.4-0.6)" },
+            { color: "#86CB66", label: "Moderate (0.6-0.8)" },
+            { color: "#4C7300", label: "Dense (>0.8)" },
           ],
           gridcodeCount: 5,
         },
@@ -79,24 +79,24 @@ const MapComponent = memo(
           name: "Urban Heat Island",
           description: "Urban Heat Island effect measurements",
           colors: [
-            "#91cf60", // gridcode 1 - Minimal (Better)
-            "#a8db74", // gridcode 2
-            "#bfe789", // gridcode 3
-            "#d5f39e", // gridcode 4
-            "#eaf8b3", // gridcode 5
-            "#fee08b", // gridcode 6
-            "#fdae61", // gridcode 7
-            "#f46d43", // gridcode 8 - Severe (Worse)
+            "#313695", // gridcode 1 - Non-UHI (<0)
+            "#74add1", // gridcode 2 - Very Weak (0-0.0025)
+            "#fed976", // gridcode 3 - Weak (0.0025-0.005)
+            "#feb24c", // gridcode 4 - Fairly Weak (0.005-0.0075)
+            "#fd8d3c", // gridcode 5 - Moderate (0.0075-0.01)
+            "#fc4e2a", // gridcode 6 - Fairly Strong (0.01-0.0125)
+            "#e31a1c", // gridcode 7 - Strong (0.0125-0.015)
+            "#b10026", // gridcode 8 - Very Strong (>0.015)
           ],
           legend: [
-            { color: "#91cf60", label: "Minimal" },
-            { color: "#a8db74", label: "Very Low" },
-            { color: "#bfe789", label: "Low" },
-            { color: "#d5f39e", label: "Low-Medium" },
-            { color: "#eaf8b3", label: "Medium" },
-            { color: "#fee08b", label: "Medium-High" },
-            { color: "#fdae61", label: "High" },
-            { color: "#f46d43", label: "Severe" },
+            { color: "#313695", label: "Non-UHI (<0)" },
+            { color: "#74add1", label: "Very Weak (0-0.0025)" },
+            { color: "#fed976", label: "Weak (0.0025-0.005)" },
+            { color: "#feb24c", label: "Fairly Weak (0.005-0.0075)" },
+            { color: "#fd8d3c", label: "Moderate (0.0075-0.01)" },
+            { color: "#fc4e2a", label: "Fairly Strong (0.01-0.0125)" },
+            { color: "#e31a1c", label: "Strong (0.0125-0.015)" },
+            { color: "#b10026", label: "Very Strong (>0.015)" },
           ],
           gridcodeCount: 8,
         },
@@ -104,18 +104,18 @@ const MapComponent = memo(
           name: "Urban Thermal Field Variance Index",
           description: "Urban thermal variation measurements",
           colors: [
-            "#91cf60", // gridcode 1 - Very Low (Better)
-            "#d9ef8b", // gridcode 2 - Low
-            "#fee08b", // gridcode 3 - Medium
-            "#fc8d59", // gridcode 4 - High
-            "#d73027", // gridcode 5 - Very High (Worse)
+            "#5C09FC", // gridcode 1 - Non-UHI (<0)
+            "#4EC9FD", // gridcode 2 - Weak UHI (0-0.005)
+            "#B4FEA3", // gridcode 3 - Moderate UHI (0.005-0.01)
+            "#FBD513", // gridcode 4 - Strong UHI (0.01-0.015)
+            "#FE230A", // gridcode 5 - Very Strong UHI (>0.015)
           ],
           legend: [
-            { color: "#91cf60", label: "Very Low" },
-            { color: "#d9ef8b", label: "Low" },
-            { color: "#fee08b", label: "Medium" },
-            { color: "#fc8d59", label: "High" },
-            { color: "#d73027", label: "Very High" },
+            { color: "#5C09FC", label: "Non-UHI (<0)" },
+            { color: "#4EC9FD", label: "Weak (0-0.005)" },
+            { color: "#B4FEA3", label: "Moderate (0.005-0.01)" },
+            { color: "#FBD513", label: "Strong (0.01-0.015)" },
+            { color: "#FE230A", label: "Very Strong (>0.015)" },
           ],
           gridcodeCount: 5,
         },

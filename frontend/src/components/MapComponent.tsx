@@ -126,17 +126,32 @@ const MapComponent = memo(
     const mapidApiKey =
       process.env.NEXT_PUBLIC_MAPID_API_KEY || "your_mapid_api_key";
 
-    // Initialize map only once
-    useEffect(() => {
-      if (mapInstance.current) return; // Map already initialized
+     // Get API base URL from environment or use default
+     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-      if (mapContainer.current) {
-        mapInstance.current = new maplibregl.Map({
-          container: mapContainer.current,
-          style: `https://basemap.mapid.io/styles/basic/style.json?key=${mapidApiKey}`,
-          center: center,
-          zoom: zoom,
-        });
+     // Initialize map only once
+     useEffect(() => {
+       if (mapInstance.current) return; // Map already initialized
+ 
+       if (mapContainer.current) {
+         mapInstance.current = new maplibregl.Map({
+           container: mapContainer.current,
+           style: `${API_BASE_URL}/api/map/style?style=basic`,
+           center: center,
+           zoom: zoom,
+           transformRequest: (url, resourceType) => {
+             // Rewrite URLs to use our proxy for MAPID resources
+             if (url.startsWith('https://basemap.mapid.io/')) {
+               // Extract the resource path after basemap.mapid.io/
+               const resourcePath = url.replace(/^https:\/\/basemap\.mapid\.io\//, '').split('?')[0];
+               // Return the new URL using our proxy
+               return {
+                 url: `${API_BASE_URL}/api/map/resources/${resourcePath}`
+               };
+             }
+             return { url };
+           }
+         });
 
         mapInstance.current.on("load", () => {
           setMapLoaded(true);

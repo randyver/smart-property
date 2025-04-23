@@ -2,7 +2,6 @@ Flask
 Flask-Cors
 psycopg2-binary
 scikit-learn
-tensorflow
 pandas
 numpy
 geopandas

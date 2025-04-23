@@ -1,11 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { House } from "lucide-react";
+import { House, Menu } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
@@ -16,7 +23,7 @@ const Navbar = () => {
             SmartProperty
           </span>
         </a>
-
+        
         {/* Desktop menu */}
         <nav className="hidden md:flex items-center space-x-6">
           <a
@@ -38,55 +45,62 @@ const Navbar = () => {
             Analytics
           </a>
         </nav>
-
-        {/* Mobile menu button */}
-        <button
-          className="md:hidden"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          <svg
-            className="w-6 h-6 text-gray-600"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            {isMenuOpen ? (
-              <path d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
-        </button>
+        
+        {/* Mobile menu - Sheet Component */}
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild className="md:hidden">
+            <button className="flex items-center justify-center">
+              <Menu className="h-6 w-6 text-gray-600" />
+            </button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[250px] sm:w-[300px]">
+            <SheetHeader className="pb-6">
+              <SheetTitle>
+                <div className="flex items-center gap-2">
+                  <House className="h-5 w-5 text-smartproperty" />
+                  <span className="text-lg font-bold text-smartproperty-dark">
+                    SmartProperty
+                  </span>
+                </div>
+              </SheetTitle>
+            </SheetHeader>
+            <nav className="flex flex-col space-y-4">
+              <SheetClose asChild>
+                <a
+                  href="/"
+                  className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
+                >
+                  Home
+                </a>
+              </SheetClose>
+              <SheetClose asChild>
+                <a
+                  href="/dashboard"
+                  className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
+                >
+                  Dashboard
+                </a>
+              </SheetClose>
+              <SheetClose asChild>
+                <a
+                  href="/analytics"
+                  className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
+                >
+                  Analytics
+                </a>
+              </SheetClose>
+            </nav>
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <p className="text-xs text-gray-500">
+                © {new Date().getFullYear()} SmartProperty
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Find climate-safe properties with GIS analysis
+              </p>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
-
-      {/* Mobile menu dropdown */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-white px-4 py-3 shadow-md">
-          <nav className="flex flex-col space-y-3">
-            <a
-              href="/"
-              className="text-gray-600 hover:text-smartproperty font-medium"
-            >
-              Home
-            </a>
-            <a
-              href="/dashboard"
-              className="text-gray-600 hover:text-smartproperty font-medium"
-            >
-              Dashboard
-            </a>
-            <a
-              href="/analytics"
-              className="text-gray-600 hover:text-smartproperty font-medium"
-            >
-              Analytics
-            </a>
-          </nav>
-        </div>
-      )}
     </header>
   );
 };

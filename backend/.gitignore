@@ -1,4 +1,4 @@
-/data
+.env
 
 # Ignore Python cache folders
 __pycache__/

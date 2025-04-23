@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import RiskIndicator from "@/components/RiskIndicator";
 import { propertyAPI } from "@/services/api";
-import { Property } from '@/types';
-
+import { Property } from "@/types";
 
 function ComparisonContent() {
   const searchParams = useSearchParams();
@@ -46,11 +45,11 @@ function ComparisonContent() {
 
   const getScoreColor = (score: number | null | undefined): string => {
     if (score == null) return "bg-gray-400";
-    if (score >= 80) return "bg-green-600"; 
-    if (score >= 60) return "bg-green-500"; 
-    if (score >= 40) return "bg-yellow-500"; 
-    if (score >= 20) return "bg-orange-500"; 
-    return "bg-red-600"; 
+    if (score >= 80) return "bg-green-600";
+    if (score >= 60) return "bg-green-500";
+    if (score >= 40) return "bg-yellow-500";
+    if (score >= 20) return "bg-orange-500";
+    return "bg-red-600";
   };
 
   useEffect(() => {
@@ -276,10 +275,10 @@ function ComparisonContent() {
                           <div className="flex items-center">
                             <span
                               className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
-                                property.risks.flood
+                                property.risks.surface_temperature
                               )} mr-2`}
                             ></span>
-                            <span>{formatRiskLevel(property.risks.flood)}</span>
+                            <span>{formatRiskLevel(property.risks.surface_temperature)}</span>
                           </div>
                         </td>
                       ))}
@@ -293,11 +292,11 @@ function ComparisonContent() {
                           <div className="flex items-center">
                             <span
                               className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
-                                property.risks.temperature
+                                property.risks.heat_stress
                               )} mr-2`}
                             ></span>
                             <span>
-                              {formatRiskLevel(property.risks.temperature)}
+                              {formatRiskLevel(property.risks.heat_stress)}
                             </span>
                           </div>
                         </td>
@@ -312,11 +311,11 @@ function ComparisonContent() {
                           <div className="flex items-center">
                             <span
                               className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
-                                property.risks.air_quality
+                                property.risks.green_cover
                               )} mr-2`}
                             ></span>
                             <span>
-                              {formatRiskLevel(property.risks.air_quality)}
+                              {formatRiskLevel(property.risks.green_cover)}
                             </span>
                           </div>
                         </td>
@@ -331,11 +330,11 @@ function ComparisonContent() {
                           <div className="flex items-center">
                             <span
                               className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
-                                property.risks.landslide
+                                property.risks.heat_zone
                               )} mr-2`}
                             ></span>
                             <span>
-                              {formatRiskLevel(property.risks.landslide)}
+                              {formatRiskLevel(property.risks.heat_zone)}
                             </span>
                           </div>
                         </td>
@@ -381,14 +380,16 @@ function ComparisonContent() {
 
 export default function ComparisonPage() {
   return (
-    <Suspense fallback={
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-gray-600">Loading comparison data...</p>
-        </div>
-      </main>
-    }>
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+            <p className="text-gray-600">Loading comparison data...</p>
+          </div>
+        </main>
+      }
+    >
       <ComparisonContent />
     </Suspense>
   );

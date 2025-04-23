@@ -149,41 +149,41 @@ export default function PropertyCard({
               <div className="flex items-center">
                 <span
                   className={`inline-block w-2 h-2 rounded-full ${getRiskColor(
-                    property.risks.flood
+                    property.risks.surface_temperature
                   )} mr-1`}
                 ></span>
                 <span className="text-gray-700">
-                Surface Temperature: {formatRiskLevel(property.risks.flood)}
+                Surface Temperature: {formatRiskLevel(property.risks.surface_temperature)}
                 </span>
               </div>
               <div className="flex items-center">
                 <span
                   className={`inline-block w-2 h-2 rounded-full ${getRiskColor(
-                    property.risks.temperature
+                    property.risks.heat_stress
                   )} mr-1`}
                 ></span>
                 <span className="text-gray-700">
-                Heat Stress: {formatRiskLevel(property.risks.temperature)}
+                Heat Stress: {formatRiskLevel(property.risks.heat_stress)}
                 </span>
               </div>
               <div className="flex items-center">
                 <span
                   className={`inline-block w-2 h-2 rounded-full ${getRiskColor(
-                    property.risks.air_quality
+                    property.risks.green_cover
                   )} mr-1`}
                 ></span>
                 <span className="text-gray-700">
-                Green Cover: {formatRiskLevel(property.risks.air_quality)}
+                Green Cover: {formatRiskLevel(property.risks.green_cover)}
                 </span>
               </div>
               <div className="flex items-center">
                 <span
                   className={`inline-block w-2 h-2 rounded-full ${getRiskColor(
-                    property.risks.landslide
+                    property.risks.heat_zone
                   )} mr-1`}
                 ></span>
                 <span className="text-gray-700">
-                Heat Zone: {formatRiskLevel(property.risks.landslide)}
+                Heat Zone: {formatRiskLevel(property.risks.heat_zone)}
                 </span>
               </div>
             </div>

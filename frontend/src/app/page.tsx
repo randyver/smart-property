@@ -8,7 +8,7 @@ import PropertyCard from "@/components/PropertyCard";
 import RiskIndicator from "@/components/RiskIndicator";
 import { propertyAPI, climateAPI } from "@/services/api";
 import ClimateScores from "@/components/ClimateScores";
-import { Property } from '@/types';
+import { Property } from "@/types";
 
 interface SearchParams {
   min_price?: number;
@@ -34,10 +34,10 @@ export default function Home() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Changed to ClimateLayerType to have better type safety
   const [activeLayer, setActiveLayer] = useState<ClimateLayerType>(undefined);
-  
+
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
     null
   );
@@ -60,12 +60,15 @@ export default function Home() {
   );
 
   // Layer configuration
-  const layerOptions = useMemo(() => [
-    { id: "lst", name: "Land Surface Temperature" },
-    { id: "ndvi", name: "Vegetation Index" },
-    { id: "uhi", name: "Urban Heat Island" },
-    { id: "utfvi", name: "Urban Thermal Field" }
-  ], []);
+  const layerOptions = useMemo(
+    () => [
+      { id: "lst", name: "Land Surface Temperature" },
+      { id: "ndvi", name: "Vegetation Index" },
+      { id: "uhi", name: "Urban Heat Island" },
+      { id: "utfvi", name: "Urban Thermal Field" },
+    ],
+    []
+  );
 
   console.log("Home component rendered");
 
@@ -262,28 +265,24 @@ export default function Home() {
         // Clear all layers
         setActiveLayer(undefined);
         return;
-      }
-      else if (propertyId === 1) {
+      } else if (propertyId === 1) {
         // LST layer
-        setActiveLayer('lst');
+        setActiveLayer("lst");
         return;
-      }
-      else if (propertyId === 2) {
+      } else if (propertyId === 2) {
         // NDVI layer
-        setActiveLayer('ndvi');
+        setActiveLayer("ndvi");
         return;
-      }
-      else if (propertyId === 3) {
+      } else if (propertyId === 3) {
         // UHI layer
-        setActiveLayer('uhi');
+        setActiveLayer("uhi");
         return;
-      }
-      else if (propertyId === 4) {
+      } else if (propertyId === 4) {
         // UTFVI layer
-        setActiveLayer('utfvi');
+        setActiveLayer("utfvi");
         return;
       }
-      
+
       // Jika bukan kasus khusus, ini adalah click pada marker properti
       console.log(`Marker clicked for property ID: ${propertyId}`);
 
@@ -615,50 +614,50 @@ export default function Home() {
                 <div className="flex items-center">
                   <span
                     className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
-                      selectedProperty.risks?.flood || "medium"
+                      selectedProperty.risks?.surface_temperature || "medium"
                     )} mr-2`}
                   ></span>
                   <span className="text-gray-700">
-                  Surface Temperature:{" "}
-                    {formatRiskLevel(selectedProperty.risks?.flood || "medium")}
+                    Surface Temperature:{" "}
+                    {formatRiskLevel(selectedProperty.risks?.surface_temperature || "medium")}
                   </span>
                 </div>
                 <div className="flex items-center">
                   <span
                     className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
-                      selectedProperty.risks?.temperature || "medium"
+                      selectedProperty.risks?.heat_stress || "medium"
                     )} mr-2`}
                   ></span>
                   <span className="text-gray-700">
-                  Heat Stress:{" "}
+                    Heat Stress:{" "}
                     {formatRiskLevel(
-                      selectedProperty.risks?.temperature || "medium"
+                      selectedProperty.risks?.heat_stress || "medium"
                     )}
                   </span>
                 </div>
                 <div className="flex items-center">
                   <span
                     className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
-                      selectedProperty.risks?.air_quality || "medium"
+                      selectedProperty.risks?.green_cover || "medium"
                     )} mr-2`}
                   ></span>
                   <span className="text-gray-700">
-                  Green Cover:{" "}
+                    Green Cover:{" "}
                     {formatRiskLevel(
-                      selectedProperty.risks?.air_quality || "medium"
+                      selectedProperty.risks?.green_cover || "medium"
                     )}
                   </span>
                 </div>
                 <div className="flex items-center">
                   <span
                     className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
-                      selectedProperty.risks?.landslide || "medium"
+                      selectedProperty.risks?.heat_zone || "medium"
                     )} mr-2`}
                   ></span>
                   <span className="text-gray-700">
-                  Heat Zone:{" "}
+                    Heat Zone:{" "}
                     {formatRiskLevel(
-                      selectedProperty.risks?.landslide || "medium"
+                      selectedProperty.risks?.heat_zone || "medium"
                     )}
                   </span>
                 </div>

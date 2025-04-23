@@ -24,10 +24,10 @@ export interface Property {
       overall_score: number | null;
     };
     risks: {
-      flood: string;
-      temperature: string;
-      air_quality: string;
-      landslide: string;
+      surface_temperature: string;
+      heat_stress: string;
+      green_cover: string;
+      heat_zone: string;
     };
   }
   

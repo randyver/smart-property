@@ -13,6 +13,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 export default function PropertyDetailsPage() {
   const params = useParams();
   const router = useRouter();
+  const [mapLoaded, setMapLoaded] = useState(false);
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,9 +52,15 @@ export default function PropertyDetailsPage() {
   };
 
   // Format risk level for display
-  const formatRiskLevel = (level: string): string => {
+  const formatRiskLevel = (level: string | undefined | null): string => {
+    if (!level) return "Not Available";
     return level.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase());
   };
+
+  const mapidApiKey =
+    process.env.NEXT_PUBLIC_MAPID_API_KEY || "your_mapid_api_key";
+  const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
   // Initialize map when location tab is selected
   useEffect(() => {
@@ -63,28 +70,46 @@ export default function PropertyDetailsPage() {
       mapContainer.current &&
       !mapInstance.current
     ) {
-      const mapidApiKey =
-        process.env.NEXT_PUBLIC_MAPID_API_KEY || "your_mapid_api_key";
-
+      // Initialize map
       mapInstance.current = new maplibregl.Map({
         container: mapContainer.current,
-        style: `https://basemap.mapid.io/styles/basic/style.json?key=${mapidApiKey}`,
-        center: [property.location.longitude, property.location.latitude],
-        zoom: 15,
+        style: `${API_BASE_URL}/api/map/style?style=basic`,
+        center: [property.location.longitude, property.location.latitude], // Center on property
+        zoom: 14, // Zoom closer than default
+        transformRequest: (url, resourceType) => {
+          if (url.startsWith("https://basemap.mapid.io/")) {
+            const resourcePath = url
+              .replace(/^https:\/\/basemap\.mapid\.io\//, "")
+              .split("?")[0];
+            return {
+              url: `${API_BASE_URL}/api/map/resources/${resourcePath}`,
+            };
+          }
+          return { url };
+        },
       });
 
-      // Add marker for property location
+      // Create custom marker element
       const el = document.createElement("div");
       el.className = "property-marker";
       el.innerHTML = `
-        <div class="w-6 h-6 rounded-full bg-red-600 flex items-center justify-center relative">
-          <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 rotate-45 w-2 h-2 bg-red-600"></div>
+        <div class="relative">
+          <svg xmlns="http://www.w3.org/2000/svg" 
+               viewBox="0 0 24 24" 
+               fill="currentColor" 
+               class="w-8 h-8 text-red-600 drop-shadow-lg">
+            <path fill-rule="evenodd" 
+                  d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" 
+                  clip-rule="evenodd" />
+          </svg>
+          <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-red-600 rounded-full"></div>
         </div>
       `;
 
+      // Add marker to map
       new maplibregl.Marker({
         element: el,
-        anchor: "bottom",
+        anchor: "bottom", // Anchor point at bottom of icon
       })
         .setLngLat([property.location.longitude, property.location.latitude])
         .addTo(mapInstance.current);
@@ -94,16 +119,16 @@ export default function PropertyDetailsPage() {
         new maplibregl.NavigationControl(),
         "top-right"
       );
-    }
 
-    // Cleanup on unmount
-    return () => {
-      if (mapInstance.current) {
-        mapInstance.current.remove();
-        mapInstance.current = null;
-      }
-    };
-  }, [selectedTab, property]);
+      // Cleanup function
+      return () => {
+        if (mapInstance.current) {
+          mapInstance.current.remove();
+          mapInstance.current = null;
+        }
+      };
+    }
+  }, [selectedTab, property, API_BASE_URL]);
 
   // Fetch property data
   useEffect(() => {
@@ -473,12 +498,15 @@ export default function PropertyDetailsPage() {
                             )} mr-2`}
                           ></span>
                           <h4 className="font-medium">
-                            Flood Risk: {formatRiskLevel(property.risks.surface_temperature)}
+                            Flood Risk:{" "}
+                            {formatRiskLevel(
+                              property.risks.surface_temperature
+                            )}
                           </h4>
                         </div>
                         <p className="text-sm text-gray-600">
                           This property has a{" "}
-                          {property.risks.surface_temperature.includes("low")
+                          {property.risks?.surface_temperature?.includes("low")
                             ? "low flood risk. The area has a good drainage system and sufficient elevation."
                             : "moderate to high flood risk. Be sure to check the flood history in this area before buying."}
                         </p>
@@ -497,10 +525,10 @@ export default function PropertyDetailsPage() {
                           </h4>
                         </div>
                         <p className="text-sm text-gray-600">
-                          The temperature around this property is{" "}
-                          {property.risks.heat_stress.includes("low")
-                            ? "quite comfortable. The area has many trees that help keep temperatures cool."
-                            : "tends to be hot, especially during the dry season. Consider adding insulation or AC."}
+                          This property has a{" "}
+                          {property.risks?.surface_temperature?.includes("low")
+                            ? "low flood risk. The area has a good drainage system and sufficient elevation."
+                            : "moderate to high flood risk. Be sure to check the flood history in this area before buying."}
                         </p>
                       </div>
 
@@ -538,10 +566,10 @@ export default function PropertyDetailsPage() {
                           </h4>
                         </div>
                         <p className="text-sm text-gray-600">
-                          The landslide risk in this area is{" "}
-                          {property.risks.heat_zone.includes("low")
-                            ? "low. The property is located in an area with stable ground contours."
-                            : "to be monitored, especially during the rainy season. Make sure there is an adequate ground retention system."}
+                          This property has a{" "}
+                          {property.risks?.heat_zone?.includes("low")
+                            ? "low flood risk. The area has a good drainage system and sufficient elevation."
+                            : "moderate to high flood risk. Be sure to check the flood history in this area before buying."}
                         </p>
                       </div>
                     </div>

@@ -44,6 +44,12 @@ const Navbar = () => {
           >
             Analytics
           </a>
+          <a
+            href="/about-us"
+            className="text-gray-600 hover:text-smartproperty font-medium"
+          >
+            About Us
+          </a>
         </nav>
         
         {/* Mobile menu - Sheet Component */}
@@ -87,6 +93,14 @@ const Navbar = () => {
                   className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
                 >
                   Analytics
+                </a>
+              </SheetClose>
+              <SheetClose asChild>
+                <a
+                  href="/about-us"
+                  className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
+                >
+                  About Us
                 </a>
               </SheetClose>
             </nav>

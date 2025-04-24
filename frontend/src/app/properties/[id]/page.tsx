@@ -9,6 +9,7 @@ import ClimateScoreInfo from "@/components/ClimateScoreInfo";
 import { propertyAPI } from "@/services/api";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import Image from "next/image";
 
 export default function PropertyDetailsPage() {
   const params = useParams();
@@ -213,36 +214,43 @@ export default function PropertyDetailsPage() {
 
   return (
     <main className="min-h-screen bg-gray-50 pt-20">
-      {/* Property Images */}
-      <div className="py-4">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-4 gap-4 h-80">
-            <div className="col-span-3 h-full">
-              <div
-                className="h-full w-full bg-cover bg-center rounded-lg"
-                style={{
-                  backgroundImage: `url(https://savasa.id/upload/202306/article/Harga-Perumahan-di-Bekasi-Big-Header_1686363768.jpg)`,
-                  backgroundPosition: "center 40%",
-                }}
-              ></div>
+    {/* Property Images */}
+    <div className="py-4">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="grid grid-cols-4 gap-4 h-80">
+          {/* Large image */}
+          <div className="col-span-3 h-full relative rounded-lg overflow-hidden">
+            <Image
+              src="/house-image.jpg"
+              alt="Main property"
+              fill
+              className="object-cover object-[center_40%] rounded-lg"
+              priority
+            />
+          </div>
+  
+          {/* Two small images */}
+          <div className="col-span-1 grid grid-rows-2 gap-4 h-full">
+            <div className="relative w-full h-full rounded-lg overflow-hidden">
+              <Image
+                src="/house-image.jpg"
+                alt="Side property 1"
+                fill
+                className="object-cover rounded-lg"
+              />
             </div>
-            <div className="col-span-1 grid grid-rows-2 gap-4 h-full">
-              <div
-                className="w-full bg-cover bg-center rounded-lg"
-                style={{
-                  backgroundImage: `url(https://savasa.id/upload/202306/article/Harga-Perumahan-di-Bekasi-Big-Header_1686363768.jpg)`,
-                }}
-              ></div>
-              <div
-                className="w-full bg-cover bg-center rounded-lg"
-                style={{
-                  backgroundImage: `url(https://savasa.id/upload/202306/article/Harga-Perumahan-di-Bekasi-Big-Header_1686363768.jpg)`,
-                }}
-              ></div>
+            <div className="relative w-full h-full rounded-lg overflow-hidden">
+              <Image
+                src="/house-image.jpg"
+                alt="Side property 2"
+                fill
+                className="object-cover rounded-lg"
+              />
             </div>
           </div>
         </div>
       </div>
+    </div>
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 py-6">

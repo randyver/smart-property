@@ -606,7 +606,7 @@ export default function Dashboard() {
                         isComparing={compareProperties.some(
                           (p) => p.id === property.id
                         )}
-                        imageUrl="https://savasa.id/upload/202306/article/Harga-Perumahan-di-Bekasi-Big-Header_1686363768.jpg"
+                        imageUrl="/house-image.jpg"
                       />
                     ))}
                   </div>

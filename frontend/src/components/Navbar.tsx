@@ -10,6 +10,7 @@ import {
   SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
+import Image from "next/image";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -18,12 +19,12 @@ const Navbar = () => {
     <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <a href="/" className="flex items-center gap-2">
-          <House className="h-6 w-6 text-smartproperty" />
-          <span className="text-xl font-bold text-smartproperty-dark">
+          <Image src="/logo.png" alt="Logo" width={50} height={50} />
+          <span className="bg-gradient-to-r text-lg font-bold from-smartproperty to-smartproperty-dark bg-clip-text text-transparent">
             SmartProperty
           </span>
         </a>
-        
+
         {/* Desktop menu */}
         <nav className="hidden md:flex items-center space-x-6">
           <a
@@ -51,7 +52,7 @@ const Navbar = () => {
             About Us
           </a>
         </nav>
-        
+
         {/* Mobile menu - Sheet Component */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild className="md:hidden">

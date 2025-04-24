@@ -10,7 +10,7 @@ const teamMembers = [
   {
     name: "Emery Fathan Zwageri",
     institution: "Bandung Institute of Technology",
-    role: "Machine Learning Engineer",
+    role: "Data Scientist",
     photo: "/profile.png", // Replace with actual photo path
     linkedin: "https://www.linkedin.com/in/emery-fathan-zwageri",
   },{

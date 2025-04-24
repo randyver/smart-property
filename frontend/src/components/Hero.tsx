@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Earth } from "lucide-react";
+import Image from "next/image";
 
 const Hero = () => {
   return (
@@ -16,7 +17,7 @@ const Hero = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <span className="bg-gradient-to-r from-smartproperty to-smartproperty-dark bg-clip-text text-transparent">
-            Find Your Climate-Safe Dream Home Today
+              Find Your Climate-Safe Dream Home Today
             </span>
           </motion.h2>
           <p className="text-lg md:text-xl text-gray-600 mb-8">
@@ -41,11 +42,12 @@ const Hero = () => {
         <div className="md:w-1/2 flex justify-center animate-scale-in">
           <div className="relative w-full max-w-md aspect-square">
             <div className="absolute inset-0 bg-smartproperty rounded-full opacity-10 animate-pulse"></div>
-            <div className="absolute inset-4 bg-white rounded-full shadow-xl flex items-center justify-center">
-              <Earth
-                size={120}
-                className="text-smartproperty"
-                strokeWidth={1}
+            <div className="absolute inset-4 bg-white rounded-full shadow-xl flex items-center justify-center p-6">
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={400}
+                height={400}
               />
             </div>
           </div>

@@ -20,7 +20,7 @@ export default function ClimateScoreInfo({
           What is Climate Score?
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-full z-[100]">
+      <PopoverContent className="w-80 xl:w-full z-[100]">
         <div className="space-y-3">
           <h3 className="font-bold text-gray-800 mb-2">
             Tentang Climate Score

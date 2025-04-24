@@ -212,7 +212,7 @@ export default function PropertyDetailsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-50 pt-20">
       {/* Property Images */}
       <div className="py-4">
         <div className="max-w-6xl mx-auto px-4">
@@ -490,6 +490,7 @@ export default function PropertyDetailsPage() {
                       Detailed Risk Assessment
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Surface Temperature */}
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <span
@@ -498,20 +499,20 @@ export default function PropertyDetailsPage() {
                             )} mr-2`}
                           ></span>
                           <h4 className="font-medium">
-                            Flood Risk:{" "}
+                            Surface Temperature:{" "}
                             {formatRiskLevel(
                               property.risks.surface_temperature
                             )}
                           </h4>
                         </div>
                         <p className="text-sm text-gray-600">
-                          This property has a{" "}
                           {property.risks?.surface_temperature?.includes("low")
-                            ? "low flood risk. The area has a good drainage system and sufficient elevation."
-                            : "moderate to high flood risk. Be sure to check the flood history in this area before buying."}
+                            ? "The area maintains relatively cool surface temperatures, reducing urban heat island effects."
+                            : "This area experiences higher surface temperatures, which may contribute to heat discomfort and increased cooling needs."}
                         </p>
                       </div>
 
+                      {/* Heat Stress */}
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <span
@@ -520,18 +521,18 @@ export default function PropertyDetailsPage() {
                             )} mr-2`}
                           ></span>
                           <h4 className="font-medium">
-                            Temperature:{" "}
+                            Heat Stress:{" "}
                             {formatRiskLevel(property.risks.heat_stress)}
                           </h4>
                         </div>
                         <p className="text-sm text-gray-600">
-                          This property has a{" "}
-                          {property.risks?.surface_temperature?.includes("low")
-                            ? "low flood risk. The area has a good drainage system and sufficient elevation."
-                            : "moderate to high flood risk. Be sure to check the flood history in this area before buying."}
+                          {property.risks?.heat_stress?.includes("low")
+                            ? "Low risk of heat-related health impacts with comfortable thermal conditions."
+                            : "Higher potential for heat-related health risks during extreme heat events."}
                         </p>
                       </div>
 
+                      {/* Green Cover */}
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <span
@@ -540,19 +541,19 @@ export default function PropertyDetailsPage() {
                             )} mr-2`}
                           ></span>
                           <h4 className="font-medium">
-                            Air Quality:{" "}
+                            Green Cover:{" "}
                             {formatRiskLevel(property.risks.green_cover)}
                           </h4>
                         </div>
                         <p className="text-sm text-gray-600">
-                          The air quality around this property is{" "}
                           {property.risks.green_cover === "excellent" ||
                           property.risks.green_cover === "good"
-                            ? "good, with minimal pollution. The area has many open green spaces."
-                            : "of concern. Proximity to highways or industrial areas may affect air quality."}
+                            ? "Abundant vegetation provides shade, cooling, and improved air quality."
+                            : "Limited green space may reduce natural cooling and air purification benefits."}
                         </p>
                       </div>
 
+                      {/* Heat Zone */}
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <span
@@ -561,15 +562,14 @@ export default function PropertyDetailsPage() {
                             )} mr-2`}
                           ></span>
                           <h4 className="font-medium">
-                            Landslide Risk:{" "}
+                            Heat Zone:{" "}
                             {formatRiskLevel(property.risks.heat_zone)}
                           </h4>
                         </div>
                         <p className="text-sm text-gray-600">
-                          This property has a{" "}
                           {property.risks?.heat_zone?.includes("low")
-                            ? "low flood risk. The area has a good drainage system and sufficient elevation."
-                            : "moderate to high flood risk. Be sure to check the flood history in this area before buying."}
+                            ? "Located in a cooler microclimate with minimal heat accumulation."
+                            : "Located in an urban heat island zone with higher temperature retention."}
                         </p>
                       </div>
                     </div>

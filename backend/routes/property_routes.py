@@ -271,10 +271,10 @@ def compare_properties():
                 "climate_risk_score": int(climate_risk_score) if climate_risk_score is not None else None,
                 "climate_scores": climate_scores,
                 "risks": {
-                    "flood": get_risk_level_from_score(climate_scores["lst_score"] or 50, "flood"),
-                    "temperature": get_risk_level_from_score(climate_scores["utfvi_score"] or 50, "temperature"),
-                    "air_quality": get_risk_level_from_score(climate_scores["ndvi_score"] or 50, "air_quality"),
-                    "landslide": get_risk_level_from_score(climate_scores["uhi_score"] or 50, "landslide")
+                    "surface_temperature": get_risk_level_from_score(climate_scores.get("lst_score", 50), "surface_temperature"),
+                    "heat_stress": get_risk_level_from_score(climate_scores.get("utfvi_score", 50), "heat_stress"),
+                    "green_cover": get_risk_level_from_score(climate_scores.get("ndvi_score", 50), "green_cover"),
+                    "heat_zone": get_risk_level_from_score(climate_scores.get("uhi_score", 50), "heat_zone"),
                 }
             })
         
@@ -366,10 +366,10 @@ def get_property_by_id(property_id):
             "climate_risk_score": int(climate_risk_score) if climate_risk_score is not None else None,
             "climate_scores": climate_scores,
             "risks": {
-                "flood": get_risk_level_from_score(climate_scores["lst_score"] or 50, "flood"),
-                "temperature": get_risk_level_from_score(climate_scores["utfvi_score"] or 50, "temperature"),
-                "air_quality": get_risk_level_from_score(climate_scores["ndvi_score"] or 50, "air_quality"),
-                "landslide": get_risk_level_from_score(climate_scores["uhi_score"] or 50, "landslide")
+                "surface_temperature": get_risk_level_from_score(climate_scores.get("lst_score", 50), "surface_temperature"),
+                "heat_stress": get_risk_level_from_score(climate_scores.get("utfvi_score", 50), "heat_stress"),
+                "green_cover": get_risk_level_from_score(climate_scores.get("ndvi_score", 50), "green_cover"),
+                "heat_zone": get_risk_level_from_score(climate_scores.get("uhi_score", 50), "heat_zone"),
             }
         }
         

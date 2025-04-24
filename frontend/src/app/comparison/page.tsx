@@ -13,8 +13,12 @@ function ComparisonContent() {
   const [error, setError] = useState<string | null>(null);
 
   // Format risk level for display
-  const formatRiskLevel = (level: string): string => {
-    return level.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase());
+  const formatRiskLevel = (level: string | undefined | null): string => {
+    if (!level) return "Unknown";
+
+    return level
+      .replace(/_/g, " ") // Replace all underscores with spaces
+      .replace(/\b\w/g, (l) => l.toUpperCase()); // Capitalize first letter of each word
   };
 
   // Get color based on risk level
@@ -82,7 +86,7 @@ function ComparisonContent() {
   return (
     <main className="min-h-screen flex flex-col">
       {/* Main content */}
-      <div className="flex-1 bg-gray-50 p-6 text-black">
+      <div className="flex-1 bg-gray-50 p-6 text-black pt-20">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Property Comparison</h2>
@@ -247,7 +251,7 @@ function ComparisonContent() {
                     {/* Risk Factors */}
                     <tr>
                       <td className="py-3 px-4 font-medium bg-gray-50">
-                        Flood Risk
+                        Surface Temperature
                       </td>
                       {properties.map((property) => (
                         <td key={property.id} className="py-3 px-4">
@@ -257,7 +261,11 @@ function ComparisonContent() {
                                 property.risks.surface_temperature
                               )} mr-2`}
                             ></span>
-                            <span>{formatRiskLevel(property.risks.surface_temperature)}</span>
+                            <span>
+                              {formatRiskLevel(
+                                property.risks.surface_temperature
+                              )}
+                            </span>
                           </div>
                         </td>
                       ))}

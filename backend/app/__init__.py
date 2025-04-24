@@ -5,7 +5,6 @@ from routes.test_routes import test_bp
 from routes.property_routes import property_bp
 from routes.analytics_routes import analytics_bp
 from routes.data_routes import data_bp
-from routes.map_routes import map_bp
 
 def create_app():
     app = Flask(__name__)
@@ -16,6 +15,5 @@ def create_app():
     app.register_blueprint(property_bp)
     app.register_blueprint(analytics_bp)
     app.register_blueprint(data_bp)
-    app.register_blueprint(map_bp)
     
     return app

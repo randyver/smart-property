@@ -37,7 +37,7 @@ const Navbar = () => {
             href="/dashboard"
             className="text-gray-600 hover:text-smartproperty font-medium"
           >
-            Dashboard
+            Maps
           </a>
           <a
             href="/analytics"
@@ -85,7 +85,7 @@ const Navbar = () => {
                   href="/dashboard"
                   className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
                 >
-                  Dashboard
+                  Maps
                 </a>
               </SheetClose>
               <SheetClose asChild>

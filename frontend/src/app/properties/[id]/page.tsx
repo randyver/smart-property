@@ -53,12 +53,14 @@ export default function PropertyDetailsPage() {
   };
 
   // Format risk level for display
+  // Format risk level for display
   const formatRiskLevel = (level: string | undefined | null): string => {
     if (!level) return "Not Available";
     return level.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
-  const mapidApiKey =
+  // Get MAPID API key from environment
+  const MAPID_API_KEY =
     process.env.NEXT_PUBLIC_MAPID_API_KEY || "your_mapid_api_key";
   const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -74,20 +76,9 @@ export default function PropertyDetailsPage() {
       // Initialize map
       mapInstance.current = new maplibregl.Map({
         container: mapContainer.current,
-        style: `${API_BASE_URL}/api/map/style?style=basic`,
+        style: `https://basemap.mapid.io/styles/basic/style.json?key=${MAPID_API_KEY}`,
         center: [property.location.longitude, property.location.latitude], // Center on property
         zoom: 14, // Zoom closer than default
-        transformRequest: (url, resourceType) => {
-          if (url.startsWith("https://basemap.mapid.io/")) {
-            const resourcePath = url
-              .replace(/^https:\/\/basemap\.mapid\.io\//, "")
-              .split("?")[0];
-            return {
-              url: `${API_BASE_URL}/api/map/resources/${resourcePath}`,
-            };
-          }
-          return { url };
-        },
       });
 
       // Create custom marker element
@@ -129,7 +120,7 @@ export default function PropertyDetailsPage() {
         }
       };
     }
-  }, [selectedTab, property, API_BASE_URL]);
+  }, [selectedTab, property, MAPID_API_KEY]);
 
   // Fetch property data
   useEffect(() => {
@@ -214,43 +205,43 @@ export default function PropertyDetailsPage() {
 
   return (
     <main className="min-h-screen bg-gray-50 pt-20">
-    {/* Property Images */}
-    <div className="py-4">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="grid grid-cols-4 gap-4 h-80">
-          {/* Large image */}
-          <div className="col-span-3 h-full relative rounded-lg overflow-hidden">
-            <Image
-              src="/house-image.jpg"
-              alt="Main property"
-              fill
-              className="object-cover object-[center_40%] rounded-lg"
-              priority
-            />
-          </div>
-  
-          {/* Two small images */}
-          <div className="col-span-1 grid grid-rows-2 gap-4 h-full">
-            <div className="relative w-full h-full rounded-lg overflow-hidden">
+      {/* Property Images */}
+      <div className="py-4">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="grid grid-cols-4 gap-4 h-80">
+            {/* Large image */}
+            <div className="col-span-3 h-full relative rounded-lg overflow-hidden">
               <Image
                 src="/house-image.jpg"
-                alt="Side property 1"
+                alt="Main property"
                 fill
-                className="object-cover rounded-lg"
+                className="object-cover object-[center_40%] rounded-lg"
+                priority
               />
             </div>
-            <div className="relative w-full h-full rounded-lg overflow-hidden">
-              <Image
-                src="/house-image.jpg"
-                alt="Side property 2"
-                fill
-                className="object-cover rounded-lg"
-              />
+
+            {/* Two small images */}
+            <div className="col-span-1 grid grid-rows-2 gap-4 h-full">
+              <div className="relative w-full h-full rounded-lg overflow-hidden">
+                <Image
+                  src="/house-image.jpg"
+                  alt="Side property 1"
+                  fill
+                  className="object-cover rounded-lg"
+                />
+              </div>
+              <div className="relative w-full h-full rounded-lg overflow-hidden">
+                <Image
+                  src="/house-image.jpg"
+                  alt="Side property 2"
+                  fill
+                  className="object-cover rounded-lg"
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 py-6">

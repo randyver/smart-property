@@ -1,4 +1,4 @@
-// MapComponent.tsx with fixed hook usage
+// MapComponent.tsx with direct MAPID API access
 "use client";
 
 import { useEffect, useRef, useState, memo, useMemo } from "react";
@@ -34,47 +34,15 @@ const MapComponent = memo(
     const markersRef = useRef<{ [key: number]: maplibregl.Marker }>({});
     const [showProperties, setShowProperties] = useState(true); // State untuk visibilitas properti
 
+    // Get MAPID API key from environment
+    const MAPID_API_KEY = process.env.NEXT_PUBLIC_MAPID_API_KEY || 'your_mapid_api_key';
+    
+    // API base URL for data (not for basemap)
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
     // Layer information with colors and descriptions (updated with correct gridcode counts)
     const layerConfig = useMemo(
       () => ({
-        lst: {
-          name: "Land Surface Temperature",
-          description: "Temperature measured from the land surface",
-          colors: [
-            "#F5F500", // gridcode 1 - Very Cool (<24°C)
-            "#F5B800", // gridcode 2 - Cool (24-28°C)
-            "#F57A00", // gridcode 3 - Moderate (28-32°C)
-            "#F53D00", // gridcode 4 - Hot (32-36°C)
-            "#F50000", // gridcode 5 - Very Hot (>36°C)
-          ],
-          legend: [
-            { color: "#F5F500", label: "Very Cool (<24°C)" },
-            { color: "#F5B800", label: "Cool (24-28°C)" },
-            { color: "#F57A00", label: "Moderate (28-32°C)" },
-            { color: "#F53D00", label: "Hot (32-36°C)" },
-            { color: "#F50000", label: "Very Hot (>36°C)" },
-          ],
-          gridcodeCount: 5,
-        },
-        ndvi: {
-          name: "Vegetation Index",
-          description: "Normalized Difference Vegetation Index",
-          colors: [
-            "#A50026", // gridcode 1 - Non-vegetation/Water/Built-up (<0.2)
-            "#FF0000", // gridcode 2 - Very Sparse Vegetation (0.2-0.4)
-            "#FFFF00", // gridcode 3 - Sparse Vegetation (0.4-0.6)
-            "#86CB66", // gridcode 4 - Moderate Vegetation (0.6-0.8)
-            "#4C7300", // gridcode 5 - Dense Vegetation (>0.8)
-          ],
-          legend: [
-            { color: "#A50026", label: "Non-vegetation (<0.2)" },
-            { color: "#FF0000", label: "Very Sparse (0.2-0.4)" },
-            { color: "#FFFF00", label: "Sparse (0.4-0.6)" },
-            { color: "#86CB66", label: "Moderate (0.6-0.8)" },
-            { color: "#4C7300", label: "Dense (>0.8)" },
-          ],
-          gridcodeCount: 5,
-        },
         uhi: {
           name: "Urban Heat Island",
           description: "Urban Heat Island effect measurements",
@@ -119,39 +87,59 @@ const MapComponent = memo(
           ],
           gridcodeCount: 5,
         },
+        lst: {
+          name: "Land Surface Temperature",
+          description: "Temperature measured from the land surface",
+          colors: [
+            "#F5F500", // gridcode 1 - Very Cool (<24°C)
+            "#F5B800", // gridcode 2 - Cool (24-28°C)
+            "#F57A00", // gridcode 3 - Moderate (28-32°C)
+            "#F53D00", // gridcode 4 - Hot (32-36°C)
+            "#F50000", // gridcode 5 - Very Hot (>36°C)
+          ],
+          legend: [
+            { color: "#F5F500", label: "Very Cool (<24°C)" },
+            { color: "#F5B800", label: "Cool (24-28°C)" },
+            { color: "#F57A00", label: "Moderate (28-32°C)" },
+            { color: "#F53D00", label: "Hot (32-36°C)" },
+            { color: "#F50000", label: "Very Hot (>36°C)" },
+          ],
+          gridcodeCount: 5,
+        },
+        ndvi: {
+          name: "Vegetation Index",
+          description: "Normalized Difference Vegetation Index",
+          colors: [
+            "#A50026", // gridcode 1 - Non-vegetation/Water/Built-up (<0.2)
+            "#FF0000", // gridcode 2 - Very Sparse Vegetation (0.2-0.4)
+            "#FFFF00", // gridcode 3 - Sparse Vegetation (0.4-0.6)
+            "#86CB66", // gridcode 4 - Moderate Vegetation (0.6-0.8)
+            "#4C7300", // gridcode 5 - Dense Vegetation (>0.8)
+          ],
+          legend: [
+            { color: "#A50026", label: "Non-vegetation (<0.2)" },
+            { color: "#FF0000", label: "Very Sparse (0.2-0.4)" },
+            { color: "#FFFF00", label: "Sparse (0.4-0.6)" },
+            { color: "#86CB66", label: "Moderate (0.6-0.8)" },
+            { color: "#4C7300", label: "Dense (>0.8)" },
+          ],
+          gridcodeCount: 5,
+        },
       }),
       []
     );
 
-    const mapidApiKey =
-      process.env.NEXT_PUBLIC_MAPID_API_KEY || "your_mapid_api_key";
+    // Initialize map only once
+    useEffect(() => {
+      if (mapInstance.current) return; // Map already initialized
 
-     // Get API base URL from environment or use default
-     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-
-     // Initialize map only once
-     useEffect(() => {
-       if (mapInstance.current) return; // Map already initialized
- 
-       if (mapContainer.current) {
-         mapInstance.current = new maplibregl.Map({
-           container: mapContainer.current,
-           style: `${API_BASE_URL}/api/map/style?style=basic`,
-           center: center,
-           zoom: zoom,
-           transformRequest: (url, resourceType) => {
-             // Rewrite URLs to use our proxy for MAPID resources
-             if (url.startsWith('https://basemap.mapid.io/')) {
-               // Extract the resource path after basemap.mapid.io/
-               const resourcePath = url.replace(/^https:\/\/basemap\.mapid\.io\//, '').split('?')[0];
-               // Return the new URL using our proxy
-               return {
-                 url: `${API_BASE_URL}/api/map/resources/${resourcePath}`
-               };
-             }
-             return { url };
-           }
-         });
+      if (mapContainer.current) {
+        mapInstance.current = new maplibregl.Map({
+          container: mapContainer.current,
+          style: `https://basemap.mapid.io/styles/basic/style.json?key=${MAPID_API_KEY}`,
+          center: center,
+          zoom: zoom,
+        });
 
         mapInstance.current.on("load", () => {
           setMapLoaded(true);
@@ -179,7 +167,7 @@ const MapComponent = memo(
           mapInstance.current = null;
         }
       };
-    }, [mapidApiKey, center, zoom, mapRef]);
+    }, [MAPID_API_KEY, center, zoom, mapRef]);
 
     // Custom click handler function
     const handleMarkerClick = (propertyId: number) => {
@@ -331,8 +319,7 @@ const MapComponent = memo(
         if (map.getSource(sourceId)) return;
 
         try {
-          // Fetch GeoJSON data from backend API instead of local file
-          const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+          // Fetch GeoJSON data from backend API
           const response = await fetch(`${API_BASE_URL}/api/data/geojson/${layerType}`);
           
           if (!response.ok) {
@@ -469,7 +456,7 @@ const MapComponent = memo(
       };
 
       initializeLayers();
-    }, [mapLoaded, activeLayer, layerConfig]);
+    }, [mapLoaded, activeLayer, layerConfig, API_BASE_URL]);
 
     // Get the legend for the current active layer
     const activeLegend = activeLayer ? layerConfig[activeLayer]?.legend : null;

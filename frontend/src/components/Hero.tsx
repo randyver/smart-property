@@ -8,9 +8,17 @@ const Hero = () => {
     <section className="pt-28 pb-16 bg-gradient-to-br from-white to-smartproperty-light min-h-screen flex items-center justify-center">
       <div className="container mx-auto px-4 flex flex-col md:flex-row items-center">
         <div className="md:w-1/2 mb-10 md:mb-0 animate-fade-in">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-smartproperty-dark leading-tight mb-4">
+          <motion.h2
+            className="text-4xl md:text-5xl lg:text-6xl font-bold font-bold text-gray-800 mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <span className="bg-gradient-to-r from-smartproperty to-smartproperty-dark bg-clip-text text-transparent">
             Find Your Climate-Safe Dream Home Today
-          </h1>
+            </span>
+          </motion.h2>
           <p className="text-lg md:text-xl text-gray-600 mb-8">
             Discover properties that protect your investment from environmental
             risks through advanced GIS analysis.

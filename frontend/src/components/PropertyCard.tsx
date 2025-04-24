@@ -17,7 +17,7 @@ export default function PropertyCard({
   onViewDetails,
   onCompare,
   isComparing = false,
-  imageUrl = "https://savasa.id/upload/202306/article/Harga-Perumahan-di-Bekasi-Big-Header_1686363768.jpg",
+  imageUrl = "/house-image.jpg",
 }: PropertyCardProps) {
   const [showDetails, setShowDetails] = useState(false);
 

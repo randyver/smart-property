@@ -1,4 +1,3 @@
-// Modified page.tsx with improved map layer controls
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
@@ -34,8 +33,9 @@ export default function Dashboard() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // Mobile sidebar state
 
-  // Changed to ClimateLayerType to have better type safety
+  // Changed to ClimateLayerType for better type safety
   const [activeLayer, setActiveLayer] = useState<ClimateLayerType>(undefined);
 
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
@@ -69,8 +69,6 @@ export default function Dashboard() {
     ],
     []
   );
-
-  console.log("Home component rendered");
 
   // Format price to IDR
   const formatPrice = (price: number | null | undefined): string => {
@@ -109,6 +107,11 @@ export default function Dashboard() {
     return level.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase());
   }, []);
 
+  // Toggle sidebar function
+  const toggleSidebar = useCallback(() => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  }, [sidebarCollapsed]);
+
   // Fetch properties on initial load
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -133,6 +136,26 @@ export default function Dashboard() {
     };
 
     fetchInitialData();
+
+    // Set initial sidebar state based on screen size
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setSidebarCollapsed(true);
+      } else {
+        setSidebarCollapsed(false);
+      }
+    };
+
+    // Set initial state
+    handleResize();
+
+    // Add event listener
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   // Update displayed properties for infinite scroll when list display properties change
@@ -218,6 +241,11 @@ export default function Dashboard() {
     const filteredResults = applyFiltersToList(true);
     setMapDisplayProperties(filteredResults);
 
+    // On mobile, auto-collapse sidebar after search
+    if (window.innerWidth < 768) {
+      setSidebarCollapsed(true);
+    }
+
     setLoading(false);
   }, [applyFiltersToList]);
 
@@ -248,19 +276,10 @@ export default function Dashboard() {
     }, 300);
   }, [listDisplayProperties, page]);
 
-  // Metode yang diperbarui - menangani perubahan layer
-  const handleLayerChange = useCallback(
-    (layerId: ClimateLayerType) => {
-      // Jika layer yang sama diklik, matikan layer
-      setActiveLayer(activeLayer === layerId ? undefined : layerId);
-    },
-    [activeLayer]
-  );
-
-  // Handle marker click on map atau layer selection
+  // Handle marker click on map or layer selection
   const handleMarkerClick = useCallback(
     (propertyId: number) => {
-      // Kasus khusus untuk pengelolaan layer
+      // Special cases for layer management
       if (propertyId === 0) {
         // Clear all layers
         setActiveLayer(undefined);
@@ -283,7 +302,7 @@ export default function Dashboard() {
         return;
       }
 
-      // Jika bukan kasus khusus, ini adalah click pada marker properti
+      // Regular property marker click
       console.log(`Marker clicked for property ID: ${propertyId}`);
 
       const property = allProperties.find((p) => p.id === propertyId);
@@ -332,6 +351,11 @@ export default function Dashboard() {
       });
     } else {
       console.error("Map reference not available or property location missing");
+    }
+
+    // Hide sidebar on mobile when viewing details
+    if (window.innerWidth < 768) {
+      setSidebarCollapsed(true);
     }
   }, []);
 
@@ -387,21 +411,76 @@ export default function Dashboard() {
   return (
     <main className="h-screen flex flex-col overflow-hidden">
       {/* Main content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left sidebar - reduced width from 1/3 to 1/4 */}
-        <div className="w-1/4 border-r bg-white flex flex-col overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Mobile toggle button for sidebar */}
+        {/* Mobile toggle button for sidebar - bergerak dari kiri ke kanan saat expanded */}
+        <button
+          className={`md:hidden absolute top-4 z-50 bg-white p-2 rounded-full shadow-md text-gray-700 mt-12 transition-all duration-300 ${
+            sidebarCollapsed ? "left-4" : "right-4"
+          }`}
+          onClick={toggleSidebar}
+          aria-label={
+            sidebarCollapsed ? "Show property list" : "Hide property list"
+          }
+        >
+          {sidebarCollapsed ? (
+            // Menu icon when sidebar is collapsed
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          ) : (
+            // X icon when sidebar is expanded
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          )}
+        </button>
+
+        {/* Left sidebar with responsive behavior */}
+        <div
+          className={`border-r bg-white flex pt-16 flex-col overflow-hidden transition-all duration-300 absolute md:relative z-40 md:z-auto h-full
+          ${
+            sidebarCollapsed
+              ? "w-0 -translate-x-full md:w-1/4 md:translate-x-0"
+              : "w-full md:w-1/4"
+          }`}
+        >
           {/* Fixed search filters section */}
           <div className="p-3 border-b bg-white">
-            <h3 className="font-bold text-lg mb-3 text-gray-800">
-              Find Climate-Safe Properties
-            </h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-bold text-lg text-gray-800">
+                Find Climate-Safe Properties
+              </h3>
+            </div>
 
             {/* Search input */}
             <div className="mb-3">
               <input
                 type="text"
                 placeholder="Search properties..."
-                className="w-full p-2 border border-gray-300 rounded-md text-black" // Text color changed to black
+                className="w-full p-2 border border-gray-300 rounded-md text-black"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -440,7 +519,7 @@ export default function Dashboard() {
                     Bedrooms
                   </label>
                   <select
-                    className="w-full p-2 border border-gray-300 rounded-md text-black text-sm"
+                    className="w-full p-2 border border-gray-300 rounded-md cursor-pointer bg-white text-black text-sm"
                     value={bedrooms || ""}
                     onChange={(e) => handleBedroomsChange(e.target.value)}
                   >
@@ -457,7 +536,7 @@ export default function Dashboard() {
                     Min. Climate Score
                   </label>
                   <select
-                    className="w-full p-2 border border-gray-300 rounded-md text-black text-sm"
+                    className="w-full p-2 border border-gray-300 cursor-pointer rounded-md bg-white text-black text-sm"
                     value={minScore || ""}
                     onChange={(e) => handleMinScoreChange(e.target.value)}
                   >
@@ -537,9 +616,12 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Right content - Map */}
-        <div className="w-3/4 relative overflow-hidden">
-          {/* Using our updated MapComponent */}
+        {/* Map container - takes full width when sidebar is collapsed */}
+        <div
+          className={`relative overflow-hidden transition-all duration-300 
+          ${sidebarCollapsed ? "w-full" : "w-0 md:w-3/4"}`}
+        >
+          {/* Map component */}
           <MapComponent
             properties={mapDisplayProperties}
             activeLayer={activeLayer}
@@ -547,9 +629,7 @@ export default function Dashboard() {
             mapRef={mapRef}
           />
 
-          {/* MapComponent saja, layer controls sudah terintegrasi dalam komponen */}
-
-          {/* Selected property popup */}
+          {/* Selected property popup - make responsive */}
           {selectedProperty && (
             <div className="absolute bottom-4 left-4 right-4 max-w-md mx-auto bg-white rounded-md shadow-lg p-4 z-20">
               <button
@@ -589,7 +669,7 @@ export default function Dashboard() {
               <h4 className="font-bold text-sm mb-2 mt-4 text-gray-800">
                 Climate Risk Assessment
               </h4>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm mb-4">
                 <div className="flex items-center">
                   <span
                     className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
@@ -598,7 +678,9 @@ export default function Dashboard() {
                   ></span>
                   <span className="text-gray-700">
                     Surface Temperature:{" "}
-                    {formatRiskLevel(selectedProperty.risks?.surface_temperature || "medium")}
+                    {formatRiskLevel(
+                      selectedProperty.risks?.surface_temperature || "medium"
+                    )}
                   </span>
                 </div>
                 <div className="flex items-center">
@@ -669,12 +751,12 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Comparison bar */}
+          {/* Comparison bar - improve mobile responsiveness */}
           {compareProperties.length > 0 && (
-            <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md p-4 z-30">
+            <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md p-2 sm:p-4 z-30">
               <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-bold">
+                  <h3 className="font-bold text-sm sm:text-base">
                     Comparing {compareProperties.length} properties
                   </h3>
                   <button
@@ -684,13 +766,13 @@ export default function Dashboard() {
                     Clear all
                   </button>
                 </div>
-                <div className="flex space-x-4">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
                   {compareProperties.map((property) => (
                     <div
                       key={property.id}
-                      className="flex-1 bg-blue-50 p-3 rounded-md"
+                      className="flex-1 bg-blue-50 p-2 sm:p-3 rounded-md"
                     >
-                      <p className="font-bold truncate text-gray-800">
+                      <p className="font-bold truncate text-gray-800 text-sm">
                         {property.title}
                       </p>
                       <div className="flex justify-between mt-2">
@@ -698,7 +780,7 @@ export default function Dashboard() {
                           score={property.climate_risk_score}
                           size="sm"
                         />
-                        <p className="font-bold text-gray-800">
+                        <p className="font-bold text-gray-800 text-sm">
                           Rp {formatPrice(property.price)}
                         </p>
                       </div>
@@ -708,7 +790,7 @@ export default function Dashboard() {
                     href={`/comparison?ids=${compareProperties
                       .map((p) => p.id)
                       .join(",")}`}
-                    className="px-6 py-3 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 flex items-center justify-center"
+                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 flex items-center justify-center"
                   >
                     Compare
                   </a>

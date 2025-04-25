@@ -38,6 +38,8 @@ const MapComponent = memo(
     const [pendingLayer, setPendingLayer] =
       useState<ClimateLayerType>(undefined);
     const wasLoadingRef = useRef(false);
+    // New state for showing/hiding the layer panel
+    const [showLayerPanel, setShowLayerPanel] = useState(true);
 
     // Track loaded features for each layer
     const loadedFeaturesRef = useRef<{ [key: string]: any[] }>({
@@ -550,6 +552,11 @@ const MapComponent = memo(
       setShowProperties((prev) => !prev);
     };
 
+    // Toggle layer panel visibility
+    const toggleLayerPanel = () => {
+      setShowLayerPanel((prev) => !prev);
+    };
+
     // Clear selected layer
     const clearLayer = (e: React.MouseEvent) => {
       e.stopPropagation(); // Prevent the button click from bubbling to the parent
@@ -633,100 +640,137 @@ const MapComponent = memo(
           </div>
         )}
 
-        {/* Layer controls */}
-        <div className="absolute top-20 right-4 bg-white rounded-xl shadow-md p-3 z-10 w-72">
-          <h3 className="text-sm font-bold mb-2 px-2 text-gray-800">
-            Map Layers
-          </h3>
-
-          {/* Instructions alert */}
-          <div className="mb-3 px-2 py-2 bg-yellow-50 text-amber-700 text-xs rounded border border-amber-200">
-            <p>
-              Untuk mengganti lapisan iklim, klik ikon tempat sampah untuk
-              menghapus lapisan saat ini terlebih dahulu, kemudian pilih yang
-              baru.
-            </p>
-          </div>
-
-          <div className="mb-3 border-b pb-2">
-            <button
-              onClick={togglePropertyVisibility}
-              className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
-                showProperties
-                  ? "bg-blue-600 text-white"
-                  : "hover:bg-gray-100 text-gray-700"
-              }`}
+        {/* Layer panel toggle button - Always visible */}
+        <div className="absolute top-20 right-4 z-20">
+          <button
+            onClick={toggleLayerPanel}
+            className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors"
+            title={showLayerPanel ? "Hide layer panel" : "Show layer panel"}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 text-gray-700"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              <div
-                className={`w-4 h-4 min-w-[16px] min-h-[16px] rounded-full flex-shrink-0 mr-2 ${
-                  showProperties ? "bg-white" : "bg-blue-600"
-                }`}
-              ></div>
-              <span className="truncate text-xs">Lokasi Properti</span>
-            </button>
-          </div>
-
-          <h4 className="text-xs font-medium text-gray-600 mb-1 px-2">
-            Climate Layers
-          </h4>
-          <div className="space-y-1">
-            {Object.entries(layerConfig).map(([key, layer]) => (
-              <div key={key} className="relative group">
-                <button
-                  onClick={() => handleLayerSelect(key as ClimateLayerType)}
-                  className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
-                    activeLayer === key
-                      ? "bg-blue-600 text-white"
-                      : activeLayer || isLoading
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed" // Disabled when another layer is active or loading
-                      : "hover:bg-gray-100 text-gray-700"
-                  }`}
-                  disabled={!!(activeLayer || isLoading)}
-                >
-                  <div
-                    className={`w-4 h-4 min-w-[16px] min-h-[16px] rounded-full flex-shrink-0 mr-2 ${
-                      activeLayer === key ? "bg-white" : "bg-blue-600"
-                    }`}
-                  ></div>
-                  <span className="truncate text-xs">{layer.name}</span>
-
-                  {/* Show "pending" indicator for the pending layer */}
-                  {pendingLayer === key && (
-                    <span className="ml-2 text-xs text-blue-600 animate-pulse">
-                      (queued)
-                    </span>
-                  )}
-                </button>
-
-                {/* Delete button - only show for active layer or when loading */}
-                {(activeLayer === key || isLoading) && (
-                  <button
-                    onClick={clearLayer}
-                    className={`absolute right-2 top-1/2 transform -translate-y-1/2 ${
-                      activeLayer ? "text-white" : "text-gray-400"
-                    } hover:text-red-500 p-1`}
-                    title="Clear layer"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
+              {showLayerPanel ? (
+                // Icon for hiding panel (X icon)
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              ) : (
+                // Icon for showing panel (layers icon)
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16m-7 6h7"
+                />
+              )}
+            </svg>
+          </button>
         </div>
+
+        {/* Layer controls - Now conditionally rendered based on showLayerPanel */}
+        {showLayerPanel && (
+          <div className="absolute top-32 right-4 bg-white rounded-xl shadow-md p-3 z-10 w-72">
+            <h3 className="text-sm font-bold mb-2 px-2 text-gray-800">
+              Map Layers
+            </h3>
+
+            {/* Instructions alert */}
+            <div className="mb-3 px-2 py-2 bg-yellow-50 text-amber-700 text-xs rounded border border-amber-200">
+              <p>
+                Untuk mengganti lapisan iklim, klik ikon tempat sampah untuk
+                menghapus lapisan saat ini terlebih dahulu, kemudian pilih yang
+                baru.
+              </p>
+            </div>
+
+            <div className="mb-3 border-b pb-2">
+              <button
+                onClick={togglePropertyVisibility}
+                className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
+                  showProperties
+                    ? "bg-blue-600 text-white"
+                    : "hover:bg-gray-100 text-gray-700"
+                }`}
+              >
+                <div
+                  className={`w-4 h-4 min-w-[16px] min-h-[16px] rounded-full flex-shrink-0 mr-2 ${
+                    showProperties ? "bg-white" : "bg-blue-600"
+                  }`}
+                ></div>
+                <span className="truncate text-xs">Lokasi Properti</span>
+              </button>
+            </div>
+
+            <h4 className="text-xs font-medium text-gray-600 mb-1 px-2">
+              Climate Layers
+            </h4>
+            <div className="space-y-1">
+              {Object.entries(layerConfig).map(([key, layer]) => (
+                <div key={key} className="relative group">
+                  <button
+                    onClick={() => handleLayerSelect(key as ClimateLayerType)}
+                    className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
+                      activeLayer === key
+                        ? "bg-blue-600 text-white"
+                        : activeLayer || isLoading
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed" // Disabled when another layer is active or loading
+                        : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                    disabled={!!(activeLayer || isLoading)}
+                  >
+                    <div
+                      className={`w-4 h-4 min-w-[16px] min-h-[16px] rounded-full flex-shrink-0 mr-2 ${
+                        activeLayer === key ? "bg-white" : "bg-blue-600"
+                      }`}
+                    ></div>
+                    <span className="truncate text-xs">{layer.name}</span>
+
+                    {/* Show "pending" indicator for the pending layer */}
+                    {pendingLayer === key && (
+                      <span className="ml-2 text-xs text-blue-600 animate-pulse">
+                        (queued)
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Delete button - only show for active layer or when loading */}
+                  {(activeLayer === key || isLoading) && (
+                    <button
+                      onClick={clearLayer}
+                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 ${
+                        activeLayer ? "text-white" : "text-gray-400"
+                      } hover:text-red-500 p-1`}
+                      title="Clear layer"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Legend - Updated with accurate classification labels */}
         {activeLayer && (

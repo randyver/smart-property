@@ -166,71 +166,53 @@ export default function Dashboard() {
     setHasMore(listDisplayProperties.length > 10);
   }, [listDisplayProperties]);
 
-  // Update list display properties when search term changes (real-time search)
-  useEffect(() => {
-    // Filter properties based on search term for the list display
-    if (searchTerm.trim() === "") {
-      // If search term is empty, apply other filters
-      applyFiltersToList(false);
-    } else {
-      // Filter by search term
+  // Apply all filters to list display
+  const applyFiltersToList = useCallback(() => {
+    let results = [...allProperties];
+
+    // Filter by price range
+    if (priceRange[0] !== undefined) {
+      results = results.filter((p) => p.price >= (priceRange[0] || 0));
+    }
+    if (priceRange[1] !== undefined) {
+      results = results.filter((p) => p.price <= (priceRange[1] || Infinity));
+    }
+
+    // Filter by bedrooms
+    if (bedrooms !== undefined) {
+      if (bedrooms === 4) {
+        // For >3 bedrooms option
+        results = results.filter((p) => p.bedrooms > 3);
+      } else {
+        results = results.filter((p) => p.bedrooms === bedrooms);
+      }
+    }
+
+    // Filter by climate score
+    if (minScore !== undefined) {
+      results = results.filter((p) => p.climate_risk_score >= minScore);
+    }
+
+    // Filter by search term if needed
+    if (searchTerm.trim() !== "") {
       const term = searchTerm.toLowerCase().trim();
-      const filtered = allProperties.filter(
+      results = results.filter(
         (p) =>
           p.title.toLowerCase().includes(term) ||
           p.address?.toLowerCase().includes(term) ||
           p.district?.toLowerCase().includes(term) ||
           p.city?.toLowerCase().includes(term)
       );
-      setListDisplayProperties(filtered);
     }
-  }, [searchTerm, allProperties]);
 
-  // Apply all filters to list display
-  const applyFiltersToList = useCallback(
-    (includeSearchTerm = true) => {
-      let results = [...allProperties];
+    setListDisplayProperties(results);
+    return results;
+  }, [allProperties, priceRange, bedrooms, minScore, searchTerm]);
 
-      // Filter by price range
-      if (priceRange[0] !== undefined) {
-        results = results.filter((p) => p.price >= (priceRange[0] || 0));
-      }
-      if (priceRange[1] !== undefined) {
-        results = results.filter((p) => p.price <= (priceRange[1] || Infinity));
-      }
-
-      // Filter by bedrooms
-      if (bedrooms !== undefined) {
-        if (bedrooms === 4) {
-          // For >3 bedrooms option
-          results = results.filter((p) => p.bedrooms > 3);
-        } else {
-          results = results.filter((p) => p.bedrooms === bedrooms);
-        }
-      }
-
-      // Filter by climate score
-      if (minScore !== undefined) {
-        results = results.filter((p) => p.climate_risk_score >= minScore);
-      }
-
-      // Filter by search term if needed
-      if (includeSearchTerm && searchTerm.trim() !== "") {
-        const term = searchTerm.toLowerCase().trim();
-        results = results.filter(
-          (p) =>
-            p.title.toLowerCase().includes(term) ||
-            p.address?.toLowerCase().includes(term) ||
-            p.district?.toLowerCase().includes(term) ||
-            p.city?.toLowerCase().includes(term)
-        );
-      }
-
-      setListDisplayProperties(results);
-      return results;
-    },
-    [allProperties, priceRange, bedrooms, minScore, searchTerm]
-  );
+  // Update list display properties when search term changes (real-time search)
+  useEffect(() => {
+    applyFiltersToList();
+  }, [searchTerm, priceRange, bedrooms, minScore, applyFiltersToList]);
 
   // When Search button is clicked - update map properties
   const handleSearch = useCallback(() => {
@@ -238,7 +220,7 @@ export default function Dashboard() {
     console.log("Search button clicked");
 
     // Apply all filters and update map
-    const filteredResults = applyFiltersToList(true);
+    const filteredResults = applyFiltersToList();
     setMapDisplayProperties(filteredResults);
 
     // On mobile, auto-collapse sidebar after search
@@ -259,7 +241,7 @@ export default function Dashboard() {
 
     // Reset to all properties
     setListDisplayProperties(allProperties);
-    setMapDisplayProperties(allProperties);
+    // Don't update map until Search is clicked
   }, [allProperties]);
 
   // Load more properties for infinite scroll
@@ -363,39 +345,27 @@ export default function Dashboard() {
   const handlePriceRangeSelect = useCallback(
     (min?: number, max?: number) => {
       setPriceRange([min, max]);
-
-      // Update list display with the new price range
-      setTimeout(() => {
-        applyFiltersToList(true);
-      }, 0);
+      // Filters will be applied automatically via useEffect dependency
     },
-    [applyFiltersToList]
+    []
   );
 
   // Handle bedroom selection
   const handleBedroomsChange = useCallback(
     (value: string) => {
       setBedrooms(value ? Number(value) : undefined);
-
-      // Update list display with the new bedrooms filter
-      setTimeout(() => {
-        applyFiltersToList(true);
-      }, 0);
+      // Filters will be applied automatically via useEffect dependency
     },
-    [applyFiltersToList]
+    []
   );
 
   // Handle climate score selection
   const handleMinScoreChange = useCallback(
     (value: string) => {
       setMinScore(value ? Number(value) : undefined);
-
-      // Update list display with the new climate score filter
-      setTimeout(() => {
-        applyFiltersToList(true);
-      }, 0);
+      // Filters will be applied automatically via useEffect dependency
     },
-    [applyFiltersToList]
+    []
   );
 
   // Price range options
@@ -413,7 +383,6 @@ export default function Dashboard() {
       {/* Main content */}
       <div className="flex-1 flex overflow-hidden relative">
         {/* Mobile toggle button for sidebar */}
-        {/* Mobile toggle button for sidebar - bergerak dari kiri ke kanan saat expanded */}
         <button
           className={`md:hidden absolute top-4 z-50 bg-white p-2 rounded-full shadow-md text-gray-700 mt-12 transition-all duration-300 ${
             sidebarCollapsed ? "left-4" : "right-4"
@@ -467,36 +436,36 @@ export default function Dashboard() {
               : "w-full md:w-1/4"
           }`}
         >
-          {/* Fixed search filters section */}
-          <div className="p-3 border-b bg-white">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-lg text-gray-800">
+          {/* Fixed search filters section - Updated with better mobile responsiveness */}
+          <div className="p-2 sm:p-3 border-b bg-white">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-bold text-base sm:text-lg text-gray-800">
                 Temukan Properti Aman dari Iklim.
               </h3>
             </div>
 
             {/* Search input */}
-            <div className="mb-3">
+            <div className="mb-2">
               <input
                 type="text"
                 placeholder="Cari properti..."
-                className="w-full p-2 border border-gray-300 rounded-md text-black"
+                className="w-full p-1.5 sm:p-2 border border-gray-300 rounded-md text-black text-sm"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               {/* Price Range */}
               <div>
-                <label className="block text-sm font-medium text-gray-800 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-800 mb-0.5 sm:mb-1">
                   Rentang Harga
                 </label>
                 <div className="grid grid-cols-3 gap-1">
                   {priceOptions.map((option, index) => (
                     <button
                       key={index}
-                      className={`px-2 py-1 text-xs border rounded-md transition ${
+                      className={`px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs border rounded-md transition ${
                         priceRange[0] === option.min &&
                         priceRange[1] === option.max
                           ? "border-blue-500 bg-blue-50 text-blue-700"
@@ -513,13 +482,13 @@ export default function Dashboard() {
               </div>
 
               {/* Other filters */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-800 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-800 mb-0.5 sm:mb-1">
                     Kamar Tidur
                   </label>
                   <select
-                    className="w-full p-2 border border-gray-300 rounded-md cursor-pointer bg-white text-black text-sm"
+                    className="w-full p-1 sm:p-2 border border-gray-300 rounded-md cursor-pointer bg-white text-black text-xs sm:text-sm"
                     value={bedrooms || ""}
                     onChange={(e) => handleBedroomsChange(e.target.value)}
                   >
@@ -532,11 +501,11 @@ export default function Dashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-800 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-800 mb-0.5 sm:mb-1">
                     Skor Iklim Min.
                   </label>
                   <select
-                    className="w-full p-2 border border-gray-300 cursor-pointer rounded-md bg-white text-black text-sm"
+                    className="w-full p-1 sm:p-2 border border-gray-300 cursor-pointer rounded-md bg-white text-black text-xs sm:text-sm"
                     value={minScore || ""}
                     onChange={(e) => handleMinScoreChange(e.target.value)}
                   >
@@ -550,16 +519,16 @@ export default function Dashboard() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex justify-end space-x-2 pt-2">
+              <div className="flex justify-end space-x-2 pt-1 sm:pt-2">
                 <button
                   onClick={handleResetFilters}
-                  className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 text-gray-800"
+                  className="px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded-md hover:bg-gray-50 text-gray-800"
                 >
                   Reset
                 </button>
                 <button
                   onClick={handleSearch}
-                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  className="px-2 py-1 text-xs sm:text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
                   Cari
                 </button>
@@ -569,7 +538,7 @@ export default function Dashboard() {
 
           {/* Scrollable property list with infinite scroll */}
           <div id="propertyScrollContainer" className="flex-1 overflow-y-auto">
-            <div className="p-3">
+            <div className="p-2 sm:p-3">
               {loading ? (
                 <div className="text-center py-8">
                   <p className="text-gray-800">Loading properties...</p>
@@ -596,7 +565,7 @@ export default function Dashboard() {
                   }
                   scrollableTarget="propertyScrollContainer"
                 >
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     {displayedProperties.map((property) => (
                       <PropertyCard
                         key={property.id}
@@ -631,7 +600,7 @@ export default function Dashboard() {
 
           {/* Selected property popup - make responsive */}
           {selectedProperty && (
-            <div className="absolute bottom-4 left-4 right-4 max-w-md mx-auto bg-white rounded-md shadow-lg p-4 z-20">
+            <div className="absolute bottom-4 left-4 right-4 max-w-md mx-auto bg-white rounded-md shadow-lg p-3 sm:p-4 z-20">
               <button
                 onClick={() => setSelectedProperty(null)}
                 className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-xl"
@@ -640,44 +609,44 @@ export default function Dashboard() {
                 ×
               </button>
 
-              <h3 className="font-bold text-lg mb-2 text-gray-800 pr-6">
+              <h3 className="font-bold text-base sm:text-lg mb-1.5 sm:mb-2 text-gray-800 pr-6">
                 {selectedProperty.title}
               </h3>
-              <p className="text-blue-700 font-bold text-xl mb-2">
+              <p className="text-blue-700 font-bold text-lg sm:text-xl mb-1.5 sm:mb-2">
                 Rp {formatPrice(selectedProperty.price)}
               </p>
 
-              <div className="flex flex-wrap justify-between items-center mb-4">
-                <div className="flex flex-wrap gap-4 text-sm text-gray-700">
+              <div className="flex flex-wrap justify-between items-center mb-3 sm:mb-4">
+                <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-700">
                   <span>{selectedProperty.bedrooms ?? "-"} Kamar Tidur</span>
                   <span>{selectedProperty.building_area ?? "-"} m²</span>
                   <span>{selectedProperty.land_area ?? "-"} m² Tanah</span>
                 </div>
 
-                <div className="mt-2 sm:mt-0">
+                <div className="mt-1.5 sm:mt-0">
                   <RiskIndicator score={selectedProperty.climate_risk_score} />
                 </div>
               </div>
 
               {/* Climate Scores Section */}
               {selectedProperty.climate_scores && (
-                <div className="mb-4 mt-2">
+                <div className="mb-3 sm:mb-4 mt-1.5 sm:mt-2">
                   <ClimateScores scores={selectedProperty.climate_scores} />
                 </div>
               )}
 
-              <h4 className="font-bold text-sm mb-2 mt-4 text-gray-800">
-              Penilaian Risiko Iklim
+              <h4 className="font-bold text-xs sm:text-sm mb-1.5 sm:mb-2 mt-3 sm:mt-4 text-gray-800">
+                Penilaian Risiko Iklim
               </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-2 sm:gap-x-4 gap-y-1.5 sm:gap-y-2 text-xs sm:text-sm mb-3 sm:mb-4">
                 <div className="flex items-center">
                   <span
-                    className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
+                    className={`inline-block w-2 sm:w-3 h-2 sm:h-3 rounded-full ${getRiskColor(
                       selectedProperty.risks?.surface_temperature || "medium"
-                    )} mr-2`}
+                    )} mr-1.5 sm:mr-2`}
                   ></span>
                   <span className="text-gray-700">
-                  Suhu Permukaan:{" "}
+                    Suhu Permukaan:{" "}
                     {formatRiskLevel(
                       selectedProperty.risks?.surface_temperature || "medium"
                     )}
@@ -685,12 +654,12 @@ export default function Dashboard() {
                 </div>
                 <div className="flex items-center">
                   <span
-                    className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
+                    className={`inline-block w-2 sm:w-3 h-2 sm:h-3 rounded-full ${getRiskColor(
                       selectedProperty.risks?.heat_stress || "medium"
-                    )} mr-2`}
+                    )} mr-1.5 sm:mr-2`}
                   ></span>
                   <span className="text-gray-700">
-                  Tekanan Panas:{" "}
+                    Tekanan Panas:{" "}
                     {formatRiskLevel(
                       selectedProperty.risks?.heat_stress || "medium"
                     )}
@@ -698,12 +667,12 @@ export default function Dashboard() {
                 </div>
                 <div className="flex items-center">
                   <span
-                    className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
+                    className={`inline-block w-2 sm:w-3 h-2 sm:h-3 rounded-full ${getRiskColor(
                       selectedProperty.risks?.green_cover || "medium"
-                    )} mr-2`}
+                    )} mr-1.5 sm:mr-2`}
                   ></span>
                   <span className="text-gray-700">
-                  Tutupan Hijau:{" "}
+                    Tutupan Hijau:{" "}
                     {formatRiskLevel(
                       selectedProperty.risks?.green_cover || "medium"
                     )}
@@ -711,12 +680,12 @@ export default function Dashboard() {
                 </div>
                 <div className="flex items-center">
                   <span
-                    className={`inline-block w-3 h-3 rounded-full ${getRiskColor(
+                    className={`inline-block w-2 sm:w-3 h-2 sm:h-3 rounded-full ${getRiskColor(
                       selectedProperty.risks?.heat_zone || "medium"
-                    )} mr-2`}
+                    )} mr-1.5 sm:mr-2`}
                   ></span>
                   <span className="text-gray-700">
-                  Zona Panas:{" "}
+                    Zona Panas:{" "}
                     {formatRiskLevel(
                       selectedProperty.risks?.heat_zone || "medium"
                     )}
@@ -724,10 +693,10 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap justify-end gap-2 mt-4">
+              <div className="flex flex-wrap justify-end gap-2 mt-3 sm:mt-4">
                 <button
                   onClick={() => handleCompareProperty(selectedProperty)}
-                  className={`px-4 py-2 text-sm rounded-md ${
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-md ${
                     compareProperties.some((p) => p.id === selectedProperty.id)
                       ? "bg-gray-200 text-gray-600"
                       : "bg-blue-100 text-blue-700 hover:bg-blue-200"
@@ -743,7 +712,7 @@ export default function Dashboard() {
 
                 <a
                   href={`/properties/${selectedProperty.id}`}
-                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 >
                   Lihat Detail
                 </a>
@@ -755,13 +724,13 @@ export default function Dashboard() {
           {compareProperties.length > 0 && (
             <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md p-2 sm:p-4 z-30">
               <div className="max-w-7xl mx-auto">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-bold text-sm sm:text-base">
-                  Membandingkan {compareProperties.length} properti
+                <div className="flex justify-between items-center mb-1.5 sm:mb-2">
+                  <h3 className="font-bold text-xs sm:text-sm md:text-base">
+                    Membandingkan {compareProperties.length} properti
                   </h3>
                   <button
                     onClick={() => setCompareProperties([])}
-                    className="text-sm text-red-600 hover:underline"
+                    className="text-xs sm:text-sm text-red-600 hover:underline"
                   >
                     Hapus semua
                   </button>
@@ -770,17 +739,17 @@ export default function Dashboard() {
                   {compareProperties.map((property) => (
                     <div
                       key={property.id}
-                      className="flex-1 bg-blue-50 p-2 sm:p-3 rounded-md"
+                      className="flex-1 bg-blue-50 p-1.5 sm:p-2 md:p-3 rounded-md"
                     >
-                      <p className="font-bold truncate text-gray-800 text-sm">
+                      <p className="font-bold truncate text-gray-800 text-xs sm:text-sm">
                         {property.title}
                       </p>
-                      <div className="flex justify-between mt-2">
+                      <div className="flex justify-between mt-1.5 sm:mt-2">
                         <RiskIndicator
                           score={property.climate_risk_score}
                           size="sm"
                         />
-                        <p className="font-bold text-gray-800 text-sm">
+                        <p className="font-bold text-gray-800 text-xs sm:text-sm">
                           Rp {formatPrice(property.price)}
                         </p>
                       </div>
@@ -790,7 +759,7 @@ export default function Dashboard() {
                     href={`/comparison?ids=${compareProperties
                       .map((p) => p.id)
                       .join(",")}`}
-                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 flex items-center justify-center"
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white text-xs sm:text-sm rounded-md hover:bg-blue-700 flex items-center justify-center"
                   >
                     Bandingkan
                   </a>

@@ -1,59 +1,51 @@
 # backend/routes/data_routes.py
-from flask import Blueprint, jsonify, send_from_directory, current_app
+from flask import Blueprint, jsonify, request
 import os
 import json
+from math import ceil
 
 data_bp = Blueprint('data', __name__)
 
 @data_bp.route('/api/data/geojson/<string:layer_name>', methods=['GET'])
-def get_geojson_data(layer_name):
-    """Get GeoJSON data for a specific climate layer"""
+def get_paginated_geojson(layer_name):
+    """Get paginated GeoJSON data"""
     try:
-        # Define valid layer names
         valid_layers = ['lst', 'ndvi', 'uhi', 'utfvi']
-        
         if layer_name not in valid_layers:
-            return jsonify({
-                "status": "error",
-                "message": f"Invalid layer name. Must be one of: {', '.join(valid_layers)}"
-            }), 400
-        
-        # Path to the GeoJSON file
-        geojson_path = os.path.join(os.path.dirname(__file__), f'../data/geojson/{layer_name}.geojson')
-        
-        # Check if file exists
-        if not os.path.exists(geojson_path):
-            return jsonify({
-                "status": "error",
-                "message": f"GeoJSON file for {layer_name} not found"
-            }), 404
-            
-        # Read the GeoJSON file
-        with open(geojson_path, 'r') as f:
-            geojson_data = json.load(f)
-        
-        return jsonify({
-            "status": "success",
-            "data": geojson_data
-        })
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        
-        return jsonify({
-            "status": "error",
-            "message": f"Failed to load GeoJSON data: {str(e)}"
-        }), 500
+            return jsonify({"error": "Invalid layer"}), 400
 
-# Add a route to serve static files if needed
-@data_bp.route('/api/data/static/<path:filename>', methods=['GET'])
-def get_static_data(filename):
-    """Serve static data files"""
-    try:
-        data_dir = os.path.join(os.path.dirname(__file__), '../data')
-        return send_from_directory(data_dir, filename)
-    except Exception as e:
+        # Get pagination params
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 100))
+        
+        geojson_path = os.path.join(
+            os.path.dirname(__file__), 
+            f'../data/geojson/{layer_name}.geojson'
+        )
+
+        if not os.path.exists(geojson_path):
+            return jsonify({"error": "Data not found"}), 404
+
+        with open(geojson_path, 'r') as f:
+            full_data = json.load(f)
+        
+        features = full_data.get('features', [])
+        total_features = len(features)
+        total_pages = ceil(total_features / per_page)
+
+        # Paginate features
+        start = (page - 1) * per_page
+        end = start + per_page
+        paginated_features = features[start:end]
+
         return jsonify({
-            "status": "error",
-            "message": f"Failed to serve file: {str(e)}"
-        }), 500
+            "page": page,
+            "per_page": per_page,
+            "total_features": total_features,
+            "total_pages": total_pages,
+            "features": paginated_features,
+            "type": "FeatureCollection"
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

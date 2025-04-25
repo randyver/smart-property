@@ -1,12 +1,9 @@
-// MapComponent.tsx with direct MAPID API access
 "use client";
-
-import { useEffect, useRef, useState, memo, useMemo } from "react";
+import { useEffect, useRef, useState, memo, useCallback } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Property } from "@/types";
 
-// Define the climate layer types
 export type ClimateLayerType = "lst" | "ndvi" | "uhi" | "utfvi" | undefined;
 
 interface MapComponentProps {
@@ -18,461 +15,579 @@ interface MapComponentProps {
   mapRef?: React.MutableRefObject<any>;
 }
 
-// The component is wrapped with React.memo to prevent unnecessary re-renders
+const FEATURES_PER_PAGE = 100;
+const DEFAULT_CENTER: [number, number] = [107.6096, -6.9147];
+const DEFAULT_ZOOM = 12;
+
 const MapComponent = memo(
   ({
     properties = [],
     activeLayer,
     onMarkerClick,
-    center = [107.6096, -6.9147], // Default to Bandung
-    zoom = 12,
+    center = DEFAULT_CENTER,
+    zoom = DEFAULT_ZOOM,
     mapRef,
   }: MapComponentProps) => {
     const mapContainer = useRef<HTMLDivElement>(null);
     const mapInstance = useRef<maplibregl.Map | null>(null);
     const [mapLoaded, setMapLoaded] = useState(false);
     const markersRef = useRef<{ [key: number]: maplibregl.Marker }>({});
-    const [showProperties, setShowProperties] = useState(true); // State untuk visibilitas properti
+    const [showProperties, setShowProperties] = useState(true);
+    const [loadingProgress, setLoadingProgress] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
+    const [pendingLayer, setPendingLayer] = useState<ClimateLayerType>(undefined);
+    const wasLoadingRef = useRef(false);
 
-    // Get MAPID API key from environment
-    const MAPID_API_KEY = process.env.NEXT_PUBLIC_MAPID_API_KEY || 'your_mapid_api_key';
-    
-    // API base URL for data (not for basemap)
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    // Track loaded features for each layer
+    const loadedFeaturesRef = useRef<{ [key: string]: any[] }>({
+      lst: [],
+      ndvi: [],
+      uhi: [],
+      utfvi: [],
+    });
 
-    // Layer information with colors and descriptions (updated with correct gridcode counts)
-    const layerConfig = useMemo(
-      () => ({
-        uhi: {
-          name: "Urban Heat Island",
-          description: "Urban Heat Island effect measurements",
-          colors: [
-            "#313695", // gridcode 1 - Non-UHI (<0)
-            "#74add1", // gridcode 2 - Very Weak (0-0.0025)
-            "#fed976", // gridcode 3 - Weak (0.0025-0.005)
-            "#feb24c", // gridcode 4 - Fairly Weak (0.005-0.0075)
-            "#fd8d3c", // gridcode 5 - Moderate (0.0075-0.01)
-            "#fc4e2a", // gridcode 6 - Fairly Strong (0.01-0.0125)
-            "#e31a1c", // gridcode 7 - Strong (0.0125-0.015)
-            "#b10026", // gridcode 8 - Very Strong (>0.015)
-          ],
-          legend: [
-            { color: "#313695", label: "Non-UHI (<0)" },
-            { color: "#74add1", label: "Very Weak (0-0.0025)" },
-            { color: "#fed976", label: "Weak (0.0025-0.005)" },
-            { color: "#feb24c", label: "Fairly Weak (0.005-0.0075)" },
-            { color: "#fd8d3c", label: "Moderate (0.0075-0.01)" },
-            { color: "#fc4e2a", label: "Fairly Strong (0.01-0.0125)" },
-            { color: "#e31a1c", label: "Strong (0.0125-0.015)" },
-            { color: "#b10026", label: "Very Strong (>0.015)" },
-          ],
-          gridcodeCount: 8,
-        },
-        utfvi: {
-          name: "Urban Thermal Field Variance Index",
-          description: "Urban thermal variation measurements",
-          colors: [
-            "#5C09FC", // gridcode 1 - Non-UHI (<0)
-            "#4EC9FD", // gridcode 2 - Weak UHI (0-0.005)
-            "#B4FEA3", // gridcode 3 - Moderate UHI (0.005-0.01)
-            "#FBD513", // gridcode 4 - Strong UHI (0.01-0.015)
-            "#FE230A", // gridcode 5 - Very Strong UHI (>0.015)
-          ],
-          legend: [
-            { color: "#5C09FC", label: "Non-UHI (<0)" },
-            { color: "#4EC9FD", label: "Weak (0-0.005)" },
-            { color: "#B4FEA3", label: "Moderate (0.005-0.01)" },
-            { color: "#FBD513", label: "Strong (0.01-0.015)" },
-            { color: "#FE230A", label: "Very Strong (>0.015)" },
-          ],
-          gridcodeCount: 5,
-        },
-        lst: {
-          name: "Land Surface Temperature",
-          description: "Temperature measured from the land surface",
-          colors: [
-            "#F5F500", // gridcode 1 - Very Cool (<24°C)
-            "#F5B800", // gridcode 2 - Cool (24-28°C)
-            "#F57A00", // gridcode 3 - Moderate (28-32°C)
-            "#F53D00", // gridcode 4 - Hot (32-36°C)
-            "#F50000", // gridcode 5 - Very Hot (>36°C)
-          ],
-          legend: [
-            { color: "#F5F500", label: "Very Cool (<24°C)" },
-            { color: "#F5B800", label: "Cool (24-28°C)" },
-            { color: "#F57A00", label: "Moderate (28-32°C)" },
-            { color: "#F53D00", label: "Hot (32-36°C)" },
-            { color: "#F50000", label: "Very Hot (>36°C)" },
-          ],
-          gridcodeCount: 5,
-        },
-        ndvi: {
-          name: "Vegetation Index",
-          description: "Normalized Difference Vegetation Index",
-          colors: [
-            "#A50026", // gridcode 1 - Non-vegetation/Water/Built-up (<0.2)
-            "#FF0000", // gridcode 2 - Very Sparse Vegetation (0.2-0.4)
-            "#FFFF00", // gridcode 3 - Sparse Vegetation (0.4-0.6)
-            "#86CB66", // gridcode 4 - Moderate Vegetation (0.6-0.8)
-            "#4C7300", // gridcode 5 - Dense Vegetation (>0.8)
-          ],
-          legend: [
-            { color: "#A50026", label: "Non-vegetation (<0.2)" },
-            { color: "#FF0000", label: "Very Sparse (0.2-0.4)" },
-            { color: "#FFFF00", label: "Sparse (0.4-0.6)" },
-            { color: "#86CB66", label: "Moderate (0.6-0.8)" },
-            { color: "#4C7300", label: "Dense (>0.8)" },
-          ],
-          gridcodeCount: 5,
-        },
-      }),
-      []
-    );
+    // Track pagination state for each layer
+    const currentPageRef = useRef<{ [key: string]: number }>({
+      lst: 1,
+      ndvi: 1,
+      uhi: 1,
+      utfvi: 1,
+    });
 
-    // Initialize map only once
+    const totalPagesRef = useRef<{ [key: string]: number }>({
+      lst: 1,
+      ndvi: 1,
+      uhi: 1,
+      utfvi: 1,
+    });
+
+    // For handling cancellation of ongoing requests
+    const abortControllerRef = useRef<AbortController | null>(null);
+
+    // To track the previous active layer
+    const prevActiveLayerRef = useRef<ClimateLayerType>(undefined);
+
+    const MAPID_API_KEY = process.env.NEXT_PUBLIC_MAPID_API_KEY || "";
+    const API_BASE_URL =
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+    const layerConfig = {
+      uhi: {
+        name: "Urban Heat Island",
+        colors: [
+          "#313695",
+          "#74add1",
+          "#fed976",
+          "#feb24c",
+          "#fd8d3c",
+          "#fc4e2a",
+          "#e31a1c",
+          "#b10026",
+        ],
+        gridcodeCount: 8,
+      },
+      utfvi: {
+        name: "Urban Thermal Field Variance Index",
+        colors: ["#5C09FC", "#4EC9FD", "#B4FEA3", "#FBD513", "#FE230A"],
+        gridcodeCount: 5,
+      },
+      lst: {
+        name: "Land Surface Temperature",
+        colors: ["#F5F500", "#F5B800", "#F57A00", "#F53D00", "#F50000"],
+        gridcodeCount: 5,
+      },
+      ndvi: {
+        name: "Vegetation Index",
+        colors: ["#A50026", "#FF0000", "#FFFF00", "#86CB66", "#4C7300"],
+        gridcodeCount: 5,
+      },
+    };
+
+    // Initialize map
     useEffect(() => {
-      if (mapInstance.current) return; // Map already initialized
+      if (mapInstance.current || !mapContainer.current) return;
 
-      if (mapContainer.current) {
-        mapInstance.current = new maplibregl.Map({
-          container: mapContainer.current,
-          style: `https://basemap.mapid.io/styles/basic/style.json?key=${MAPID_API_KEY}`,
-          center: center,
-          zoom: zoom,
-        });
+      const map = new maplibregl.Map({
+        container: mapContainer.current,
+        style: `https://basemap.mapid.io/styles/basic/style.json?key=${MAPID_API_KEY}`,
+        center,
+        zoom,
+      });
 
-        mapInstance.current.on("load", () => {
-          setMapLoaded(true);
-        });
+      map.on("load", () => {
+        setMapLoaded(true);
+        console.log("Map style fully loaded");
+      });
 
-        // Expose map to parent through ref
-        if (mapRef) {
-          mapRef.current = mapInstance.current;
-        }
+      map.addControl(new maplibregl.NavigationControl(), "top-right");
+      mapInstance.current = map;
 
-        // Add navigation controls
-        mapInstance.current.addControl(
-          new maplibregl.NavigationControl(),
-          "top-right"
-        );
-      }
+      if (mapRef) mapRef.current = map;
 
-      // Cleanup on unmount
       return () => {
         if (mapInstance.current) {
-          if (mapRef) {
-            mapRef.current = null;
-          }
           mapInstance.current.remove();
           mapInstance.current = null;
         }
+        abortControllerRef.current?.abort();
       };
     }, [MAPID_API_KEY, center, zoom, mapRef]);
 
-    // Custom click handler function
-    const handleMarkerClick = (propertyId: number) => {
-      // Find the property by ID
-      const property = properties.find((p) => p.id === propertyId);
-      if (!property || !mapInstance.current) return;
-
-      console.log(`Marker clicked: Property ID ${propertyId}`);
-
-      // Fly to property location
-      mapInstance.current.flyTo({
-        center: [property.location.longitude, property.location.latitude],
-        zoom: 16,
-        duration: 1000,
-      });
-
-      // Call the parent's onClick handler after a small delay
-      setTimeout(() => {
-        if (onMarkerClick) {
-          console.log(`Triggering onMarkerClick for property ID ${propertyId}`);
-          onMarkerClick(propertyId);
-        }
-      }, 300);
-    };
-
-    // Function to toggle property marker visibility
-    const togglePropertyVisibility = () => {
-      if (showProperties) {
-        // Jika sudah aktif, matikan saja
-        setShowProperties(false);
-      } else {
-        // Jika belum aktif, aktifkan dan pastikan layer lainnya mati
-        setShowProperties(true);
-        // Reset layer lain
-        if (onMarkerClick) {
-          onMarkerClick(0); // Signal to clear climate layers
+    // Track loading state changes
+    useEffect(() => {
+      // When loading completes
+      if (wasLoadingRef.current && !isLoading) {
+        console.log('Loading completed, checking if there is a pending layer');
+        // If we have a pending layer, apply it now
+        if (pendingLayer) {
+          console.log(`Applying pending layer: ${pendingLayer}`);
+          applyLayer(pendingLayer);
+          setPendingLayer(undefined);
         }
       }
-    };
+      
+      // Update the wasLoading ref for next check
+      wasLoadingRef.current = isLoading;
+    }, [isLoading]);
 
-    // Update markers only when properties change or showProperties changes
+    // Apply the layer (directly communicate with parent)
+    const applyLayer = useCallback((layerType: ClimateLayerType) => {
+      if (!onMarkerClick) return;
+      
+      if (layerType === undefined) {
+        // Clear layer
+        onMarkerClick(0);
+      } else {
+        // Set the appropriate layer
+        if (layerType === "lst") {
+          onMarkerClick(1);
+        } else if (layerType === "ndvi") {
+          onMarkerClick(2);
+        } else if (layerType === "uhi") {
+          onMarkerClick(3);
+        } else if (layerType === "utfvi") {
+          onMarkerClick(4);
+        }
+      }
+    }, [onMarkerClick]);
+
+    // Load climate data function
+    const loadClimateData = useCallback(
+      async (layerType: ClimateLayerType) => {
+        if (!layerType || !mapInstance.current) return;
+
+        console.log(`Starting to load climate data for ${layerType}`);
+
+        // IMPORTANT: Always set these at the beginning
+        setIsLoading(true);
+        setLoadingProgress(0);
+
+        // Make sure we reset the current page if we're starting fresh
+        if (loadedFeaturesRef.current[layerType].length === 0) {
+          currentPageRef.current[layerType] = 1;
+        }
+
+        // Abort any ongoing requests
+        if (abortControllerRef.current) {
+          abortControllerRef.current.abort();
+        }
+        abortControllerRef.current = new AbortController();
+
+        const map = mapInstance.current;
+        const sourceId = `${layerType}-source`;
+        const layerId = `${layerType}-layer`;
+        const outlineId = `${layerType}-outline`;
+
+        try {
+          // Wait for style if not loaded
+          if (!map.isStyleLoaded()) {
+            await new Promise<void>((resolve) => {
+              map.once("style.load", () => resolve());
+            });
+          }
+
+          // Reset pagination and loaded features for this layer if needed
+          if (loadedFeaturesRef.current[layerType].length === 0) {
+            currentPageRef.current[layerType] = 1;
+            setLoadingProgress(0);
+          }
+
+          // Function to load a specific page of data
+          const loadPage = async (page: number) => {
+            console.log(`Loading ${layerType} page ${page}`);
+
+            try {
+              const response = await fetch(
+                `${API_BASE_URL}/api/data/geojson/${layerType}?page=${page}&per_page=${FEATURES_PER_PAGE}`,
+                { signal: abortControllerRef.current?.signal }
+              );
+
+              if (!response.ok) {
+                throw new Error(
+                  `Failed to load ${layerType} data: ${response.statusText}`
+                );
+              }
+
+              const data = await response.json();
+
+              // Check for API format - some APIs return nested data
+              const features = data.features || data.data?.features || [];
+              const total_features =
+                data.total_features ||
+                data.data?.total_features ||
+                features.length;
+              const total_pages =
+                data.total_pages || data.pagination?.total_pages || 1;
+
+              console.log(
+                `Loaded ${features.length} features for ${layerType}, page ${page}/${total_pages}`
+              );
+
+              // Update total pages
+              totalPagesRef.current[layerType] = total_pages;
+
+              // Append to loaded features
+              loadedFeaturesRef.current[layerType] = [
+                ...loadedFeaturesRef.current[layerType],
+                ...features,
+              ];
+
+              // Update loading progress
+              setLoadingProgress(
+                Math.min(
+                  100,
+                  Math.round(
+                    (loadedFeaturesRef.current[layerType].length /
+                      total_features) *
+                      100
+                  )
+                )
+              );
+
+              // Create or update the source
+              if (!map.getSource(sourceId)) {
+                console.log(`Creating new source for ${layerType}`);
+
+                // Add source
+                map.addSource(sourceId, {
+                  type: "geojson",
+                  data: {
+                    type: "FeatureCollection",
+                    features: loadedFeaturesRef.current[layerType],
+                  },
+                });
+
+                // Add fill layer
+                map.addLayer({
+                  id: layerId,
+                  type: "fill",
+                  source: sourceId,
+                  layout: { visibility: "visible" },
+                  paint: {
+                    "fill-color": [
+                      "match",
+                      ["get", "gridcode"],
+                      1,
+                      layerConfig[layerType].colors[0],
+                      2,
+                      layerConfig[layerType].colors[1],
+                      3,
+                      layerConfig[layerType].colors[2],
+                      4,
+                      layerConfig[layerType].colors[3],
+                      5,
+                      layerConfig[layerType].colors[4],
+                      ...(layerConfig[layerType].gridcodeCount > 5
+                        ? [
+                            6,
+                            layerConfig[layerType].colors[5],
+                            7,
+                            layerConfig[layerType].colors[6],
+                            8,
+                            layerConfig[layerType].colors[7],
+                          ]
+                        : []),
+                      layerConfig[layerType].colors[0], // default color
+                    ],
+                    "fill-opacity": 0.7,
+                  },
+                });
+
+                // Add outline layer
+                map.addLayer({
+                  id: outlineId,
+                  type: "line",
+                  source: sourceId,
+                  layout: { visibility: "visible" },
+                  paint: {
+                    "line-color": "#000",
+                    "line-width": 0,
+                    "line-opacity": 0.3,
+                  },
+                });
+              } else {
+                // Update existing source with new data
+                (map.getSource(sourceId) as maplibregl.GeoJSONSource).setData({
+                  type: "FeatureCollection",
+                  features: loadedFeaturesRef.current[layerType],
+                });
+
+                // Ensure layer is visible
+                map.setLayoutProperty(layerId, "visibility", "visible");
+                map.setLayoutProperty(outlineId, "visibility", "visible");
+              }
+
+              // Load next page if available
+              if (page < total_pages) {
+                currentPageRef.current[layerType] = page + 1;
+                await loadPage(currentPageRef.current[layerType]);
+              } else {
+                // All pages loaded
+                setIsLoading(false);
+              }
+            } catch (error) {
+              if (error instanceof Error) {
+                if (error.name !== "AbortError") {
+                  console.error(
+                    `Error loading ${layerType} page ${page}:`,
+                    error
+                  );
+                  setIsLoading(false);
+                } else {
+                  console.log(`Loading ${layerType} aborted`);
+                }
+              }
+            }
+          };
+
+          // Start loading with current page
+          await loadPage(currentPageRef.current[layerType]);
+        } catch (error) {
+          console.error("Error in loadClimateData:", error);
+          setIsLoading(false);
+        }
+      },
+      [API_BASE_URL]
+    );
+
+    // Key fix: Handle layer visibility separately from data loading
+    const setLayerVisibility = useCallback(
+      (layerType: ClimateLayerType, visible: boolean) => {
+        if (!mapInstance.current) return;
+
+        const map = mapInstance.current;
+        const layerId = `${layerType}-layer`;
+        const outlineId = `${layerType}-outline`;
+
+        if (map.getLayer(layerId)) {
+          map.setLayoutProperty(
+            layerId,
+            "visibility",
+            visible ? "visible" : "none"
+          );
+        }
+
+        if (map.getLayer(outlineId)) {
+          map.setLayoutProperty(
+            outlineId,
+            "visibility",
+            visible ? "visible" : "none"
+          );
+        }
+      },
+      []
+    );
+
+    // Handle activeLayer changes
     useEffect(() => {
       if (!mapLoaded || !mapInstance.current) return;
 
-      console.log(
-        `Updating markers for ${properties.length} properties, visibility: ${showProperties}`
-      );
+      // Hide all layers first
+      Object.keys(layerConfig).forEach((layer) => {
+        setLayerVisibility(layer as ClimateLayerType, false);
+      });
 
-      const addMarkers = () => {
-        if (!mapInstance.current) return;
+      // Show and load active layer if set
+      if (activeLayer) {
+        console.log(`Setting active layer to ${activeLayer}`);
 
-        // First remove all existing markers
-        Object.keys(markersRef.current).forEach((id) => {
-          markersRef.current[parseInt(id)].remove();
-        });
-        markersRef.current = {};
-
-        // Only add markers if they should be visible
-        if (showProperties) {
-          // Add all markers fresh
-          properties.forEach((property) => {
-            if (!mapInstance.current) return;
-
-            // Create marker element
-            const el = document.createElement("div");
-            el.className = "property-marker";
-            el.setAttribute("data-property-id", property.id.toString());
-
-            // Get color based on climate risk score
-            const getScoreColor = (
-              score: number | null | undefined
-            ): string => {
-              if (score == null) return "#9ca3af"; // gray-500
-              if (score >= 85) return "#059669"; // green-600
-              if (score >= 75) return "#10b981"; // green-500
-              if (score >= 65) return "#eab308"; // yellow-500
-              if (score >= 55) return "#f97316"; // orange-500
-              return "#dc2626"; // red-600
-            };
-
-            // Get climate score from the new property format
-            let scoreToUse = property.climate_risk_score;
-            if (
-              property.climate_scores &&
-              property.climate_scores.overall_score
-            ) {
-              scoreToUse = property.climate_scores.overall_score;
-            }
-
-            const colorHex = getScoreColor(scoreToUse);
-
-            el.innerHTML = `
-            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white relative" 
-                 style="background-color: ${colorHex}; box-shadow: 0 0 10px rgba(0,0,0,0.3);">
-              <span class="text-xs font-bold">${scoreToUse || "?"}</span>
-              <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 rotate-45 w-3 h-3"
-                   style="background-color: ${colorHex}"></div>
-            </div>
-          `;
-
-            // Add marker to map
-            const marker = new maplibregl.Marker({
-              element: el,
-              anchor: "bottom",
-            })
-              .setLngLat([
-                property.location.longitude,
-                property.location.latitude,
-              ])
-              .addTo(mapInstance.current);
-
-            // Add click handler
-            el.onclick = (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleMarkerClick(property.id);
-            };
-
-            // Store marker reference
-            markersRef.current[property.id] = marker;
-          });
+        // Check if we already have data for this layer
+        if (loadedFeaturesRef.current[activeLayer].length === 0) {
+          // Load new data
+          loadClimateData(activeLayer);
+        } else {
+          // Just make the layer visible
+          setLayerVisibility(activeLayer, true);
         }
-      };
-
-      // Check if style is loaded before adding markers
-      if (mapInstance.current.isStyleLoaded()) {
-        addMarkers();
-      } else {
-        mapInstance.current.once("style.load", addMarkers);
       }
-    }, [properties, mapLoaded, onMarkerClick, showProperties]);
 
-    // Load and manage climate layers
+      // Update previous layer ref
+      prevActiveLayerRef.current = activeLayer;
+    }, [activeLayer, mapLoaded, loadClimateData, setLayerVisibility]);
+
+    // Update property markers
     useEffect(() => {
       if (!mapLoaded || !mapInstance.current) return;
 
       const map = mapInstance.current;
 
-      // Function to load a climate layer if it doesn't exist yet
-      const loadClimateLayer = async (layerType: ClimateLayerType) => {
-        if (!layerType || !map) return;
+      const addMarkers = () => {
+        // Clear existing markers
+        Object.values(markersRef.current).forEach((marker) => marker.remove());
+        markersRef.current = {};
 
-        const layerInfo = layerConfig[layerType];
-        const sourceId = `${layerType}-source`;
-        const layerId = `${layerType}-layer`;
-        const outlineId = `${layerType}-outline`;
+        // Only add markers if they should be visible
+        if (!showProperties) return;
 
-        // Skip if source already exists
-        if (map.getSource(sourceId)) return;
+        // Add property markers
+        properties.forEach((property) => {
+          if (!property.location?.latitude || !property.location?.longitude)
+            return;
 
-        try {
-          // Fetch GeoJSON data from backend API
-          const response = await fetch(`${API_BASE_URL}/api/data/geojson/${layerType}`);
-          
-          if (!response.ok) {
-            throw new Error(
-              `Failed to load ${layerType} data: ${response.statusText}`
-            );
-          }
-          
-          // Parse the response JSON
-          const responseData = await response.json();
-          
-          // Extract the GeoJSON data from the response
-          const geojsonData = responseData.data;
+          const el = document.createElement("div");
+          el.className = "property-marker";
 
-          // Add source
-          map.addSource(sourceId, {
-            type: "geojson",
-            data: geojsonData,
-          });
+          const score =
+            property.climate_scores?.overall_score ||
+            property.climate_risk_score;
+          const color = getScoreColor(score);
 
-          // Add fill layer with dynamic colorization based on gridcode
-          map.addLayer({
-            id: layerId,
-            type: "fill",
-            source: sourceId,
-            layout: { visibility: "none" }, // Hidden by default
-            paint: {
-              "fill-color": [
-                "match",
-                ["get", "gridcode"],
-                1,
-                layerInfo.colors[0],
-                2,
-                layerInfo.colors[1],
-                3,
-                layerInfo.colors[2],
-                4,
-                layerInfo.colors[3],
-                5,
-                layerInfo.colors[4],
-                ...(layerInfo.gridcodeCount > 5
-                  ? [
-                      6,
-                      layerInfo.colors[5],
-                      7,
-                      layerInfo.colors[6],
-                      8,
-                      layerInfo.colors[7],
-                    ]
-                  : []),
-                layerInfo.colors[0], // default
-              ],
-              "fill-opacity": 0.7,
-            },
-          });
+          el.innerHTML = `
+          <div class="marker-container" style="background-color: ${color}">
+            <span>${score ?? "?"}</span>
+          </div>
+        `;
 
-          // Add outline layer
-          map.addLayer({
-            id: outlineId,
-            type: "line",
-            source: sourceId,
-            layout: { visibility: "none" }, // Hidden by default
-            paint: {
-              "line-color": "#000",
-              "line-width": 0,
-              "line-opacity": 0.3,
-            },
-          });
+          const marker = new maplibregl.Marker({ element: el })
+            .setLngLat([
+              property.location.longitude,
+              property.location.latitude,
+            ])
+            .addTo(map);
 
-          console.log(`Loaded ${layerType} layer`);
-        } catch (error) {
-          console.error(`Error loading ${layerType} layer:`, error);
-        }
-      };
+          el.onclick = (e) => {
+            e.stopPropagation();
+            onMarkerClick?.(property.id);
+          };
 
-      // Update layer visibility
-      const updateLayerVisibility = () => {
-        if (!map) return;
-
-        // Helper function to set layer visibility
-        const setLayerVisibility = (
-          layerType: ClimateLayerType,
-          isVisible: boolean
-        ) => {
-          const layerId = `${layerType}-layer`;
-          const outlineId = `${layerType}-outline`;
-
-          if (map.getLayer(layerId)) {
-            map.setLayoutProperty(
-              layerId,
-              "visibility",
-              isVisible ? "visible" : "none"
-            );
-          }
-
-          if (map.getLayer(outlineId)) {
-            map.setLayoutProperty(
-              outlineId,
-              "visibility",
-              isVisible ? "visible" : "none"
-            );
-          }
-        };
-
-        // Hide all layers
-        Object.keys(layerConfig).forEach((layerName) => {
-          setLayerVisibility(layerName as ClimateLayerType, false);
+          markersRef.current[property.id] = marker;
         });
-
-        // Show active layer if set
-        if (activeLayer) {
-          setLayerVisibility(activeLayer, true);
-        }
       };
 
-      // Load all climate layers then update visibility
-      const initializeLayers = async () => {
-        // Ensure style is loaded
-        if (!map.isStyleLoaded()) {
-          await new Promise<void>((resolve) => {
-            map.once("style.load", () => resolve());
-          });
+      if (map.isStyleLoaded()) {
+        addMarkers();
+      } else {
+        map.once("style.load", addMarkers);
+      }
+    }, [properties, mapLoaded, showProperties, onMarkerClick]);
+
+    // Helper function to get color based on score
+    const getScoreColor = (score?: number | null) => {
+      if (score == null) return "#9ca3af";
+      if (score >= 85) return "#059669";
+      if (score >= 75) return "#10b981";
+      if (score >= 65) return "#eab308";
+      if (score >= 55) return "#f97316";
+      return "#dc2626";
+    };
+
+    // Toggle property visibility
+    const togglePropertyVisibility = () => {
+      setShowProperties((prev) => !prev);
+    };
+
+    // Clear selected layer
+    const clearLayer = (e: React.MouseEvent) => {
+      e.stopPropagation(); // Prevent the button click from bubbling to the parent
+      
+      // If we're currently loading, set a pending state to null
+      if (isLoading) {
+        console.log("Currently loading, setting pending layer to null");
+        setPendingLayer(undefined);
+        
+        // Abort current loading
+        if (abortControllerRef.current) {
+          abortControllerRef.current.abort();
         }
+      }
+      
+      // Clear the layer immediately
+      applyLayer(undefined);
+      
+      // Reset loading state
+      setIsLoading(false);
+    };
 
-        // Load all layer data first
-        await Promise.all(
-          Object.keys(layerConfig).map((layerType) =>
-            loadClimateLayer(layerType as ClimateLayerType)
-          )
-        );
+    // Handle layer selection
+    const handleLayerSelect = (layerType: ClimateLayerType) => {
+      console.log(`Layer selected: ${layerType}`);
 
-        // Then update visibility based on active layer
-        updateLayerVisibility();
-      };
+      // We're selecting the layer that's already active, do nothing
+      if (layerType === activeLayer) {
+        return;
+      }
 
-      initializeLayers();
-    }, [mapLoaded, activeLayer, layerConfig, API_BASE_URL]);
+      // If there's an active layer, don't do anything (user must clear first)
+      if (activeLayer) {
+        console.log("There's already an active layer, please clear it first");
+        return;
+      }
+      
+      // If we're currently loading (though active layer is null), store this as pending
+      if (isLoading) {
+        console.log(`Loading in progress, setting ${layerType} as pending layer`);
+        setPendingLayer(layerType);
+        return;
+      }
 
-    // Get the legend for the current active layer
-    const activeLegend = activeLayer ? layerConfig[activeLayer]?.legend : null;
-    const activeLayerName = activeLayer ? layerConfig[activeLayer]?.name : null;
+      // Otherwise, select the new layer
+      setShowProperties(false);
+
+      // IMPORTANT: Reset loaded features for the new layer
+      if (layerType) {
+        loadedFeaturesRef.current[layerType] = [];
+        currentPageRef.current[layerType] = 1;
+      }
+
+      // Apply the new layer
+      applyLayer(layerType);
+    };
 
     return (
-      <div className="w-full h-full rounded-lg overflow-hidden shadow-lg border border-gray-200">
+      <div className="w-full h-full relative">
         <div ref={mapContainer} className="w-full h-full" />
 
-        {/* Layer Controls */}
-        <div className="absolute top-4 right-4 bg-white rounded-md shadow-md p-3 z-10 w-60">
+        {/* Loading progress bar */}
+        {isLoading && (
+          <div className="absolute top-8 left-4 right-4 bg-white bg-opacity-90 rounded-md p-2 z-10 shadow-md">
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div
+                className="bg-blue-600 h-2.5 rounded-full"
+                style={{ width: `${loadingProgress}%` }}
+              ></div>
+            </div>
+            <p className="text-lg text-center py-2 text-gray-600">
+              Loading {activeLayer} data... {loadingProgress}%
+              {pendingLayer && (
+                <span className="text-xs text-blue-600 ml-2">
+                  ({layerConfig[pendingLayer].name} queued)
+                </span>
+              )}
+            </p>
+          </div>
+        )}
+
+        {/* Layer controls */}
+        <div className="absolute top-4 right-4 bg-white rounded-md shadow-md p-3 z-10 w-72">
           <h3 className="text-sm font-bold mb-2 px-2 text-gray-800">
             Map Layers
           </h3>
 
-          {/* Property Layer Toggle */}
+          {/* Instructions alert */}
+          <div className="mb-3 px-2 py-2 bg-yellow-50 text-amber-700 text-xs rounded border border-amber-200">
+            <p>To change climate layer, click the trash icon to clear the current layer first, then select a new one.</p>
+          </div>
+
           <div className="mb-3 border-b pb-2">
             <button
               onClick={togglePropertyVisibility}
@@ -496,86 +611,80 @@ const MapComponent = memo(
           </h4>
           <div className="space-y-1">
             {Object.entries(layerConfig).map(([key, layer]) => (
-              <button
-                key={key}
-                onClick={() => {
-                  if (activeLayer === key) {
-                    // Toggle off current active layer
-                    onMarkerClick?.(0); // Use 0 as signal to clear layers
-                  } else {
-                    // Toggle on this layer, matikan showProperties
-                    setShowProperties(false); // Matikan layer properti
-
-                    const layerTypeKey = key as ClimateLayerType;
-                    if (onMarkerClick) {
-                      // We're using handleLayerChange in parent component
-                      // and that's connected to the onMarkerClick prop here
-                      if (layerTypeKey === "lst")
-                        onMarkerClick(1); // Signals LST layer
-                      else if (layerTypeKey === "ndvi")
-                        onMarkerClick(2); // Signals NDVI layer
-                      else if (layerTypeKey === "uhi")
-                        onMarkerClick(3); // Signals UHI layer
-                      else if (layerTypeKey === "utfvi") onMarkerClick(4); // Signals UTFVI layer
-                    }
-                  }
-                }}
-                className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
-                  activeLayer === key
-                    ? "bg-blue-600 text-white"
-                    : "hover:bg-gray-100 text-gray-700"
-                }`}
-              >
-                <div
-                  className={`w-4 h-4 min-w-[16px] min-h-[16px] rounded-full flex-shrink-0 mr-2 ${
-                    activeLayer === key ? "bg-white" : "bg-blue-600"
+              <div key={key} className="relative group">
+                <button
+                  onClick={() => handleLayerSelect(key as ClimateLayerType)}
+                  className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
+                    activeLayer === key
+                      ? "bg-blue-600 text-white"
+                      : activeLayer || isLoading
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed" // Disabled when another layer is active or loading
+                        : "hover:bg-gray-100 text-gray-700"
                   }`}
-                ></div>
-                <span className="truncate text-xs">{layer.name}</span>
-              </button>
+                  disabled={!!(activeLayer || isLoading)}
+                >
+                  <div
+                    className={`w-4 h-4 min-w-[16px] min-h-[16px] rounded-full flex-shrink-0 mr-2 ${
+                      activeLayer === key ? "bg-white" : "bg-blue-600"
+                    }`}
+                  ></div>
+                  <span className="truncate text-xs">{layer.name}</span>
+                  
+                  {/* Show "pending" indicator for the pending layer */}
+                  {pendingLayer === key && (
+                    <span className="ml-2 text-xs text-blue-600 animate-pulse">
+                      (queued)
+                    </span>
+                  )}
+                </button>
+                
+                {/* Delete button - only show for active layer or when loading */}
+                {(activeLayer === key || isLoading) && (
+                  <button
+                    onClick={clearLayer}
+                    className={`absolute right-2 top-1/2 transform -translate-y-1/2 ${
+                      activeLayer ? 'text-white' : 'text-gray-400'
+                    } hover:text-red-500 p-1`}
+                    title="Clear layer"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             ))}
-
-            {activeLayer && (
-              <button
-                onClick={() => {
-                  onMarkerClick?.(0); // Clear climate layers
-                  setShowProperties(false); // Juga matikan property locations
-                }}
-                className="w-full text-center px-3 py-1 mt-2 text-xs text-gray-600 hover:text-gray-800"
-              >
-                Clear All Layers
-              </button>
-            )}
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-gray-200">
-            <p className="text-xs text-gray-500 px-2">
-              Climate data for Bandung area.
-            </p>
           </div>
         </div>
 
-        {/* Layer legend */}
-        {activeLayer && activeLegend && (
+        {/* Legend */}
+        {activeLayer && (
           <div className="absolute bottom-4 right-4 bg-white p-3 rounded-md shadow-md z-10 max-w-xs">
             <h4 className="text-sm font-bold mb-2 text-gray-800">
-              {activeLayerName}
+              {layerConfig[activeLayer].name}
             </h4>
             <div className="space-y-1">
-              {activeLegend.map((item, index) => (
-                <div key={index} className="flex items-center">
-                  <div
-                    className="w-4 h-4 mr-2"
-                    style={{ backgroundColor: item.color }}
-                  ></div>
-                  <span className="text-xs text-gray-700">{item.label}</span>
-                </div>
-              ))}
+              {layerConfig[activeLayer].colors
+                .slice(0, layerConfig[activeLayer].gridcodeCount)
+                .map((color, i) => (
+                  <div key={i} className="flex items-center">
+                    <div
+                      className="w-4 h-4 mr-2"
+                      style={{ backgroundColor: color }}
+                    ></div>
+                    <span className="text-xs text-gray-700">
+                      {i === 0
+                        ? "Low"
+                        : i === layerConfig[activeLayer].gridcodeCount - 1
+                        ? "High"
+                        : `Level ${i + 1}`}
+                    </span>
+                  </div>
+                ))}
             </div>
           </div>
         )}
 
-        {/* Custom map styles for property markers */}
         <style jsx global>{`
           .property-marker {
             cursor: pointer;
@@ -586,14 +695,24 @@ const MapComponent = memo(
             align-items: center;
             z-index: 10;
           }
-
+          .marker-container {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.75rem;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease;
+          }
+          .property-marker:hover .marker-container {
+            transform: scale(1.15);
+          }
           .maplibregl-popup {
             z-index: 20;
-          }
-
-          .property-marker:hover {
-            transform: scale(1.1);
-            transition: transform 0.2s ease;
           }
         `}</style>
       </div>
@@ -601,7 +720,5 @@ const MapComponent = memo(
   }
 );
 
-// Display name for debugging purposes
 MapComponent.displayName = "MapComponent";
-
 export default MapComponent;

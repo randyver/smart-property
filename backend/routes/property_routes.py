@@ -117,14 +117,14 @@ def get_risk_level_from_score(score, risk_type):
         
     # Generic risk level determination
     if score >= 80:
-        return "very_low" if risk_type != "air_quality" else "excellent" 
+        return "excellent"
     if score >= 60:
-        return "low" if risk_type != "air_quality" else "good"
+        return "good"
     if score >= 40:
-        return "medium" if risk_type != "air_quality" else "moderate"
+        return "moderate"
     if score >= 20:
-        return "high" if risk_type != "air_quality" else "poor"
-    return "very_high" if risk_type != "air_quality" else "very_poor"
+        return "low"
+    return "very low"
 
 # backend/routes/property_routes.py
 @property_bp.route('/api/climate/risk-layers', methods=['GET'])

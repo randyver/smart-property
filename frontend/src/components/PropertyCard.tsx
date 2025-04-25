@@ -28,7 +28,7 @@ export default function PropertyCard({
     }
 
     if (price >= 1000000000) {
-      return `${(price / 1000000000).toFixed(1)} B`;
+      return `${(price / 1000000000).toFixed(1)} M`;
     } else if (price >= 1000000) {
       return `${(price / 1000000).toFixed(0)} Jt`;
     }
@@ -156,7 +156,7 @@ export default function PropertyCard({
                   )} mr-1`}
                 ></span>
                 <span className="text-gray-700 text-xs">
-                  Suhu: {formatRiskLevel(property.risks.surface_temperature)}
+                  Suhu Permukaan: {formatRiskLevel(property.risks.surface_temperature)}
                 </span>
               </div>
               <div className="flex items-center">
@@ -166,7 +166,7 @@ export default function PropertyCard({
                   )} mr-1`}
                 ></span>
                 <span className="text-gray-700 text-xs">
-                  Panas: {formatRiskLevel(property.risks.heat_stress)}
+                  Tekanan Panas: {formatRiskLevel(property.risks.heat_stress)}
                 </span>
               </div>
               <div className="flex items-center">
@@ -176,7 +176,7 @@ export default function PropertyCard({
                   )} mr-1`}
                 ></span>
                 <span className="text-gray-700 text-xs">
-                  Hijau: {formatRiskLevel(property.risks.green_cover)}
+                  Tutupan Hijau: {formatRiskLevel(property.risks.green_cover)}
                 </span>
               </div>
               <div className="flex items-center">
@@ -186,7 +186,7 @@ export default function PropertyCard({
                   )} mr-1`}
                 ></span>
                 <span className="text-gray-700 text-xs">
-                  Zona: {formatRiskLevel(property.risks.heat_zone)}
+                  Zona Panas: {formatRiskLevel(property.risks.heat_zone)}
                 </span>
               </div>
             </div>

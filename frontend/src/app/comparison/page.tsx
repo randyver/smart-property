@@ -90,12 +90,6 @@ function ComparisonContent() {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Property Comparison</h2>
-            <a
-              href="/"
-              className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-100"
-            >
-              Back to Map
-            </a>
           </div>
 
           {loading ? (
@@ -142,7 +136,7 @@ function ComparisonContent() {
                     {/* Basic Details */}
                     <tr>
                       <td className="py-3 px-4 font-medium bg-gray-50">
-                        Land Surface Temperature
+                        Suhu Permukaan Tanah (LST)
                       </td>
                       {properties.map((property) => (
                         <td key={property.id} className="py-3 px-4">
@@ -164,7 +158,7 @@ function ComparisonContent() {
 
                     <tr>
                       <td className="py-3 px-4 font-medium bg-gray-50">
-                        Vegetation Index (NDVI)
+                        Indeks Vegetasi (NDVI)
                       </td>
                       {properties.map((property) => (
                         <td key={property.id} className="py-3 px-4">
@@ -186,7 +180,7 @@ function ComparisonContent() {
 
                     <tr>
                       <td className="py-3 px-4 font-medium bg-gray-50">
-                        Urban Thermal Index (UTFVI)
+                        Indeks Variansi Termal Perkotaan (UTFVI)
                       </td>
                       {properties.map((property) => (
                         <td key={property.id} className="py-3 px-4">
@@ -208,7 +202,7 @@ function ComparisonContent() {
 
                     <tr>
                       <td className="py-3 px-4 font-medium bg-gray-50">
-                        Urban Heat Island (UHI)
+                        Pulau Panas Perkotaan (UHI)
                       </td>
                       {properties.map((property) => (
                         <td key={property.id} className="py-3 px-4">
@@ -251,7 +245,7 @@ function ComparisonContent() {
                     {/* Risk Factors */}
                     <tr>
                       <td className="py-3 px-4 font-medium bg-gray-50">
-                        Surface Temperature
+                        Suhu Permukaan Tanah
                       </td>
                       {properties.map((property) => (
                         <td key={property.id} className="py-3 px-4">
@@ -272,7 +266,7 @@ function ComparisonContent() {
                     </tr>
                     <tr>
                       <td className="py-3 px-4 font-medium bg-gray-50">
-                        Temperature
+                        Tekanan Panas
                       </td>
                       {properties.map((property) => (
                         <td key={property.id} className="py-3 px-4">
@@ -291,7 +285,7 @@ function ComparisonContent() {
                     </tr>
                     <tr>
                       <td className="py-3 px-4 font-medium bg-gray-50">
-                        Air Quality
+                        Tutupan Hijau
                       </td>
                       {properties.map((property) => (
                         <td key={property.id} className="py-3 px-4">
@@ -310,7 +304,7 @@ function ComparisonContent() {
                     </tr>
                     <tr>
                       <td className="py-3 px-4 font-medium bg-gray-50">
-                        Landslide Risk
+                        Zona Panas
                       </td>
                       {properties.map((property) => (
                         <td key={property.id} className="py-3 px-4">
@@ -331,16 +325,11 @@ function ComparisonContent() {
                     {/* Price per Square Meter */}
                     <tr>
                       <td className="py-3 px-4 font-medium bg-gray-50">
-                        Price per m²
+                        Harga
                       </td>
                       {properties.map((property) => (
                         <td key={property.id} className="py-3 px-4">
-                          {formatPrice(
-                            property.building_area > 0
-                              ? property.price / property.building_area
-                              : 0
-                          )}
-                          /m²
+                          {formatPrice(property.price ?? 0)}
                         </td>
                       ))}
                     </tr>
@@ -354,7 +343,7 @@ function ComparisonContent() {
                   href="/"
                   className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-100"
                 >
-                  Return to Map
+                  Kembali ke Peta
                 </a>
               </div>
             </div>

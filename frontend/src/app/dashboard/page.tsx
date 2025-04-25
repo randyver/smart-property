@@ -77,7 +77,7 @@ export default function Dashboard() {
     }
 
     if (price >= 1000000000) {
-      return `${(price / 1000000000).toFixed(1)} B`;
+      return `${(price / 1000000000).toFixed(1)} M`;
     } else if (price >= 1000000) {
       return `${(price / 1000000).toFixed(0)} Jt`;
     }
@@ -291,6 +291,22 @@ export default function Dashboard() {
       if (property) {
         console.log(`Found property: ${property.title}`);
         setSelectedProperty(property);
+
+        // Fly to the property location on the map
+        if (mapRef.current && property.location) {
+          console.log(
+            `Flying to [${property.location.longitude}, ${property.location.latitude}]`
+          );
+          mapRef.current.flyTo({
+            center: [property.location.longitude, property.location.latitude],
+            zoom: 16,
+            duration: 1000,
+          });
+        } else {
+          console.error(
+            "Map reference not available or property location missing"
+          );
+        }
       } else {
         console.error(`Property with ID ${propertyId} not found!`);
       }
@@ -342,31 +358,22 @@ export default function Dashboard() {
   }, []);
 
   // Handle price range selection
-  const handlePriceRangeSelect = useCallback(
-    (min?: number, max?: number) => {
-      setPriceRange([min, max]);
-      // Filters will be applied automatically via useEffect dependency
-    },
-    []
-  );
+  const handlePriceRangeSelect = useCallback((min?: number, max?: number) => {
+    setPriceRange([min, max]);
+    // Filters will be applied automatically via useEffect dependency
+  }, []);
 
   // Handle bedroom selection
-  const handleBedroomsChange = useCallback(
-    (value: string) => {
-      setBedrooms(value ? Number(value) : undefined);
-      // Filters will be applied automatically via useEffect dependency
-    },
-    []
-  );
+  const handleBedroomsChange = useCallback((value: string) => {
+    setBedrooms(value ? Number(value) : undefined);
+    // Filters will be applied automatically via useEffect dependency
+  }, []);
 
   // Handle climate score selection
-  const handleMinScoreChange = useCallback(
-    (value: string) => {
-      setMinScore(value ? Number(value) : undefined);
-      // Filters will be applied automatically via useEffect dependency
-    },
-    []
-  );
+  const handleMinScoreChange = useCallback((value: string) => {
+    setMinScore(value ? Number(value) : undefined);
+    // Filters will be applied automatically via useEffect dependency
+  }, []);
 
   // Price range options
   const priceOptions = [
@@ -695,19 +702,10 @@ export default function Dashboard() {
 
               <div className="flex flex-wrap justify-end gap-2 mt-3 sm:mt-4">
                 <button
-                  onClick={() => handleCompareProperty(selectedProperty)}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-md ${
-                    compareProperties.some((p) => p.id === selectedProperty.id)
-                      ? "bg-gray-200 text-gray-600"
-                      : "bg-blue-100 text-blue-700 hover:bg-blue-200"
-                  }`}
-                  disabled={compareProperties.some(
-                    (p) => p.id === selectedProperty.id
-                  )}
+                  onClick={() => setSelectedProperty(null)}
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-md"
                 >
-                  {compareProperties.some((p) => p.id === selectedProperty.id)
-                    ? "Ditambahkan"
-                    : "Bandingkan"}
+                  Tutup
                 </button>
 
                 <a

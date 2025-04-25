@@ -71,35 +71,85 @@ const MapComponent = memo(
     const API_BASE_URL =
       process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
+    // Updated layer config with accurate classifications
     const layerConfig = {
       uhi: {
         name: "Urban Heat Island",
         colors: [
-          "#313695",
-          "#74add1",
-          "#fed976",
-          "#feb24c",
-          "#fd8d3c",
-          "#fc4e2a",
-          "#e31a1c",
-          "#b10026",
+          "#313695", // Non-UHI
+          "#74add1", // Very Weak UHI
+          "#fed976", // Weak UHI
+          "#feb24c", // Fairly Weak UHI
+          "#fd8d3c", // Moderate UHI
+          "#fc4e2a", // Fairly Strong UHI
+          "#e31a1c", // Strong UHI
+          "#b10026", // Very Strong UHI
         ],
         gridcodeCount: 8,
+        legendLabels: [
+          "Non (<0)",
+          "Very Weak (0-0.0025)",
+          "Weak (0.0025-0.005)",
+          "Fairly Weak (0.005-0.0075)",
+          "Moderate (0.0075-0.01)",
+          "Fairly Strong (0.01-0.0125)",
+          "Strong (0.0125-0.015)",
+          "Very Strong (>0.015)",
+        ],
       },
       utfvi: {
         name: "Urban Thermal Field Variance Index",
-        colors: ["#5C09FC", "#4EC9FD", "#B4FEA3", "#FBD513", "#FE230A"],
+        colors: [
+          "#5C09FC", // Non-UHI
+          "#4EC9FD", // Weak UHI
+          "#B4FEA3", // Moderate UHI
+          "#FBD513", // Strong UHI
+          "#FE230A", // Very Strong UHI
+        ],
         gridcodeCount: 5,
+        legendLabels: [
+          "Non (<0)",
+          "Weak (0-0.005)",
+          "Moderate (0.005-0.01)",
+          "Strong (0.01-0.015)",
+          "Very Strong (>0.015)",
+        ],
       },
       lst: {
         name: "Land Surface Temperature",
-        colors: ["#F5F500", "#F5B800", "#F57A00", "#F53D00", "#F50000"],
+        colors: [
+          "#F5F500", // Very Cool
+          "#F5B800", // Cool
+          "#F57A00", // Moderate
+          "#F53D00", // Hot
+          "#F50000", // Very Hot
+        ],
         gridcodeCount: 5,
+        legendLabels: [
+          "Very Cool (<24°C)",
+          "Cool (24-28°C)",
+          "Moderate (28-32°C)",
+          "Hot (32-36°C)",
+          "Very Hot (>36°C)",
+        ],
       },
       ndvi: {
         name: "Vegetation Index",
-        colors: ["#A50026", "#FF0000", "#FFFF00", "#86CB66", "#4C7300"],
+        colors: [
+          "#A50026", // Non-vegetation/Water/Built-up Land
+          "#FF0000", // Very Sparse Vegetation
+          "#FFFF00", // Sparse Vegetation
+          "#86CB66", // Moderate Vegetation
+          "#4C7300", // Dense Vegetation
+        ],
         gridcodeCount: 5,
+        legendLabels: [
+          "Non-vegetation (<0.2)",
+          "Very Sparse (0.2-0.4)",
+          "Sparse (0.4-0.6)",
+          "Moderate (0.6-0.8)",
+          "Dense (>0.8)",
+        ],
       },
     };
 
@@ -657,7 +707,7 @@ const MapComponent = memo(
           </div>
         </div>
 
-        {/* Legend */}
+        {/* Legend - Updated with accurate classification labels */}
         {activeLayer && (
           <div className="absolute bottom-4 right-4 bg-white p-3 rounded-md shadow-md z-10 max-w-xs">
             <h4 className="text-sm font-bold mb-2 text-gray-800">
@@ -673,11 +723,7 @@ const MapComponent = memo(
                       style={{ backgroundColor: color }}
                     ></div>
                     <span className="text-xs text-gray-700">
-                      {i === 0
-                        ? "Low"
-                        : i === layerConfig[activeLayer].gridcodeCount - 1
-                        ? "High"
-                        : `Level ${i + 1}`}
+                      {layerConfig[activeLayer].legendLabels[i]}
                     </span>
                   </div>
                 ))}

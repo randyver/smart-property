@@ -7,10 +7,10 @@ import Image from "next/image";
 const Hero = () => {
   return (
     <section className="pt-28 pb-16 bg-gradient-to-br from-white to-smartproperty-light min-h-screen flex items-center justify-center">
-      <div className="container mx-auto px-4 flex flex-col md:flex-row items-center">
-        <div className="md:w-1/2 mb-10 md:mb-0 animate-fade-in">
+      <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-center">
+        <div className="md:w-1/2 mb-10 md:mb-0 animate-fade-in md:pr-8">
           <motion.h2
-            className="text-4xl md:text-5xl lg:text-6xl font-bold font-bold text-gray-800 mb-4"
+            className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -25,7 +25,7 @@ const Hero = () => {
             risks through advanced GIS analysis.
           </p>
           <motion.div
-            className="mt-16 flex justify-left"
+            className="mt-16 flex justify-start" // Changed from justify-center to justify-start
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -39,16 +39,11 @@ const Hero = () => {
             </a>
           </motion.div>
         </div>
-        <div className="md:w-1/2 flex justify-center animate-scale-in">
-          <div className="relative w-full max-w-md aspect-square">
+        <div className="hidden md:block md:w-1/2 flex justify-center animate-scale-in md:pl-8">
+          <div className="relative w-full max-w-md aspect-square mx-auto">
             <div className="absolute inset-0 bg-smartproperty rounded-full opacity-10 animate-pulse"></div>
             <div className="absolute inset-4 bg-white rounded-full shadow-xl flex items-center justify-center p-6">
-              <Image
-                src="/logo.png"
-                alt="Logo"
-                width={400}
-                height={400}
-              />
+              <Image src="/logo.png" alt="Logo" width={400} height={400} />
             </div>
           </div>
         </div>

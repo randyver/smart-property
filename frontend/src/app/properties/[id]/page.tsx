@@ -60,8 +60,7 @@ export default function PropertyDetailsPage() {
   };
 
   // Get MAPID API key from environment
-  const MAPID_API_KEY =
-    process.env.NEXT_PUBLIC_MAPID_API_KEY || "your_mapid_api_key";
+  const MAPID_API_KEY = "68045407ce3f3583122422c9";
   const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 

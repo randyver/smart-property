@@ -67,7 +67,7 @@ const MapComponent = memo(
     // To track the previous active layer
     const prevActiveLayerRef = useRef<ClimateLayerType>(undefined);
 
-    const MAPID_API_KEY = process.env.NEXT_PUBLIC_MAPID_API_KEY || "";
+    const MAPID_API_KEY = "68045407ce3f3583122422c9";
     const API_BASE_URL =
       process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 

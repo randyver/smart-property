@@ -40,12 +40,12 @@ export async function generateResponse(messageHistory: ChatMessage[]): Promise<s
       
       Provide helpful, accurate information about property climate risks, the platform features, and how users can make informed real estate decisions with climate data.
       
-      Be friendly, professional, and concise in your responses.`
+      Be friendly, professional, and concise in your responses, PLEASE RESPONSE IN BAHASA INDONESIA.`
     };
     
     // Prepare the request payload
     const payload = {
-      model: "deepseek/deepseek-chat", // Using DeepSeek model through OpenRouter
+      model: "deepseek/deepseek-chat-v3-0324:free", // Using DeepSeek model through OpenRouter
       messages: [systemMessage, ...formattedMessages],
       temperature: 0.7,
       max_tokens: 1000

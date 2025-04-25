@@ -18,7 +18,7 @@ const SmartChatAssistant = ({ onClose, isOpen }: ChatAssistantProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'Welcome to SmartProperty Assistant! I can help you find information about climate-safe properties. What would you like to know?',
+      content: 'Selamat datang pada SmartProperty Assistant! Aku bisa membantu kamu mencari informasi properti ramah iklim. Apa yang ingin kamu tahu?',
       timestamp: new Date()
     }
   ]);
@@ -27,15 +27,14 @@ const SmartChatAssistant = ({ onClose, isOpen }: ChatAssistantProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageContainerRef = useRef<HTMLDivElement>(null);
   
-  // Improved suggested questions for better UX
   const suggestedQuestions = [
-    'What are climate scores?',
-    'How is flood risk calculated?',
-    'How to compare properties?',
-    'Climate impact on pricing?',
-    'How do recommendations work?',
-    'Best properties in Bandung?'
-  ];
+    'Apa itu Score Iklim?',
+    'Bagaimana risiko banjir dihitung?',
+    'Bagaimana cara membandingkan properti?',
+    'Dampak iklim pada harga?',
+    'Bagaimana rekomendasi bekerja?',
+    'Properti terbaik di Bandung?'
+];
   
   useEffect(() => {
     // Scroll to bottom when new messages are added
@@ -177,7 +176,7 @@ const SmartChatAssistant = ({ onClose, isOpen }: ChatAssistantProps) => {
       <div className="flex justify-between items-center p-3 border-b border-gray-200 bg-blue-600 text-white rounded-t-lg relative">
         <div className="flex items-center">
           <h3 className="font-bold">SmartProperty Assistant</h3>
-          <span className="ml-2 px-2 py-0.5 bg-yellow-500 text-blue-900 text-xs font-bold rounded-full">BETA</span>
+          {/* <span className="ml-2 px-2 py-0.5 bg-yellow-500 text-blue-900 text-xs font-bold rounded-full">BETA</span> */}
         </div>
         <button 
           onClick={onClose}

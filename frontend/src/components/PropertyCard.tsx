@@ -66,16 +66,16 @@ export default function PropertyCard({
   // Format risk level to readable string
   const formatRiskLevel = (level: string): string => {
     const levels: { [key: string]: string } = {
-      very_low: "Very Low",
-      low: "Low",
-      medium: "Medium",
-      high: "High",
-      very_high: "Very High",
-      excellent: "Excellent",
-      good: "Good",
-      moderate: "Moderate",
-      poor: "Poor",
-      very_poor: "Very Poor",
+      very_low: "Sangat Rendah",
+      low: "Rendah",
+      medium: "Sedang",
+      high: "Tinggi",
+      very_high: "Sangat Tinggi",
+      excellent: "Sangat Baik",
+      good: "Baik",
+      moderate: "Moderat",
+      poor: "Buruk",
+      very_poor: "Sangat Buruk",
     };
     return levels[level] || level;
   };
@@ -135,15 +135,15 @@ export default function PropertyCard({
         </p>
 
         <div className="flex justify-between text-xs text-gray-700 mb-2">
-          <span>{property.bedrooms} Beds</span>
-          <span>{property.building_area} m²</span>
-          <span>{property.land_area} m² land</span>
+          <span>{property.bedrooms ?? "-"} Kamar Tidur</span>
+          <span>{property.building_area ?? "-"} m²</span>
+          <span>{property.land_area ?? "-"} m² Lahan</span>
         </div>
 
         {showDetails && (
           <div className="mt-2 border-t pt-2">
             <h4 className="font-bold mb-1 text-sm text-gray-800">
-              Climate Risk Assessment
+              Penilaian Risiko Iklim
             </h4>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="flex items-center">
@@ -153,7 +153,8 @@ export default function PropertyCard({
                   )} mr-1`}
                 ></span>
                 <span className="text-gray-700">
-                Surface Temperature: {formatRiskLevel(property.risks.surface_temperature)}
+                  Suhu Permukaan:{" "}
+                  {formatRiskLevel(property.risks.surface_temperature)}
                 </span>
               </div>
               <div className="flex items-center">
@@ -163,7 +164,7 @@ export default function PropertyCard({
                   )} mr-1`}
                 ></span>
                 <span className="text-gray-700">
-                Heat Stress: {formatRiskLevel(property.risks.heat_stress)}
+                  Tekanan Panas: {formatRiskLevel(property.risks.heat_stress)}
                 </span>
               </div>
               <div className="flex items-center">
@@ -173,7 +174,7 @@ export default function PropertyCard({
                   )} mr-1`}
                 ></span>
                 <span className="text-gray-700">
-                Green Cover: {formatRiskLevel(property.risks.green_cover)}
+                  Tutupan Hijau: {formatRiskLevel(property.risks.green_cover)}
                 </span>
               </div>
               <div className="flex items-center">
@@ -183,7 +184,7 @@ export default function PropertyCard({
                   )} mr-1`}
                 ></span>
                 <span className="text-gray-700">
-                Heat Zone: {formatRiskLevel(property.risks.heat_zone)}
+                  Zona Panas: {formatRiskLevel(property.risks.heat_zone)}
                 </span>
               </div>
             </div>
@@ -192,37 +193,24 @@ export default function PropertyCard({
             {property.climate_scores && (
               <div className="mt-3">
                 <h4 className="font-bold mb-1 text-xs text-gray-800">
-                  Detailed Climate Scores
+                  Skor Iklim Terperinci
                 </h4>
                 <div className="space-y-2 mt-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-700">LST Score:</span>
+                    <span className="text-xs text-gray-700">Skor UHI:</span>
                     <div className="flex items-center text-black">
                       <span
                         className={`inline-block w-2 h-2 rounded-full ${getScoreColor(
-                          property.climate_scores.lst_score
+                          property.climate_scores.uhi_score
                         )} mr-1`}
                       ></span>
                       <span className="text-xs">
-                        {property.climate_scores.lst_score || "?"}
+                        {property.climate_scores.uhi_score || "?"}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-700">NDVI Score:</span>
-                    <div className="flex items-center text-black">
-                      <span
-                        className={`inline-block w-2 h-2 rounded-full ${getScoreColor(
-                          property.climate_scores.ndvi_score
-                        )} mr-1`}
-                      ></span>
-                      <span className="text-xs">
-                        {property.climate_scores.ndvi_score || "?"}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-700">UTFVI Score:</span>
+                    <span className="text-xs text-gray-700">Skor UTFVI:</span>
                     <div className="flex items-center text-black">
                       <span
                         className={`inline-block w-2 h-2 rounded-full ${getScoreColor(
@@ -235,15 +223,28 @@ export default function PropertyCard({
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-700">UHI Score:</span>
+                    <span className="text-xs text-gray-700">Skor LST:</span>
                     <div className="flex items-center text-black">
                       <span
                         className={`inline-block w-2 h-2 rounded-full ${getScoreColor(
-                          property.climate_scores.uhi_score
+                          property.climate_scores.lst_score
                         )} mr-1`}
                       ></span>
                       <span className="text-xs">
-                        {property.climate_scores.uhi_score || "?"}
+                        {property.climate_scores.lst_score || "?"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-700">Skor NDVI:</span>
+                    <div className="flex items-center text-black">
+                      <span
+                        className={`inline-block w-2 h-2 rounded-full ${getScoreColor(
+                          property.climate_scores.ndvi_score
+                        )} mr-1`}
+                      ></span>
+                      <span className="text-xs">
+                        {property.climate_scores.ndvi_score || "?"}
                       </span>
                     </div>
                   </div>
@@ -265,7 +266,7 @@ export default function PropertyCard({
             onClick={() => setShowDetails(!showDetails)}
             className="text-blue-700 text-xs hover:underline"
           >
-            {showDetails ? "Hide Details" : "Show Details"}
+            {showDetails ? "Sembunyikan Detail" : "Lihat Detail"}
           </button>
 
           <div className="flex space-x-1">
@@ -279,7 +280,7 @@ export default function PropertyCard({
                 }`}
                 disabled={isComparing}
               >
-                {isComparing ? "Added" : "Compare"}
+                {isComparing ? "Ditambahkan" : "Bandingkan"}
               </button>
             )}
 
@@ -287,7 +288,7 @@ export default function PropertyCard({
               onClick={handleDetailsClick}
               className="px-2 py-1 text-xs bg-blue-700 text-white rounded hover:bg-blue-800"
             >
-              Details
+              Temukan
             </button>
           </div>
         </div>

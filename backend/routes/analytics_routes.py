@@ -142,11 +142,11 @@ def get_price_distribution():
     
     # Define price ranges in billions (IDR)
     ranges = [
-        {"range": "< 1B", "min": 0, "max": 1000000000},
-        {"range": "1B - 2B", "min": 1000000000, "max": 2000000000},
-        {"range": "2B - 5B", "min": 2000000000, "max": 5000000000},
-        {"range": "5B - 10B", "min": 5000000000, "max": 10000000000},
-        {"range": "> 10B", "min": 10000000000, "max": 9999999999999}  # Use a very large number instead of infinity
+        {"range": "< 1JT", "min": 0, "max": 1000000000},
+        {"range": "1JT - 2JT", "min": 1000000000, "max": 2000000000},
+        {"range": "2M - 5M", "min": 2000000000, "max": 5000000000},
+        {"range": "5M - 10M", "min": 5000000000, "max": 10000000000},
+        {"range": "> 10M", "min": 10000000000, "max": 9999999999999}  # Use a very large number instead of infinity
     ]
     
     # Count properties in each range
@@ -228,10 +228,11 @@ def get_climate_impact():
     
     # Define score ranges
     score_ranges = [
-        {'range': 'Low (0-40)', 'min': 0, 'max': 40},
-        {'range': 'Medium (41-70)', 'min': 41, 'max': 70},
-        {'range': 'High (71-100)', 'min': 71, 'max': 100}
+        {'range': 'Rendah (0-40)', 'min': 0, 'max': 40},
+        {'range': 'Sedang (41-70)', 'min': 41, 'max': 70},
+        {'range': 'Tinggi (71-100)', 'min': 71, 'max': 100}
     ]
+
     
     # Calculate average price for each climate factor and score range
     impact_data = []

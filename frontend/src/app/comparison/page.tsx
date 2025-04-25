@@ -231,7 +231,7 @@ function ComparisonContent() {
                     {/* Climate Scores */}
                     <tr>
                       <td className="py-3 px-4 font-medium bg-gray-50">
-                        Climate Safety Score
+                        Skor Iklim
                       </td>
                       {properties.map((property) => (
                         <td key={property.id} className="py-3 px-4">

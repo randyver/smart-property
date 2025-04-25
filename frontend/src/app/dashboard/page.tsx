@@ -401,11 +401,11 @@ export default function Dashboard() {
   // Price range options
   const priceOptions = [
     { label: "Any", min: undefined, max: undefined },
-    { label: "< 100M", min: 0, max: 100000000 },
-    { label: "100M - 1B", min: 100000000, max: 1000000000 },
-    { label: "1B - 5B", min: 1000000000, max: 5000000000 },
-    { label: "5B - 10B", min: 5000000000, max: 10000000000 },
-    { label: "> 10B", min: 10000000000, max: undefined },
+    { label: "< 100JT", min: 0, max: 100000000 },
+    { label: "100JT - 1M", min: 100000000, max: 1000000000 },
+    { label: "1M - 5M", min: 1000000000, max: 5000000000 },
+    { label: "5M - 10M", min: 5000000000, max: 10000000000 },
+    { label: "> 10M", min: 10000000000, max: undefined },
   ];
 
   return (
@@ -471,7 +471,7 @@ export default function Dashboard() {
           <div className="p-3 border-b bg-white">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-bold text-lg text-gray-800">
-                Find Climate-Safe Properties
+                Temukan Properti Aman dari Iklim.
               </h3>
             </div>
 
@@ -479,7 +479,7 @@ export default function Dashboard() {
             <div className="mb-3">
               <input
                 type="text"
-                placeholder="Search properties..."
+                placeholder="Cari properti..."
                 className="w-full p-2 border border-gray-300 rounded-md text-black"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -490,7 +490,7 @@ export default function Dashboard() {
               {/* Price Range */}
               <div>
                 <label className="block text-sm font-medium text-gray-800 mb-1">
-                  Price Range
+                  Rentang Harga
                 </label>
                 <div className="grid grid-cols-3 gap-1">
                   {priceOptions.map((option, index) => (
@@ -516,7 +516,7 @@ export default function Dashboard() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-800 mb-1">
-                    Bedrooms
+                    Kamar Tidur
                   </label>
                   <select
                     className="w-full p-2 border border-gray-300 rounded-md cursor-pointer bg-white text-black text-sm"
@@ -533,7 +533,7 @@ export default function Dashboard() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-800 mb-1">
-                    Min. Climate Score
+                    Skor Iklim Min.
                   </label>
                   <select
                     className="w-full p-2 border border-gray-300 cursor-pointer rounded-md bg-white text-black text-sm"
@@ -561,7 +561,7 @@ export default function Dashboard() {
                   onClick={handleSearch}
                   className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
-                  Search
+                  Cari
                 </button>
               </div>
             </div>
@@ -580,7 +580,7 @@ export default function Dashboard() {
                 </div>
               ) : listDisplayProperties.length === 0 ? (
                 <div className="text-center py-8 text-gray-800">
-                  <p>No properties found matching your criteria.</p>
+                  <p>Tidak ada properti yang ditemukan sesuai kriteria Anda.</p>
                 </div>
               ) : (
                 <InfiniteScroll
@@ -649,9 +649,9 @@ export default function Dashboard() {
 
               <div className="flex flex-wrap justify-between items-center mb-4">
                 <div className="flex flex-wrap gap-4 text-sm text-gray-700">
-                  <span>{selectedProperty.bedrooms} Beds</span>
-                  <span>{selectedProperty.building_area} m²</span>
-                  <span>{selectedProperty.land_area} m² land</span>
+                  <span>{selectedProperty.bedrooms ?? "-"} Kamar Tidur</span>
+                  <span>{selectedProperty.building_area ?? "-"} m²</span>
+                  <span>{selectedProperty.land_area ?? "-"} m² Tanah</span>
                 </div>
 
                 <div className="mt-2 sm:mt-0">
@@ -667,7 +667,7 @@ export default function Dashboard() {
               )}
 
               <h4 className="font-bold text-sm mb-2 mt-4 text-gray-800">
-                Climate Risk Assessment
+              Penilaian Risiko Iklim
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm mb-4">
                 <div className="flex items-center">
@@ -677,7 +677,7 @@ export default function Dashboard() {
                     )} mr-2`}
                   ></span>
                   <span className="text-gray-700">
-                    Surface Temperature:{" "}
+                  Suhu Permukaan:{" "}
                     {formatRiskLevel(
                       selectedProperty.risks?.surface_temperature || "medium"
                     )}
@@ -690,7 +690,7 @@ export default function Dashboard() {
                     )} mr-2`}
                   ></span>
                   <span className="text-gray-700">
-                    Heat Stress:{" "}
+                  Tekanan Panas:{" "}
                     {formatRiskLevel(
                       selectedProperty.risks?.heat_stress || "medium"
                     )}
@@ -703,7 +703,7 @@ export default function Dashboard() {
                     )} mr-2`}
                   ></span>
                   <span className="text-gray-700">
-                    Green Cover:{" "}
+                  Tutupan Hijau:{" "}
                     {formatRiskLevel(
                       selectedProperty.risks?.green_cover || "medium"
                     )}
@@ -716,7 +716,7 @@ export default function Dashboard() {
                     )} mr-2`}
                   ></span>
                   <span className="text-gray-700">
-                    Heat Zone:{" "}
+                  Zona Panas:{" "}
                     {formatRiskLevel(
                       selectedProperty.risks?.heat_zone || "medium"
                     )}
@@ -737,15 +737,15 @@ export default function Dashboard() {
                   )}
                 >
                   {compareProperties.some((p) => p.id === selectedProperty.id)
-                    ? "Added to Compare"
-                    : "Add to Compare"}
+                    ? "Ditambahkan"
+                    : "Bandingkan"}
                 </button>
 
                 <a
                   href={`/properties/${selectedProperty.id}`}
                   className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 >
-                  View Details
+                  Lihat Detail
                 </a>
               </div>
             </div>
@@ -757,13 +757,13 @@ export default function Dashboard() {
               <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-bold text-sm sm:text-base">
-                    Comparing {compareProperties.length} properties
+                  Membandingkan {compareProperties.length} properti
                   </h3>
                   <button
                     onClick={() => setCompareProperties([])}
                     className="text-sm text-red-600 hover:underline"
                   >
-                    Clear all
+                    Hapus semua
                   </button>
                 </div>
                 <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
@@ -792,7 +792,7 @@ export default function Dashboard() {
                       .join(",")}`}
                     className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 flex items-center justify-center"
                   >
-                    Compare
+                    Bandingkan
                   </a>
                 </div>
               </div>

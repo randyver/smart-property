@@ -21,8 +21,7 @@ const Hero = () => {
             </span>
           </motion.h2>
           <p className="text-lg md:text-xl text-gray-600 mb-8">
-            Discover properties that protect your investment from environmental
-            risks through advanced GIS analysis.
+          Temukan properti yang melindungi investasi Anda dari risiko lingkungan melalui analisis GIS.
           </p>
           <motion.div
             className="mt-16 flex justify-start" // Changed from justify-center to justify-start
@@ -33,7 +32,7 @@ const Hero = () => {
           >
             <a href="/dashboard">
               <Button className="relative overflow-hidden rounded-lg bg-gradient-to-r from-smartproperty to-smartproperty-dark px-8 py-6 text-lg font-medium text-white shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-xl">
-                <span className="relative z-10">Explore Map Now</span>
+                <span className="relative z-10">Jelajahi peta sekarang</span>
                 <span className="absolute inset-0 bg-gradient-to-r from-smartproperty-dark to-smartproperty opacity-0 transition-opacity duration-500 hover:opacity-100"></span>
               </Button>
             </a>

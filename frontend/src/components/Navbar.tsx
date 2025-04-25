@@ -37,19 +37,19 @@ const Navbar = () => {
             href="/dashboard"
             className="text-gray-600 hover:text-smartproperty font-medium"
           >
-            Maps
+            Peta
           </a>
           <a
             href="/analytics"
             className="text-gray-600 hover:text-smartproperty font-medium"
           >
-            Analytics
+            Analitik
           </a>
           <a
             href="/about-us"
             className="text-gray-600 hover:text-smartproperty font-medium"
           >
-            About Us
+            Tentang Kami
           </a>
         </nav>
 
@@ -85,7 +85,7 @@ const Navbar = () => {
                   href="/dashboard"
                   className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
                 >
-                  Maps
+                  Peta
                 </a>
               </SheetClose>
               <SheetClose asChild>
@@ -93,7 +93,7 @@ const Navbar = () => {
                   href="/analytics"
                   className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
                 >
-                  Analytics
+                  Analitik
                 </a>
               </SheetClose>
               <SheetClose asChild>
@@ -101,7 +101,7 @@ const Navbar = () => {
                   href="/about-us"
                   className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
                 >
-                  About Us
+                  Tentang Kami
                 </a>
               </SheetClose>
             </nav>

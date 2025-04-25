@@ -38,12 +38,12 @@ export default function ClimateScores({
 
   // Get label based on score
   const getScoreLabel = (score: number | null | undefined): string => {
-    if (score == null) return "No data";
-    if (score >= 80) return "Very Good";
-    if (score >= 60) return "Good";
-    if (score >= 40) return "Fair";
-    if (score >= 20) return "Poor";
-    return "Very Poor";
+    if (score == null) return "Tidak ada data";
+    if (score >= 80) return "Sangat Baik";
+    if (score >= 60) return "Baik";
+    if (score >= 40) return "Cukup";
+    if (score >= 20) return "Buruk";
+    return "Sangat Buruk";
   };
 
   // Score explanations for tooltips
@@ -113,9 +113,71 @@ export default function ClimateScores({
   // Full detailed version
   return (
     <div className={`flex flex-col space-y-2 ${className} text-black`}>
-      <h4 className="font-bold text-sm mb-1">Detailed Climate Scores</h4>
+      <h4 className="font-bold text-sm mb-1">Detail Skor Iklim</h4>
 
       <div className="space-y-3">
+        <div className="flex items-center">
+          <div className="w-1/3">
+            <div className="flex items-center">
+              <div
+                className={`w-3 h-3 rounded-full ${getScoreColor(
+                  scores.uhi_score
+                )} mr-2`}
+              ></div>
+              <span className="text-sm font-medium">UHI Score</span>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Pulau Panas Perkotaan</p>
+          </div>
+          <div className="w-2/3">
+            <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className={`h-full ${getScoreColor(scores.uhi_score)}`}
+                style={{ width: `${scores.uhi_score || 0}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-between mt-1">
+              <span className={`text-xs ${getTextColor(scores.uhi_score)}`}>
+                {scores.uhi_score || "N/A"}
+              </span>
+              <span className="text-xs text-gray-600">
+                {getScoreLabel(scores.uhi_score)}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center">
+          <div className="w-1/3">
+            <div className="flex items-center">
+              <div
+                className={`w-3 h-3 rounded-full ${getScoreColor(
+                  scores.utfvi_score
+                )} mr-2`}
+              ></div>
+              <span className="text-sm font-medium">Skor UTFVI</span>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Indeks Variansi Termal Perkotaan
+            </p>
+          </div>
+          <div className="w-2/3">
+            <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className={`h-full ${getScoreColor(scores.utfvi_score)}`}
+                style={{ width: `${scores.utfvi_score || 0}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-between mt-1">
+              <span className={`text-xs ${getTextColor(scores.utfvi_score)}`}>
+                {scores.utfvi_score || "N/A"}
+              </span>
+              <span className="text-xs text-gray-600">
+                {getScoreLabel(scores.utfvi_score)}
+              </span>
+            </div>
+          </div>
+        </div>
+
         <div className="flex items-center">
           <div className="w-1/3">
             <div className="flex items-center">
@@ -124,11 +186,9 @@ export default function ClimateScores({
                   scores.lst_score
                 )} mr-2`}
               ></div>
-              <span className="text-sm font-medium">LST Score</span>
+              <span className="text-sm font-medium">Skor LST</span>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Land Surface Temperature
-            </p>
+            <p className="text-xs text-gray-500 mt-1">Suhu Permukaan Tanah</p>
           </div>
           <div className="w-2/3">
             <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
@@ -156,9 +216,9 @@ export default function ClimateScores({
                   scores.ndvi_score
                 )} mr-2`}
               ></div>
-              <span className="text-sm font-medium">NDVI Score</span>
+              <span className="text-sm font-medium">Skor NDVI</span>
             </div>
-            <p className="text-xs text-gray-500 mt-1">Vegetation Index</p>
+            <p className="text-xs text-gray-500 mt-1">Indeks Vegetasi</p>
           </div>
           <div className="w-2/3">
             <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
@@ -183,70 +243,10 @@ export default function ClimateScores({
             <div className="flex items-center">
               <div
                 className={`w-3 h-3 rounded-full ${getScoreColor(
-                  scores.utfvi_score
-                )} mr-2`}
-              ></div>
-              <span className="text-sm font-medium">UTFVI Score</span>
-            </div>
-            <p className="text-xs text-gray-500 mt-1">Urban Thermal Index</p>
-          </div>
-          <div className="w-2/3">
-            <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className={`h-full ${getScoreColor(scores.utfvi_score)}`}
-                style={{ width: `${scores.utfvi_score || 0}%` }}
-              ></div>
-            </div>
-            <div className="flex justify-between mt-1">
-              <span className={`text-xs ${getTextColor(scores.utfvi_score)}`}>
-                {scores.utfvi_score || "N/A"}
-              </span>
-              <span className="text-xs text-gray-600">
-                {getScoreLabel(scores.utfvi_score)}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center">
-          <div className="w-1/3">
-            <div className="flex items-center">
-              <div
-                className={`w-3 h-3 rounded-full ${getScoreColor(
-                  scores.uhi_score
-                )} mr-2`}
-              ></div>
-              <span className="text-sm font-medium">UHI Score</span>
-            </div>
-            <p className="text-xs text-gray-500 mt-1">Urban Heat Island</p>
-          </div>
-          <div className="w-2/3">
-            <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className={`h-full ${getScoreColor(scores.uhi_score)}`}
-                style={{ width: `${scores.uhi_score || 0}%` }}
-              ></div>
-            </div>
-            <div className="flex justify-between mt-1">
-              <span className={`text-xs ${getTextColor(scores.uhi_score)}`}>
-                {scores.uhi_score || "N/A"}
-              </span>
-              <span className="text-xs text-gray-600">
-                {getScoreLabel(scores.uhi_score)}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center">
-          <div className="w-1/3">
-            <div className="flex items-center">
-              <div
-                className={`w-3 h-3 rounded-full ${getScoreColor(
                   scores.overall_score
                 )} mr-2`}
               ></div>
-              <span className="text-sm font-medium">Overall Score</span>
+              <span className="text-sm font-medium">Total Skor</span>
             </div>
             <p className="text-xs text-gray-500 mt-1">Climate Safety Rating</p>
           </div>

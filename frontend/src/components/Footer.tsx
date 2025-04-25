@@ -13,7 +13,7 @@ const Footer = () => {
               <span className="text-xl font-bold">SmartProperty</span>
             </div>
             <p className="text-gray-400 mb-6 max-w-xs">
-            Discover properties that protect your investment from environmental risks through advanced GIS analysis.
+            Temukan properti yang melindungi investasi Anda dari risiko lingkungan melalui analisis GIS.
             </p>
           </div>
           
@@ -22,18 +22,18 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li><a href="/" className="text-gray-400 hover:text-smartproperty">Home</a></li>
-              <li><a href="/dashboard" className="text-gray-400 hover:text-smartproperty">Maps</a></li>
-              <li><a href="/analytics" className="text-gray-400 hover:text-smartproperty">Analytics</a></li>
-              <li><a href="/about-us" className="text-gray-400 hover:text-smartproperty">About Us</a></li>
+              <li><a href="/dashboard" className="text-gray-400 hover:text-smartproperty">Peta</a></li>
+              <li><a href="/analytics" className="text-gray-400 hover:text-smartproperty">Analitik</a></li>
+              <li><a href="/about-us" className="text-gray-400 hover:text-smartproperty">Tentang Kami</a></li>
             </ul>
           </div>
           
           {/* Contact info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
+            <h3 className="text-lg font-semibold mb-4">Kontak Kami</h3>
             <ul className="space-y-2">
               <li className="text-gray-400">Email: smartproperty@gmail.com</li>
-              <li className="text-gray-400">Phone: (+62) 821 1234 5678</li>
+              <li className="text-gray-400">Telepon: (+62) 821 1234 5678</li>
               <li className="flex space-x-4 mt-4">
                 <a href="/" className="text-gray-400 hover:text-smartproperty">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">

@@ -251,7 +251,7 @@ export default function PropertyDetailsPage() {
           </a>
           <span className="mx-2">›</span>
           <a href="/" className="hover:text-blue-600">
-            Properties
+            Detail Properti
           </a>
           <span className="mx-2">›</span>
           <span className="text-gray-700">{property.title}</span>
@@ -287,25 +287,25 @@ export default function PropertyDetailsPage() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
-                <span className="text-gray-500 text-sm">Bedrooms</span>
+                <span className="text-gray-500 text-sm">Kamar Tidur</span>
                 <span className="text-lg font-bold text-gray-800">
                   {property.bedrooms}
                 </span>
               </div>
               <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
-                <span className="text-gray-500 text-sm">Bathrooms</span>
+                <span className="text-gray-500 text-sm">Kamar Mandi</span>
                 <span className="text-lg font-bold text-gray-800">
                   {property.bathrooms || "N/A"}
                 </span>
               </div>
               <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
-                <span className="text-gray-500 text-sm">Building</span>
+                <span className="text-gray-500 text-sm">Luas Bangunan</span>
                 <span className="text-lg font-bold text-gray-800">
                   {property.building_area} m²
                 </span>
               </div>
               <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
-                <span className="text-gray-500 text-sm">Land</span>
+                <span className="text-gray-500 text-sm">Luas Tanah</span>
                 <span className="text-lg font-bold text-gray-800">
                   {property.land_area} m²
                 </span>
@@ -315,7 +315,7 @@ export default function PropertyDetailsPage() {
             <div className="flex justify-between items-center mt-4 pt-4 border-t">
               <div className="flex items-center">
                 <RiskIndicator score={property.climate_risk_score} />
-                <span className="ml-2 text-gray-600">Climate Safety Score</span>
+                <span className="ml-2 text-gray-600">Skor Iklim</span>
               </div>
               <ClimateScoreInfo />
             </div>
@@ -342,7 +342,7 @@ export default function PropertyDetailsPage() {
                 }`}
                 onClick={() => setSelectedTab("climate")}
               >
-                Climate Analysis
+                Analisis Iklim
               </button>
               <button
                 className={`px-4 py-3 text-sm font-medium ${
@@ -352,39 +352,37 @@ export default function PropertyDetailsPage() {
                 }`}
                 onClick={() => setSelectedTab("location")}
               >
-                Location
+                Lokasi
               </button>
             </div>
 
             <div className="p-6 text-black">
               {selectedTab === "overview" && (
                 <div>
-                  <h2 className="text-lg font-bold mb-4">
-                    Property Description
-                  </h2>
+                  <h2 className="text-lg font-bold mb-4">Deskripsi Properti</h2>
                   <p className="text-gray-700 mb-4">
-                    {property.title} is a strategically located residence in{" "}
-                    {property.district}, {property.city}. This modern designed
-                    house has {property.bedrooms} bedrooms and is equipped with
-                    various facilities that will provide comfort for its
-                    occupants.
+                    {property.title} adalah hunian yang terletak strategis di{" "}
+                    {property.district}, {property.city}. Rumah dengan desain
+                    modern ini memiliki {property.bedrooms} kamar tidur dan
+                    dilengkapi dengan berbagai fasilitas yang akan memberikan
+                    kenyamanan bagi penghuninya.
                   </p>
                   <p className="text-gray-700 mb-4">
-                    With a building area of {property.building_area} m² and a
-                    land area of {property.land_area} m², this property offers
-                    ample space for various needs. The property ownership status
-                    is {property.certificate}, providing strong legal
-                    guarantees.
+                    Dengan luas bangunan {property.building_area} m² dan luas
+                    tanah {property.land_area} m², properti ini menawarkan ruang
+                    yang luas untuk berbagai kebutuhan. Status kepemilikan
+                    properti ini adalah {property.certificate}, memberikan
+                    jaminan hukum yang kuat.
                   </p>
                   <p className="text-gray-700">
-                    This property has a climate safety score of{" "}
-                    {property.climate_risk_score}/100, indicating its level of
-                    safety from various climate change risks such as flooding,
-                    landslides, and the urban heat island effect.
+                    Properti ini memiliki skor keamanan iklim sebesar{" "}
+                    {property.climate_risk_score}/100, yang menunjukkan tingkat
+                    keamanannya dari berbagai risiko perubahan iklim seperti
+                    banjir, tanah longsor, dan efek pulau panas perkotaan.
                   </p>
 
                   <div className="mt-6">
-                    <h3 className="font-bold text-gray-800 mb-2">Facilities</h3>
+                    <h3 className="font-bold text-gray-800 mb-2">Fasilitas</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                       <div className="flex items-center p-2 bg-gray-50 rounded">
                         <svg
@@ -399,7 +397,7 @@ export default function PropertyDetailsPage() {
                             clipRule="evenodd"
                           />
                         </svg>
-                        <span className="text-sm">Electricity</span>
+                        <span className="text-sm">Listrik</span>
                       </div>
                       <div className="flex items-center p-2 bg-gray-50 rounded">
                         <svg
@@ -414,7 +412,7 @@ export default function PropertyDetailsPage() {
                             clipRule="evenodd"
                           />
                         </svg>
-                        <span className="text-sm">Water Supply</span>
+                        <span className="text-sm">Air Bersih</span>
                       </div>
                       <div className="flex items-center p-2 bg-gray-50 rounded">
                         <svg
@@ -429,7 +427,7 @@ export default function PropertyDetailsPage() {
                             clipRule="evenodd"
                           />
                         </svg>
-                        <span className="text-sm">Garden</span>
+                        <span className="text-sm">Taman</span>
                       </div>
                       <div className="flex items-center p-2 bg-gray-50 rounded">
                         <svg
@@ -455,7 +453,7 @@ export default function PropertyDetailsPage() {
                             clipRule="evenodd"
                           />
                         </svg>
-                        <span className="text-sm">Security</span>
+                        <span className="text-sm">Keamanan</span>
                       </div>
                     </div>
                   </div>
@@ -465,14 +463,14 @@ export default function PropertyDetailsPage() {
               {selectedTab === "climate" && (
                 <div>
                   <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-bold">Climate Risk Analysis</h2>
+                    <h2 className="text-lg font-bold">Analisis Risiko Iklim</h2>
                     <div className="flex items-center">
                       <RiskIndicator
                         score={property.climate_risk_score}
                         size="sm"
                       />
                       <span className="ml-2 text-sm text-gray-600">
-                        Overall Score
+                        Skor Keseluruhan
                       </span>
                     </div>
                   </div>
@@ -485,10 +483,10 @@ export default function PropertyDetailsPage() {
 
                   <div className="mt-6">
                     <h3 className="font-bold text-gray-800 mb-3">
-                      Detailed Risk Assessment
+                      Penilaian Risiko Secara Rinci
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Surface Temperature */}
+                      {/* Suhu Permukaan */}
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <span
@@ -497,7 +495,7 @@ export default function PropertyDetailsPage() {
                             )} mr-2`}
                           ></span>
                           <h4 className="font-medium">
-                            Surface Temperature:{" "}
+                            Suhu Permukaan:{" "}
                             {formatRiskLevel(
                               property.risks.surface_temperature
                             )}
@@ -505,12 +503,12 @@ export default function PropertyDetailsPage() {
                         </div>
                         <p className="text-sm text-gray-600">
                           {property.risks?.surface_temperature?.includes("low")
-                            ? "The area maintains relatively cool surface temperatures, reducing urban heat island effects."
-                            : "This area experiences higher surface temperatures, which may contribute to heat discomfort and increased cooling needs."}
+                            ? "Wilayah ini memiliki suhu permukaan yang relatif sejuk, mengurangi efek pulau panas perkotaan."
+                            : "Wilayah ini mengalami suhu permukaan yang tinggi, yang dapat menyebabkan ketidaknyamanan panas dan kebutuhan pendinginan yang lebih besar."}
                         </p>
                       </div>
 
-                      {/* Heat Stress */}
+                      {/* Stres Panas */}
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <span
@@ -519,18 +517,18 @@ export default function PropertyDetailsPage() {
                             )} mr-2`}
                           ></span>
                           <h4 className="font-medium">
-                            Heat Stress:{" "}
+                            Stres Panas:{" "}
                             {formatRiskLevel(property.risks.heat_stress)}
                           </h4>
                         </div>
                         <p className="text-sm text-gray-600">
                           {property.risks?.heat_stress?.includes("low")
-                            ? "Low risk of heat-related health impacts with comfortable thermal conditions."
-                            : "Higher potential for heat-related health risks during extreme heat events."}
+                            ? "Risiko rendah terhadap dampak kesehatan terkait panas dengan kondisi termal yang nyaman."
+                            : "Potensi tinggi terhadap risiko kesehatan akibat panas selama cuaca ekstrem."}
                         </p>
                       </div>
 
-                      {/* Green Cover */}
+                      {/* Tutupan Hijau */}
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <span
@@ -539,19 +537,19 @@ export default function PropertyDetailsPage() {
                             )} mr-2`}
                           ></span>
                           <h4 className="font-medium">
-                            Green Cover:{" "}
+                            Tutupan Hijau:{" "}
                             {formatRiskLevel(property.risks.green_cover)}
                           </h4>
                         </div>
                         <p className="text-sm text-gray-600">
                           {property.risks.green_cover === "excellent" ||
                           property.risks.green_cover === "good"
-                            ? "Abundant vegetation provides shade, cooling, and improved air quality."
-                            : "Limited green space may reduce natural cooling and air purification benefits."}
+                            ? "Vegetasi yang melimpah memberikan keteduhan, pendinginan alami, dan kualitas udara yang lebih baik."
+                            : "Ruang hijau yang terbatas dapat mengurangi efek pendinginan alami dan penyaringan udara."}
                         </p>
                       </div>
 
-                      {/* Heat Zone */}
+                      {/* Zona Panas */}
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <span
@@ -560,14 +558,14 @@ export default function PropertyDetailsPage() {
                             )} mr-2`}
                           ></span>
                           <h4 className="font-medium">
-                            Heat Zone:{" "}
+                            Zona Panas:{" "}
                             {formatRiskLevel(property.risks.heat_zone)}
                           </h4>
                         </div>
                         <p className="text-sm text-gray-600">
                           {property.risks?.heat_zone?.includes("low")
-                            ? "Located in a cooler microclimate with minimal heat accumulation."
-                            : "Located in an urban heat island zone with higher temperature retention."}
+                            ? "Terletak di mikroklimat yang lebih sejuk dengan akumulasi panas yang minimal."
+                            : "Terletak di zona pulau panas perkotaan dengan retensi suhu yang lebih tinggi."}
                         </p>
                       </div>
                     </div>
@@ -575,28 +573,28 @@ export default function PropertyDetailsPage() {
 
                   <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
                     <h3 className="font-bold text-gray-800 mb-2">
-                      Climate Resilience Tips
+                      Tips Ketahanan terhadap Iklim
                     </h3>
                     <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
                       <li>
-                        Consider adding trees around the house to reduce heat
-                        effects
+                        Pertimbangkan untuk menanam pohon di sekitar rumah guna
+                        mengurangi efek panas
                       </li>
                       <li>
-                        Install a rainwater harvesting system to save water and
-                        reduce drainage load
+                        Pasang sistem penampungan air hujan untuk menghemat air
+                        dan mengurangi beban drainase
                       </li>
                       <li>
-                        Use building materials that are resistant to extreme
-                        weather changes
+                        Gunakan bahan bangunan yang tahan terhadap perubahan
+                        cuaca ekstrem
                       </li>
                       <li>
-                        Check the drainage system regularly, especially before
-                        the rainy season
+                        Periksa sistem drainase secara berkala, terutama sebelum
+                        musim hujan
                       </li>
                       <li>
-                        Invest in a good ventilation system to maintain indoor
-                        air quality
+                        Investasi pada sistem ventilasi yang baik untuk menjaga
+                        kualitas udara dalam ruangan
                       </li>
                     </ul>
                   </div>
@@ -605,11 +603,9 @@ export default function PropertyDetailsPage() {
 
               {selectedTab === "location" && (
                 <div>
-                  <h2 className="text-lg font-bold mb-4">
-                    Location Information
-                  </h2>
+                  <h2 className="text-lg font-bold mb-4">Informasi Lokasi</h2>
 
-                  {/* Map using MAPID */}
+                  {/* Peta menggunakan MAPID */}
                   <div className="bg-gray-200 h-64 rounded-lg mb-6">
                     <div
                       ref={mapContainer}
@@ -619,26 +615,27 @@ export default function PropertyDetailsPage() {
 
                   <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
                     <h3 className="font-bold text-gray-800 mb-2">
-                      Neighborhood Climate Features
+                      Fitur Iklim di Sekitar Lingkungan
                     </h3>
                     <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
                       <li>
-                        City park within a 1 km radius to maintain air quality
-                        and reduce heat effects
+                        Taman kota dalam radius 1 km untuk menjaga kualitas
+                        udara dan mengurangi efek panas
                       </li>
                       <li>
-                        Well-maintained city drainage system to prevent flooding
+                        Sistem drainase kota yang terawat baik untuk mencegah
+                        banjir
                       </li>
                       <li>
-                        Bicycle and pedestrian paths that encourage low-emission
-                        transportation
+                        Jalur sepeda dan pejalan kaki yang mendukung
+                        transportasi rendah emisi
                       </li>
                       <li>
-                        Environmental greening program by the local community
+                        Program penghijauan lingkungan oleh komunitas setempat
                       </li>
                       <li>
-                        Access to local markets that provide fresh products with
-                        a low carbon footprint
+                        Akses ke pasar lokal yang menyediakan produk segar
+                        dengan jejak karbon rendah
                       </li>
                     </ul>
                   </div>

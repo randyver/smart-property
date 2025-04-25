@@ -1,6 +1,10 @@
 "use client";
 
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Info } from "lucide-react";
 
 interface ClimateScoreInfoProps {
@@ -17,20 +21,20 @@ export default function ClimateScoreInfo({
           className={`text-blue-600 text-sm flex items-center hover:underline ${className}`}
         >
           <Info className="w-4 h-4 mr-1" />
-          What is Climate Score?
+          Apa itu Skor Iklim?
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-80 xl:w-full z-[100]">
         <div className="space-y-3">
           <h3 className="font-bold text-gray-800 mb-2">
-            Tentang Climate Score
+            Tentang Skor Iklim
           </h3>
 
           <div className="space-y-3 text-sm text-gray-600">
             <p>
-              Climate Score is an indicator that shows how safe the property
-              location is from climate change risks and environmental
-              conditions.
+              Skor Iklim adalah indikator yang menunjukkan seberapa aman
+              lokasi properti dari risiko perubahan iklim dan kondisi
+              lingkungan.
             </p>
 
             <div>
@@ -38,8 +42,8 @@ export default function ClimateScoreInfo({
                 LST (Land Surface Temperature)
               </h4>
               <p>
-                The land surface temperature in the property area. A high score
-                indicates lower and more comfortable temperatures.
+                Suhu permukaan tanah di area properti. Skor yang tinggi
+                menunjukkan suhu yang lebih rendah dan nyaman.
               </p>
             </div>
 
@@ -48,8 +52,8 @@ export default function ClimateScoreInfo({
                 NDVI (Normalized Difference Vegetation Index)
               </h4>
               <p>
-                Measures the availability of green space around the property. A
-                high score indicates more vegetation.
+                Mengukur ketersediaan ruang hijau di sekitar properti. Skor yang
+                tinggi menunjukkan lebih banyak vegetasi.
               </p>
             </div>
 
@@ -58,8 +62,8 @@ export default function ClimateScoreInfo({
                 UTFVI (Urban Thermal Field Variance Index)
               </h4>
               <p>
-                Measures urban temperature variation. A high score indicates
-                more stable temperature variation.
+                Mengukur variasi suhu di wilayah urban. Skor yang tinggi
+                menunjukkan variasi suhu yang lebih stabil.
               </p>
             </div>
 
@@ -68,37 +72,37 @@ export default function ClimateScoreInfo({
                 UHI (Urban Heat Island)
               </h4>
               <p>
-                Measures the urban heat island effect. A high score indicates
-                areas with minimal UHI effect.
+                Mengukur efek pulau panas perkotaan. Skor yang tinggi
+                menunjukkan area dengan efek UHI yang minimal.
               </p>
             </div>
 
             <div>
-              <h4 className="font-medium text-gray-700">Overall Score</h4>
+              <h4 className="font-medium text-gray-700">Skor Keseluruhan</h4>
               <p>
-                An overall value that combines all the parameters above to
-                assess the climate safety of the property.
+                Nilai keseluruhan yang menggabungkan semua parameter di atas
+                untuk menilai tingkat keamanan iklim suatu properti.
               </p>
             </div>
 
             <div className="pt-2">
-              <h4 className="font-medium text-gray-700">Score Guide:</h4>
+              <h4 className="font-medium text-gray-700">Panduan Skor:</h4>
               <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-1">
                 <div className="flex items-center">
                   <span className="inline-block w-3 h-3 rounded-full bg-green-600 mr-2"></span>
-                  <span>80-100: Safe</span>
+                  <span>80-100: Aman</span>
                 </div>
                 <div className="flex items-center">
                   <span className="inline-block w-3 h-3 rounded-full bg-green-500 mr-2"></span>
-                  <span>60-79: Moderate</span>
+                  <span>60-79: Sedang</span>
                 </div>
                 <div className="flex items-center">
                   <span className="inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>
-                  <span>40-59: Caution</span>
+                  <span>40-59: Waspada</span>
                 </div>
                 <div className="flex items-center">
                   <span className="inline-block w-3 h-3 rounded-full bg-red-600 mr-2"></span>
-                  <span>0-39: High Risk</span>
+                  <span>0-39: Risiko Tinggi</span>
                 </div>
               </div>
             </div>

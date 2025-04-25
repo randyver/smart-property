@@ -8,26 +8,26 @@ import { Button } from "@/components/ui/button";
 // Animation variants for consistent animations
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
     transition: {
       duration: 0.6,
-      ease: "easeOut"
-    }
-  }
+      ease: "easeOut",
+    },
+  },
 };
 
 // Animation variant specifically for hover effect
 const hoverAnimation = {
   rest: { y: 0 },
-  hover: { 
+  hover: {
     y: -5,
     transition: {
       duration: 0.3,
-      ease: "easeOut"
-    }
-  }
+      ease: "easeOut",
+    },
+  },
 };
 
 const FeatureCard = ({
@@ -77,39 +77,43 @@ const FeatureCard = ({
 const Features = () => {
   // Create a single ref for the entire section
   const sectionRef = useRef(null);
-  
+
   // Check if section is in view - this will trigger just once
   const isInView = useInView(sectionRef, {
     once: true,
-    amount: 0.1 // Trigger when 10% of the section is visible
+    amount: 0.1, // Trigger when 10% of the section is visible
   });
 
   // Feature data for cleaner rendering
   const features = [
     {
       icon: CloudSun,
-      title: "Climate Property Scoring",
-      description: "Evaluate properties based on climate risk factors and sustainability metrics."
+      title: "Penilaian Properti Iklim",
+      description:
+        "Evaluasi properti berdasarkan faktor risiko iklim dan metrik keberlanjutan.",
     },
     {
       icon: House,
-      title: "Property Comparison",
-      description: "Compare multiple properties side by side with detailed climate analysis."
+      title: "Perbandingan Properti",
+      description:
+        "Bandingkan beberapa properti secara berdampingan dengan analisis iklim yang terperinci.",
     },
     {
       icon: Map,
-      title: "Interactive GIS Maps",
-      description: "Visualize climate data with advanced mapping technologies and layers."
+      title: "Peta GIS Interaktif",
+      description:
+        "Visualisasikan data iklim dengan teknologi pemetaan canggih dan lapisan-lapisan.",
     },
     {
       icon: MessageSquare,
-      title: "AI Assistant",
-      description: "Get property recommendations and answers to climate questions instantly."
-    }
+      title: "Asisten AI",
+      description:
+        "Dapatkan rekomendasi properti dan jawaban atas pertanyaan iklim secara instan.",
+    },
   ];
 
   return (
-    <section 
+    <section
       ref={sectionRef}
       className="relative overflow-hidden py-16 bg-gradient-to-b from-gray-50 to-white min-h-screen flex items-center justify-center"
     >
@@ -125,7 +129,7 @@ const Features = () => {
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
         >
           <span className="bg-gradient-to-r from-smartproperty to-smartproperty-dark bg-clip-text text-transparent">
-            Our Key Features
+            Fitur Utama Kami
           </span>
         </motion.h2>
 
@@ -135,10 +139,10 @@ const Features = () => {
               key={index}
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ 
-                duration: 0.6, 
-                ease: "easeOut", 
-                delay: 0.2 + (index * 0.1) 
+              transition={{
+                duration: 0.6,
+                ease: "easeOut",
+                delay: 0.2 + index * 0.1,
               }}
             >
               <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-sm hover:shadow-lg transition-all duration-300 flex items-center justify-center h-full">
@@ -173,7 +177,7 @@ const Features = () => {
         >
           <a href="/dashboard">
             <Button className="relative overflow-hidden rounded-lg bg-gradient-to-r from-smartproperty to-smartproperty-dark px-8 py-6 text-lg font-medium text-white shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-xl">
-              <span className="relative z-10">Explore All Features</span>
+              <span className="relative z-10">Jelajahi semua fitur</span>
               <span className="absolute inset-0 bg-gradient-to-r from-smartproperty-dark to-smartproperty opacity-0 transition-opacity duration-500 hover:opacity-100"></span>
             </Button>
           </a>

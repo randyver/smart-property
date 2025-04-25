@@ -23,11 +23,11 @@ export default function AnalyticsPage() {
   // Map for climate metric labels
   const climateMetricLabels: Record<string, string> = {
     overall_score: "Overall Climate Safety",
-    lst_score: "Land Surface Temperature",
-    ndvi_score: "Vegetation Index (NDVI)",
-    utfvi_score: "Urban Thermal Index (UTFVI)",
-    uhi_score: "Urban Heat Island (UHI)",
-  };
+    lst_score: "Suhu Permukaan Tanah (LST)",
+    ndvi_score: "Indeks Vegetasi (NDVI)",
+    utfvi_score: "Indeks Variansi Termal Perkotaan (UTFVI)",
+    uhi_score: "Pulau Panas Perkotaan (UHI)",
+  };  
 
   // Fetch analytics data
   useEffect(() => {
@@ -145,10 +145,10 @@ export default function AnalyticsPage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800">
-              Property Market Analytics
+              Analisis Pasar Properti
             </h2>
             <div className="text-sm text-gray-500">
-              {summaryData && `Last updated: ${summaryData.last_updated}`}
+              {summaryData && `Terakhir diperbarui: ${summaryData.last_updated}`}
             </div>
           </div>
 
@@ -166,7 +166,7 @@ export default function AnalyticsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <div className="bg-white p-4 rounded-lg shadow-md">
                   <h3 className="text-sm font-medium text-gray-500">
-                    Total Properties
+                    Total Properti
                   </h3>
                   <p className="text-2xl font-bold text-gray-800">
                     {summaryData?.total_properties.toLocaleString()}
@@ -174,7 +174,7 @@ export default function AnalyticsPage() {
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-md">
                   <h3 className="text-sm font-medium text-gray-500">
-                    Average Price
+                    Harga Rata-rata
                   </h3>
                   <p className="text-2xl font-bold text-gray-800">
                     {formatter.formatCurrency(summaryData?.average_price || 0)}
@@ -182,7 +182,7 @@ export default function AnalyticsPage() {
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-md">
                   <h3 className="text-sm font-medium text-gray-500">
-                    Climate Safe Properties
+                    Properti Aman Iklim
                   </h3>
                   <p className="text-2xl font-bold text-gray-800">
                     {formatter.formatPercentage(
@@ -193,7 +193,7 @@ export default function AnalyticsPage() {
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-md">
                   <h3 className="text-sm font-medium text-gray-500">
-                    Avg Climate Score
+                    Skor Iklim Rata-rata
                   </h3>
                   <div className="flex items-center">
                     <div
@@ -220,19 +220,19 @@ export default function AnalyticsPage() {
                     value="price"
                     className="px-4 py-2 rounded-t-md data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:text-blue-600 data-[state=active]:shadow-none"
                   >
-                    Price Analysis
+                    Analisis Harga
                   </TabsTrigger>
                   <TabsTrigger
                     value="climate"
                     className="px-4 py-2 rounded-t-md data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:text-blue-600 data-[state=active]:shadow-none"
                   >
-                    Climate Analysis
+                    Analisis Iklim
                   </TabsTrigger>
                   <TabsTrigger
                     value="property"
                     className="px-4 py-2 rounded-t-md data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:text-blue-600 data-[state=active]:shadow-none"
                   >
-                    Property Types
+                    Jenis Properti
                   </TabsTrigger>
                 </TabsList>
 
@@ -244,8 +244,8 @@ export default function AnalyticsPage() {
                         data={priceByDistrict.slice(0, 10)}
                         xKey="district"
                         yKey="average_price"
-                        title="Average Property Price by District"
-                        dataKey="Price"
+                        title="Harga Properti Rata-rata per Kecamatan"
+                        dataKey="Harga"
                         height={400}
                         currency={true}
                         sorting="desc"
@@ -258,7 +258,7 @@ export default function AnalyticsPage() {
                         data={getPriceDistributionData()}
                         xKey="range"
                         yKey="count"
-                        title="Property Price Distribution"
+                        title="Distribusi Harga Properti"
                         height={400}
                         colors={[
                           "#93C5FD",
@@ -279,10 +279,10 @@ export default function AnalyticsPage() {
                         data={bedroomDistribution}
                         xKey="bedrooms"
                         yKey="count"
-                        title="Property Distribution by Bedrooms"
+                        title="Distribusi Properti Berdasarkan Jumlah Kamar Tidur"
                         height={350}
                         colors={["#3B82F6"]}
-                        dataKey="Properties"
+                        dataKey="Jumlah Properti"
                       />
                     )}
 
@@ -292,7 +292,7 @@ export default function AnalyticsPage() {
                         data={getPropertyTypeData()}
                         xKey="type"
                         yKey="count"
-                        title="Property Type Distribution"
+                        title="Distribusi Tipe Properti"
                         height={350}
                         colors={[
                           "#10B981",
@@ -311,7 +311,7 @@ export default function AnalyticsPage() {
                   {/* Climate Score Selector */}
                   <div className="bg-white p-4 rounded-lg shadow-md mb-6">
                     <h3 className="font-medium mb-2 text-black">
-                      Climate Metric
+                      Metrik Iklim
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {Object.entries(climateMetricLabels).map(
@@ -339,10 +339,10 @@ export default function AnalyticsPage() {
                         data={getClimateDataForChart()}
                         xKey="district"
                         yKey="score"
-                        title={`${climateMetricLabels[activeClimateMetric]} by District`}
+                        title={`${climateMetricLabels[activeClimateMetric]} per Kecamatan`}
                         height={400}
                         colors={["#10B981"]}
-                        dataKey="Climate Score"
+                        dataKey="Skor Iklim"
                       />
                     )}
 
@@ -353,11 +353,11 @@ export default function AnalyticsPage() {
                           data={getClimateImpactData("Overall Climate Score")}
                           xKey="range"
                           yKey="impact"
-                          title="Impact of Climate Score on Property Price"
+                          title="Dampak Skor Iklim terhadap Harga Properti"
                           height={400}
                           percentage={true}
                           colors={["#3B82F6"]}
-                          dataKey="Price Impact"
+                          dataKey="Dampak ke Harga"
                         />
                       )}
 
@@ -368,11 +368,11 @@ export default function AnalyticsPage() {
                           data={getClimateImpactData("LST Score")}
                           xKey="range"
                           yKey="impact"
-                          title="Impact of Land Surface Temperature on Property Price"
+                          title="Dampak Suhu Permukaan Tanah terhadap Harga Properti"
                           height={400}
                           percentage={true}
                           colors={["#EF4444"]}
-                          dataKey="Price Impact"
+                          dataKey="Dampak ke Harga"
                         />
                       )}
 
@@ -383,11 +383,11 @@ export default function AnalyticsPage() {
                           data={getClimateImpactData("NDVI Score")}
                           xKey="range"
                           yKey="impact"
-                          title="Impact of Vegetation Index on Property Price"
+                          title="Dampak Indeks Vegetasi terhadap Harga Properti"
                           height={400}
                           percentage={true}
                           colors={["#10B981"]}
-                          dataKey="Price Impact"
+                          dataKey="Dampak ke Harga"
                         />
                       )}
 
@@ -398,11 +398,11 @@ export default function AnalyticsPage() {
                           data={getClimateImpactData("UTFVI Score")}
                           xKey="range"
                           yKey="impact"
-                          title="Impact of Urban Thermal Index on Property Price"
+                          title="Dampak Indeks Termal Perkotaan terhadap Harga Properti"
                           height={400}
                           percentage={true}
                           colors={["#F59E0B"]}
-                          dataKey="Price Impact"
+                          dataKey="Dampak ke Harga"
                         />
                       )}
 
@@ -413,11 +413,11 @@ export default function AnalyticsPage() {
                           data={getClimateImpactData("UHI Score")}
                           xKey="range"
                           yKey="impact"
-                          title="Impact of Urban Heat Island on Property Price"
+                          title="Dampak Urban Heat Island terhadap Harga Properti"
                           height={400}
                           percentage={true}
                           colors={["#8B5CF6"]}
-                          dataKey="Price Impact"
+                          dataKey="Dampak ke Harga"
                         />
                       )}
                   </div>
@@ -425,56 +425,58 @@ export default function AnalyticsPage() {
                   {/* Climate analysis text */}
                   <div className="bg-white p-6 rounded-lg shadow-md mb-6">
                     <h3 className="text-lg font-bold mb-4 text-black">
-                      Climate Impact Analysis
+                      Analisis Dampak Iklim
                     </h3>
                     <p className="text-gray-700 mb-4">
-                      Our analysis shows how climate factors affect property
-                      values across different districts. Properties in areas
-                      with better environmental quality and lower climate risks
-                      consistently command higher prices and maintain better
-                      value over time.
+                      Analisis kami menunjukkan bagaimana faktor iklim
+                      mempengaruhi nilai properti di berbagai distrik. Properti
+                      di daerah dengan kualitas lingkungan yang lebih baik dan
+                      risiko iklim yang lebih rendah secara konsisten memiliki
+                      harga yang lebih tinggi dan mempertahankan nilai yang
+                      lebih baik dari waktu ke waktu.
                     </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 text-black">
                       <div className="border p-4 rounded-md">
-                        <h4 className="font-bold mb-2">Key Findings</h4>
+                        <h4 className="font-bold mb-2">Temuan Utama</h4>
                         <ul className="list-disc pl-5 space-y-1 text-gray-700">
                           <li>
-                            Properties with high vegetation index (NDVI) show up
-                            to 15% higher valuation
+                            Properti dengan indeks vegetasi tinggi (NDVI)
+                            menunjukkan valuasi hingga 15% lebih tinggi
                           </li>
                           <li>
-                            Areas with lower surface temperatures typically have
-                            higher property values
+                            Daerah dengan suhu permukaan lebih rendah umumnya
+                            memiliki nilai properti yang lebih tinggi
                           </li>
                           <li>
-                            Urban heat island effect correlates with reduced
-                            property prices
+                            Efek pulau panas perkotaan berhubungan dengan
+                            penurunan harga properti
                           </li>
                           <li>
-                            Climate-safe properties maintain value better over
-                            time
+                            Properti yang aman terhadap iklim mempertahankan
+                            nilai lebih baik dari waktu ke waktu
                           </li>
                         </ul>
                       </div>
 
                       <div className="border p-4 rounded-md">
-                        <h4 className="font-bold mb-2">Recommendations</h4>
+                        <h4 className="font-bold mb-2">Rekomendasi</h4>
                         <ul className="list-disc pl-5 space-y-1 text-gray-700">
                           <li>
-                            Prioritize districts with higher overall climate
-                            scores
+                            Prioritaskan distrik dengan skor iklim keseluruhan
+                            yang lebih tinggi
                           </li>
                           <li>
-                            Consider properties with good vegetation coverage
+                            Pertimbangkan properti dengan cakupan vegetasi yang
+                            baik
                           </li>
                           <li>
-                            Look for areas with effective urban cooling
-                            strategies
+                            Cari daerah dengan strategi pendinginan perkotaan
+                            yang efektif
                           </li>
                           <li>
-                            Invest in climate-forward property improvements to
-                            increase value
+                            Investasikan dalam perbaikan properti yang mendukung
+                            iklim untuk meningkatkan nilai
                           </li>
                         </ul>
                       </div>
@@ -494,10 +496,10 @@ export default function AnalyticsPage() {
                         }))}
                         xKey="district"
                         yKey={["average_price", "property_count"]}
-                        title="Price and Property Count by District"
+                        title="Harga dan Jumlah Properti per Kecamatan"
                         height={400}
                         stacked={false}
-                        dataKey="Value"
+                        dataKey="Nilai"
                       />
                     )}
                   </div>
@@ -507,13 +509,13 @@ export default function AnalyticsPage() {
                     {summaryData && summaryData.avg_climate_scores && (
                       <div className="bg-white p-4 rounded-lg shadow-md text-black">
                         <h3 className="font-bold text-lg mb-4">
-                          Average Climate Scores
+                          Rata-rata Skor Iklim
                         </h3>
                         <div className="space-y-4">
                           <div>
                             <div className="flex justify-between mb-1">
                               <span className="text-sm font-medium">
-                                Land Surface Temperature
+                                Suhu Permukaan Tanah (LST)
                               </span>
                               <span className="text-sm font-medium">
                                 {Math.round(
@@ -534,7 +536,7 @@ export default function AnalyticsPage() {
                           <div>
                             <div className="flex justify-between mb-1">
                               <span className="text-sm font-medium">
-                                Vegetation Index (NDVI)
+                                Indeks Vegetasi (NDVI)
                               </span>
                               <span className="text-sm font-medium">
                                 {Math.round(
@@ -555,7 +557,7 @@ export default function AnalyticsPage() {
                           <div>
                             <div className="flex justify-between mb-1">
                               <span className="text-sm font-medium">
-                                Urban Thermal Index (UTFVI)
+                                Indeks Termal Perkotaan (UTFVI)
                               </span>
                               <span className="text-sm font-medium">
                                 {Math.round(
@@ -576,7 +578,7 @@ export default function AnalyticsPage() {
                           <div>
                             <div className="flex justify-between mb-1">
                               <span className="text-sm font-medium">
-                                Urban Heat Island (UHI)
+                                Pulau Panas Perkotaan (UHI)
                               </span>
                               <span className="text-sm font-medium">
                                 {Math.round(
@@ -597,7 +599,7 @@ export default function AnalyticsPage() {
                           <div>
                             <div className="flex justify-between mb-1">
                               <span className="text-sm font-medium font-bold">
-                                Overall Climate Score
+                                Skor Iklim Keseluruhan
                               </span>
                               <span className="text-sm font-medium font-bold">
                                 {Math.round(
@@ -621,21 +623,21 @@ export default function AnalyticsPage() {
                     {/* Property characteristics summary */}
                     <div className="bg-white p-4 rounded-lg shadow-md text-black">
                       <h3 className="font-bold text-lg mb-4">
-                        Property Market Overview
+                        Ikhtisar Pasar Properti
                       </h3>
                       <div className="space-y-4">
                         <p className="text-gray-700">
-                          The Bandung property market shows significant
-                          variation in prices across different districts, with
-                          climate factors playing an important role in property
-                          valuation.
+                          Pasar properti di Bandung menunjukkan variasi harga
+                          yang signifikan di berbagai distrik, dengan faktor
+                          iklim yang memainkan peran penting dalam penilaian
+                          properti.
                         </p>
 
                         <div className="border-t border-b py-4">
-                          <h4 className="font-medium mb-2">Price Analysis</h4>
+                          <h4 className="font-medium mb-2">Analisis Harga</h4>
                           <ul className="space-y-2 text-gray-700">
                             <li className="flex justify-between">
-                              <span>Price Range:</span>
+                              <span>Rentang Harga:</span>
                               <span className="font-medium">
                                 {distributionData &&
                                   distributionData.price_distribution &&
@@ -650,7 +652,7 @@ export default function AnalyticsPage() {
                               </span>
                             </li>
                             <li className="flex justify-between">
-                              <span>Average Price:</span>
+                              <span>Harga Rata-rata:</span>
                               <span className="font-medium">
                                 {formatter.formatCurrency(
                                   summaryData?.average_price || 0
@@ -658,7 +660,7 @@ export default function AnalyticsPage() {
                               </span>
                             </li>
                             <li className="flex justify-between">
-                              <span>Most Common Property Type:</span>
+                              <span>Jenis Properti Paling Umum:</span>
                               <span className="font-medium">
                                 {getPropertyTypeData().length > 0 &&
                                   getPropertyTypeData().sort(
@@ -673,10 +675,10 @@ export default function AnalyticsPage() {
                         </div>
 
                         <p className="text-gray-700">
-                          Properties with higher climate safety scores tend to
-                          command premium prices, suggesting that environmental
-                          factors are increasingly important in the Bandung real
-                          estate market.
+                          Properti dengan skor keselamatan iklim yang lebih
+                          tinggi cenderung mematok harga premium, yang
+                          menunjukkan bahwa faktor lingkungan semakin penting
+                          dalam pasar real estat di Bandung.
                         </p>
                       </div>
                     </div>
@@ -687,7 +689,7 @@ export default function AnalyticsPage() {
           )}
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </main>
   );
 }

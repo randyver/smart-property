@@ -37,12 +37,6 @@ const SmartChatButton = () => {
           )}
         </button>
         
-        {/* Beta label on the button when closed */}
-        {!isOpen && (
-          <div className="absolute bottom-[20px] right-[-40px] bg-yellow-500 text-blue-900 text-xs font-bold py-0.5 px-2 rounded-full animate-pulse shadow-md">
-            BETA
-          </div>
-        )}
       </div>
       
       <SmartChatAssistant isOpen={isOpen} onClose={() => setIsOpen(false)} />

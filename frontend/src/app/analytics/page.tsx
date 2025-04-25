@@ -637,21 +637,6 @@ export default function AnalyticsPage() {
                           <h4 className="font-medium mb-2">Analisis Harga</h4>
                           <ul className="space-y-2 text-gray-700">
                             <li className="flex justify-between">
-                              <span>Rentang Harga:</span>
-                              <span className="font-medium">
-                                {distributionData &&
-                                  distributionData.price_distribution &&
-                                  `${formatter.formatCurrency(
-                                    distributionData.price_distribution[0].min
-                                  )} - ${formatter.formatCurrency(
-                                    distributionData.price_distribution[
-                                      distributionData.price_distribution
-                                        .length - 1
-                                    ].max || 0
-                                  )}`}
-                              </span>
-                            </li>
-                            <li className="flex justify-between">
                               <span>Harga Rata-rata:</span>
                               <span className="font-medium">
                                 {formatter.formatCurrency(

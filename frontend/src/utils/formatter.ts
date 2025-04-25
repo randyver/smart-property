@@ -9,13 +9,13 @@ export const formatter = {
       
       // For large numbers, use abbreviations (K, M, B)
       if (value >= 1000000000) {
-        return (value / 1000000000).toFixed(1) + 'B';
+        return (value / 1000000000).toFixed(1) + 'M';
       }
       if (value >= 1000000) {
-        return (value / 1000000).toFixed(1) + 'M';
+        return (value / 1000000).toFixed(1) + 'Jt';
       }
       if (value >= 1000) {
-        return (value / 1000).toFixed(1) + 'K';
+        return (value / 1000).toFixed(1) + 'Rb';
       }
       
       // For smaller numbers, use normal formatting
@@ -23,18 +23,18 @@ export const formatter = {
     },
     
     // Format as currency (IDR by default)
-    formatCurrency: (value: number, currency: string = 'IDR'): string => {
+    formatCurrency: (value: number, currency: string = 'Rp'): string => {
       if (value === null || value === undefined || isNaN(value)) {
         return 'N/A';
       }
       
       // For IDR, use billions and millions
-      if (currency === 'IDR') {
+      if (currency === 'Rp') {
         if (value >= 1000000000) {
-          return 'Rp ' + (value / 1000000000).toFixed(1) + 'B';
+          return 'Rp ' + (value / 1000000000).toFixed(1) + 'M';
         }
         if (value >= 1000000) {
-          return 'Rp ' + (value / 1000000).toFixed(1) + 'M';
+          return 'Rp ' + (value / 1000000).toFixed(1) + 'Jt';
         }
         return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
       }
@@ -78,11 +78,11 @@ export const formatter = {
       
       const numScore = Number(score);
       
-      if (numScore >= 80) return 'Excellent';
-      if (numScore >= 60) return 'Good';
-      if (numScore >= 40) return 'Moderate';
-      if (numScore >= 20) return 'Poor';
-      return 'Very Poor';
+      if (numScore >= 80) return 'Sangat Baik';
+      if (numScore >= 60) return 'Baik';
+      if (numScore >= 40) return 'Cukup';
+      if (numScore >= 20) return 'Buruk';
+      return 'Sangat Buruk';
     },
     
     // Get color class for climate scores (for styling)

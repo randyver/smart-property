@@ -8,6 +8,7 @@ export interface Property {
     };
     price: number;
     bedrooms: number;
+    type: string;
     bathrooms?: number;
     land_area: number;
     certificate: string;

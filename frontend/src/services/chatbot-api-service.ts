@@ -1,160 +1,111 @@
-// Chatbot service that uses the backend proxy API or falls back to local knowledge
-// Path: frontend/src/services/chatbot-api-service.ts
-
-import { smartPropertyKnowledge } from './smartproperty-knowledge';
+// frontend/src/services/chatbot-api-service.ts
 
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-const CHATBOT_API_ENDPOINT = `${API_BASE_URL}/api/chatbot/message`;
+// Configuration for OpenRouter API
+const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const OPENROUTER_API_KEY = "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";
 
+// Optional fallback to local knowledge in case the API fails
+import { smartPropertyKnowledge } from './smartproperty-knowledge';
+
+/**
+ * Generate a chatbot response using the OpenRouter API with DeepSeek
+ * @param messageHistory Array of chat messages
+ * @returns A Promise that resolves to the chatbot's response as a string
+ */
 export async function generateResponse(messageHistory: ChatMessage[]): Promise<string> {
   try {
-    // First, check if we have a direct match in our knowledge base
-    // This provides instant responses without waiting for API
-    const lastUserMessage = messageHistory[messageHistory.length - 1].content.toLowerCase();
-    const localKnowledgeResponse = getResponseFromLocalKnowledge(lastUserMessage);
+    // Format the messages for the OpenAI format expected by OpenRouter
+    const formattedMessages = messageHistory.map(message => ({
+      role: message.role,
+      content: message.content
+    }));
+
+    // Add system message to provide context about SmartProperty
+    const systemMessage = {
+      role: "system",
+      content: `You are an assistant for SmartProperty, a platform that helps users find climate-safe properties through advanced GIS analysis and climate risk assessment. 
+      
+      SmartProperty evaluates properties based on climate scores including:
+      - LST (Land Surface Temperature)
+      - NDVI (Normalized Difference Vegetation Index)
+      - UTFVI (Urban Thermal Field Variance Index)
+      - UHI (Urban Heat Island)
+      
+      Climate scores range from 0-100, with higher scores indicating better climate safety.
+      
+      Provide helpful, accurate information about property climate risks, the platform features, and how users can make informed real estate decisions with climate data.
+      
+      Be friendly, professional, and concise in your responses.`
+    };
     
-    // If we have a good match locally, return it without API call
-    if (localKnowledgeResponse) {
-      return localKnowledgeResponse;
-    }
-    
-    // Call the backend API with the message history
-    const response = await fetch(CHATBOT_API_ENDPOINT, {
-      method: 'POST',
+    // Prepare the request payload
+    const payload = {
+      model: "deepseek/deepseek-chat", // Using DeepSeek model through OpenRouter
+      messages: [systemMessage, ...formattedMessages],
+      temperature: 0.7,
+      max_tokens: 1000
+    };
+
+    // Make the API request
+    const response = await fetch(OPENROUTER_API_URL, {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+        "HTTP-Referer": "https://smartproperty.app", // Replace with your actual domain if needed
+        "X-Title": "SmartProperty Assistant"
       },
-      body: JSON.stringify({
-        messages: messageHistory
-      }),
+      body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("API request failed:", response.status, errorText);
       throw new Error(`API request failed with status ${response.status}`);
     }
 
     const data = await response.json();
     
-    if (data.status === 'success' && data.response) {
-      return data.response;
+    // Extract the assistant's message from the response
+    if (data.choices && data.choices.length > 0) {
+      return data.choices[0].message.content;
     }
     
-    throw new Error('Invalid response from API');
+    throw new Error('Invalid response format from API');
   } catch (error) {
     console.error('Error generating chatbot response:', error);
     
-    // If API call fails, fall back to local response generation
+    // Fall back to local knowledge if API fails
     return getFallbackResponse(messageHistory[messageHistory.length - 1].content);
   }
 }
 
-// Function to get responses directly from our knowledge base
-function getResponseFromLocalKnowledge(userMessage: string): string | null {
-  // Match common questions exactly
+/**
+ * Provide a fallback response based on local knowledge when the API call fails
+ * @param userMessage The user's latest message
+ * @returns A response string
+ */
+function getFallbackResponse(userMessage: string): string {
+  // Use the local knowledge system as a fallback
+  const userMessageLower = userMessage.toLowerCase();
+  
+  // Check for direct matches in common questions
   for (const qa of smartPropertyKnowledge.commonQuestions) {
-    if (userMessage.includes(qa.question.toLowerCase())) {
+    if (userMessageLower.includes(qa.question.toLowerCase())) {
       return qa.answer;
     }
   }
   
-  // Handle questions about climate scores
-  if (userMessage.includes('climate score') || userMessage.includes('climate safety') || userMessage.includes('what are climate')) {
-    return smartPropertyKnowledge.climateScores.overview + '\n\n' + 
-           'Climate scores are composed of several key factors:\n\n' +
-           smartPropertyKnowledge.climateScores.components.map(comp => 
-             `${comp.name}: ${comp.description}`
-           ).join('\n\n') + '\n\n' +
-           'Score ranges:\n' +
-           Object.entries(smartPropertyKnowledge.climateScores.scoreMeaning)
-             .map(([range, meaning]) => `${range}: ${meaning}`)
-             .join('\n');
+  // Handle general climate score questions
+  if (userMessageLower.includes('climate score') || userMessageLower.includes('what are climate')) {
+    return smartPropertyKnowledge.climateScores.overview;
   }
   
-  // Handle questions about specific climate metrics
-  if (userMessage.includes('lst') || userMessage.includes('land surface temperature')) {
-    const component = smartPropertyKnowledge.climateScores.components.find(c => c.name.includes('LST'));
-    return component ? 
-      `${component.name}: ${component.description}\n\n${component.detailedExplanation}\n\nImpact on property value: ${component.impactOnPrice}\n\nIn Bandung: ${component.bandungContext}` : null;
-  }
-  
-  if (userMessage.includes('ndvi') || userMessage.includes('vegetation')) {
-    const component = smartPropertyKnowledge.climateScores.components.find(c => c.name.includes('NDVI'));
-    return component ? 
-      `${component.name}: ${component.description}\n\n${component.detailedExplanation}\n\nImpact on property value: ${component.impactOnPrice}\n\nIn Bandung: ${component.bandungContext}` : null;
-  }
-  
-  if (userMessage.includes('utfvi') || userMessage.includes('thermal field')) {
-    const component = smartPropertyKnowledge.climateScores.components.find(c => c.name.includes('UTFVI'));
-    return component ? 
-      `${component.name}: ${component.description}\n\n${component.detailedExplanation}\n\nImpact on property value: ${component.impactOnPrice}\n\nIn Bandung: ${component.bandungContext}` : null;
-  }
-  
-  if (userMessage.includes('uhi') || userMessage.includes('heat island')) {
-    const component = smartPropertyKnowledge.climateScores.components.find(c => c.name.includes('UHI'));
-    return component ? 
-      `${component.name}: ${component.description}\n\n${component.detailedExplanation}\n\nImpact on property value: ${component.impactOnPrice}\n\nIn Bandung: ${component.bandungContext}` : null;
-  }
-  
-  // Handle questions about flood risk
-  if (userMessage.includes('flood')) {
-    return `${smartPropertyKnowledge.riskLevels.floodRisk.explanation}\n\n` +
-           'Flood risk levels:\n' +
-           `Very Low: ${smartPropertyKnowledge.riskLevels.floodRisk.veryLow}\n` +
-           `Low: ${smartPropertyKnowledge.riskLevels.floodRisk.low}\n` +
-           `Medium: ${smartPropertyKnowledge.riskLevels.floodRisk.medium}\n` +
-           `High: ${smartPropertyKnowledge.riskLevels.floodRisk.high}\n` +
-           `Very High: ${smartPropertyKnowledge.riskLevels.floodRisk.veryHigh}\n\n` +
-           `Price impact: ${smartPropertyKnowledge.priceImpacts.floodRisk}`;
-  }
-  
-  // Handle questions about comparing properties
-  if (userMessage.includes('compare') || userMessage.includes('comparison')) {
-    return smartPropertyKnowledge.commonQuestions.find(
-      q => q.question.toLowerCase().includes('compare')
-    )?.answer || smartPropertyKnowledge.platformFeatures.propertyComparison;
-  }
-  
-  // Handle questions about recommendations
-  if (userMessage.includes('recommend') || userMessage.includes('suggestion')) {
-    return smartPropertyKnowledge.commonQuestions.find(
-      q => q.question.toLowerCase().includes('recommendation')
-    )?.answer || smartPropertyKnowledge.platformFeatures.recommendations;
-  }
-  
-  // Handle questions about Bandung properties
-  if (userMessage.includes('bandung') || userMessage.includes('best propert')) {
-    return smartPropertyKnowledge.commonQuestions.find(
-      q => q.question.toLowerCase().includes('best properties')
-    )?.answer || `${smartPropertyKnowledge.bandungSpecific.overview}\n\n` +
-    'Different areas of Bandung have distinct climate profiles:\n\n' +
-    `North: ${smartPropertyKnowledge.bandungSpecific.districts.north}\n\n` +
-    `Central: ${smartPropertyKnowledge.bandungSpecific.districts.central}\n\n` +
-    `South: ${smartPropertyKnowledge.bandungSpecific.districts.south}\n\n` +
-    `East: ${smartPropertyKnowledge.bandungSpecific.districts.east}\n\n` +
-    `West: ${smartPropertyKnowledge.bandungSpecific.districts.west}`;
-  }
-  
-  // Handle questions about price impact
-  if (userMessage.includes('price') || userMessage.includes('value') || userMessage.includes('cost')) {
-    return smartPropertyKnowledge.commonQuestions.find(
-      q => q.question.toLowerCase().includes('affect property value')
-    )?.answer || `${smartPropertyKnowledge.priceImpacts.overview}\n\n` +
-    'Climate factors affect property prices in different ways:\n\n' +
-    `Flood Risk: ${smartPropertyKnowledge.priceImpacts.floodRisk}\n\n` +
-    `Temperature: ${smartPropertyKnowledge.priceImpacts.temperature}\n\n` +
-    `Air Quality: ${smartPropertyKnowledge.priceImpacts.airQuality}\n\n` +
-    `Green Space: ${smartPropertyKnowledge.priceImpacts.greenSpace}`;
-  }
-  
-  // No exact match found
-  return null;
-}
-
-function getFallbackResponse(content: string): string | PromiseLike<string> {
-  throw new Error('Function not implemented.');
+  // Generic fallback message
+  return "I apologize, but I'm currently having difficulty connecting to my knowledge base. SmartProperty helps you find climate-safe properties using advanced GIS analysis. For specific questions about climate scores, property comparisons, or environmental risk factors, please try again later or contact support.";
 }

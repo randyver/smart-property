@@ -155,8 +155,7 @@ export default function AboutUs() {
             </h2>
             <p className="text-gray-600">
               Temui para ahli berdedikasi di balik SmartProperty, yang
-              menggabungkan keahlian dalam pengembangan perangkat lunak, sains
-              data, dan analisis spasial untuk merevolusi evaluasi properti.
+              menggabungkan keahlian dalam pengembangan perangkat lunak, AI, dan analisis spasial untuk merevolusi evaluasi properti.
             </p>
           </motion.div>
 

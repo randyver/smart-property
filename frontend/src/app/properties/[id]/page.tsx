@@ -369,7 +369,7 @@ export default function PropertyDetailsPage() {
         <div className="grid grid-cols-1 gap-6">
           {/* Property Basic Info */}
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex flex-col md:flex-row justify-between items-start mb-4">
               <div>
                 <h1 className="text-2xl font-bold text-gray-800 mb-2">
                   {property.title}
@@ -381,14 +381,6 @@ export default function PropertyDetailsPage() {
               <div className="text-right">
                 <p className="text-3xl font-bold text-blue-700">
                   {formatPrice(property.price)}
-                </p>
-                <p className="text-gray-600 text-sm">
-                  {formatPrice(
-                    property.price
-                      ? property.price / (property.building_area || 1)
-                      : 0
-                  )}
-                  /m²
                 </p>
               </div>
             </div>

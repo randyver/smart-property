@@ -644,7 +644,7 @@ const MapComponent = memo(
         <div className="absolute top-20 right-4 z-20">
           <button
             onClick={toggleLayerPanel}
-            className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors"
+            className="bg-white p-2 mt-12 rounded-full shadow-md hover:bg-gray-100 transition-colors"
             title={showLayerPanel ? "Hide layer panel" : "Show layer panel"}
           >
             <svg

@@ -15,7 +15,7 @@ interface MapComponentProps {
   mapRef?: React.MutableRefObject<any>;
 }
 
-const FEATURES_PER_PAGE = 100;
+const FEATURES_PER_PAGE = 500;
 const DEFAULT_CENTER: [number, number] = [107.6096, -6.9147];
 const DEFAULT_ZOOM = 12;
 
@@ -79,24 +79,18 @@ const MapComponent = memo(
       uhi: {
         name: "Urban Heat Island",
         colors: [
-          "#313695", // Non-UHI
-          "#74add1", // UHI Sangat Lemah
-          "#fed976", // UHI Lemah
-          "#feb24c", // UHI Cukup Lemah
-          "#fd8d3c", // UHI Sedang
-          "#fc4e2a", // UHI Cukup Kuat
-          "#e31a1c", // UHI Kuat
-          "#b10026", // UHI Sangat Kuat
+          "#4169E1", // Sangat Lemah (biru tua)
+          "#00B4DB", // Lemah (biru)
+          "#fed976", // Sedang (kuning)
+          "#fd8d3c", // Kuat (oranye)
+          "#d24e01", // Sangat Kuat (oranye tua)
         ],
-        gridcodeCount: 8,
+        gridcodeCount: 5,
         legendLabels: [
-          "Non (<0)",
-          "Sangat Lemah (0-0.0025)",
-          "Lemah (0.0025-0.005)",
-          "Cukup Lemah (0.005-0.0075)",
-          "Sedang (0.0075-0.01)",
-          "Cukup Kuat (0.01-0.0125)",
-          "Kuat (0.0125-0.015)",
+          "Sangat Lemah (<0)",
+          "Lemah (0-0.005)",
+          "Sedang (0.005-0.01)",
+          "Kuat (0.01-0.015)",
           "Sangat Kuat (>0.015)",
         ],
       },

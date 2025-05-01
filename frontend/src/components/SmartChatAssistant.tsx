@@ -29,10 +29,9 @@ const SmartChatAssistant = ({ onClose, isOpen }: ChatAssistantProps) => {
   
   const suggestedQuestions = [
     'Apa itu Score Iklim?',
-    'Bagaimana risiko banjir dihitung?',
-    'Bagaimana cara membandingkan properti?',
+    'Apa itu UHI, UTFVI, LST, dan NDVI?',
+    'Apa itu Properti Ramah Iklim?',
     'Dampak iklim pada harga?',
-    'Bagaimana rekomendasi bekerja?',
     'Properti terbaik di Bandung?'
 ];
   

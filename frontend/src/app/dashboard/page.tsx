@@ -447,7 +447,7 @@ export default function Dashboard() {
           <div className="p-2 sm:p-3 border-b bg-white">
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-bold text-base sm:text-lg text-gray-800">
-                Temukan Properti Aman dari Iklim.
+                Temukan Properti Ramah Iklim.
               </h3>
             </div>
 

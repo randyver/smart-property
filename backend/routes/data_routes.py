@@ -16,7 +16,7 @@ def get_paginated_geojson(layer_name):
 
         # Get pagination params
         page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 100))
+        per_page = int(request.args.get('per_page', 500))
         
         geojson_path = os.path.join(
             os.path.dirname(__file__), 

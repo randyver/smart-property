@@ -142,8 +142,8 @@ def get_price_distribution():
     
     # Define price ranges in billions (IDR)
     ranges = [
-        {"range": "< 1JT", "min": 0, "max": 1000000000},
-        {"range": "1JT - 2JT", "min": 1000000000, "max": 2000000000},
+        {"range": "< 1M", "min": 0, "max": 1000000000},
+        {"range": "1M - 2M", "min": 1000000000, "max": 2000000000},
         {"range": "2M - 5M", "min": 2000000000, "max": 5000000000},
         {"range": "5M - 10M", "min": 5000000000, "max": 10000000000},
         {"range": "> 10M", "min": 10000000000, "max": 9999999999999}  # Use a very large number instead of infinity

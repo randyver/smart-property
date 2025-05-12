@@ -15,7 +15,7 @@ interface MapComponentProps {
   mapRef?: React.MutableRefObject<any>;
 }
 
-const FEATURES_PER_PAGE = 500;
+const FEATURES_PER_PAGE = 1000;
 const DEFAULT_CENTER: [number, number] = [107.6096, -6.9147];
 const DEFAULT_ZOOM = 12;
 
@@ -79,11 +79,11 @@ const MapComponent = memo(
       uhi: {
         name: "Urban Heat Island",
         colors: [
-          "#4169E1", // Sangat Lemah (biru tua)
-          "#00B4DB", // Lemah (biru)
-          "#fed976", // Sedang (kuning)
-          "#fd8d3c", // Kuat (oranye)
-          "#d24e01", // Sangat Kuat (oranye tua)
+          "#F5F500", // Sangat Lemah (<0) - kuning terang
+          "#F5CA00", // Lemah (0-0.005) - kuning keemasan
+          "#FA9600", // Sedang (0.005-0.01) - oranye terang
+          "#EE5D00", // Kuat (0.01-0.015) - oranye gelap
+          "#C70000", // Sangat Kuat (>0.015) - merah tua
         ],
         gridcodeCount: 5,
         legendLabels: [
@@ -94,6 +94,7 @@ const MapComponent = memo(
           "Sangat Kuat (>0.015)",
         ],
       },
+
       utfvi: {
         name: "Urban Thermal Field Variance Index",
         colors: [
@@ -634,50 +635,60 @@ const MapComponent = memo(
           </div>
         )}
 
-        {/* Layer panel toggle button - Always visible */}
-        <div className="absolute top-20 right-4 z-20">
-          <button
-            onClick={toggleLayerPanel}
-            className="bg-white p-2 mt-12 rounded-full shadow-md hover:bg-gray-100 transition-colors"
-            title={showLayerPanel ? "Hide layer panel" : "Show layer panel"}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-gray-700"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+        {/* Layer panel toggle button - Only show when panel is hidden */}
+        {!showLayerPanel && (
+          <div className="absolute top-20 right-4 z-20">
+            <button
+              onClick={toggleLayerPanel}
+              className="bg-white p-2 mt-12 rounded-full shadow-md hover:bg-gray-100 transition-colors"
+              title="Show layer panel"
             >
-              {showLayerPanel ? (
-                // Icon for hiding panel (X icon)
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              ) : (
-                // Icon for showing panel (layers icon)
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-gray-700"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
                   d="M4 6h16M4 12h16m-7 6h7"
                 />
-              )}
-            </svg>
-          </button>
-        </div>
+              </svg>
+            </button>
+          </div>
+        )}
 
-        {/* Layer controls - Now conditionally rendered based on showLayerPanel */}
+        {/* Layer controls with integrated close button */}
         {showLayerPanel && (
-          <div className="absolute top-32 right-4 bg-white rounded-xl shadow-md p-3 z-10 w-72">
-            <h3 className="text-sm font-bold mb-2 px-2 text-gray-800">
-              Map Layers
-            </h3>
+          <div className="absolute top-32 right-4 bg-white rounded-xl shadow-md z-10 w-72">
+            <div className="flex justify-between items-center border-b pb-2 pt-2 px-3">
+              <h3 className="text-sm font-bold text-gray-800">Map Layers</h3>
+              <button
+                onClick={toggleLayerPanel}
+                className="text-gray-500 hover:text-gray-700"
+                title="Close panel"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
 
-            {/* Instructions alert */}
-            <div className="mb-3 px-2 py-2 bg-yellow-50 text-amber-700 text-xs rounded border border-amber-200">
+            <div className="mb-3 px-2 py-2 bg-yellow-50 text-amber-700 text-xs rounded border border-amber-200 mx-3 mt-2">
               <p>
                 Untuk mengganti lapisan iklim, klik ikon tempat sampah untuk
                 menghapus lapisan saat ini terlebih dahulu, kemudian pilih yang
@@ -685,7 +696,7 @@ const MapComponent = memo(
               </p>
             </div>
 
-            <div className="mb-3 border-b pb-2">
+            <div className="mb-3 border-b pb-2 px-2">
               <button
                 onClick={togglePropertyVisibility}
                 className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
@@ -706,7 +717,7 @@ const MapComponent = memo(
             <h4 className="text-xs font-medium text-gray-600 mb-1 px-2">
               Climate Layers
             </h4>
-            <div className="space-y-1">
+            <div className="space-y-1 px-2 pb-2">
               {Object.entries(layerConfig).map(([key, layer]) => (
                 <div key={key} className="relative group">
                   <button
@@ -715,7 +726,7 @@ const MapComponent = memo(
                       activeLayer === key
                         ? "bg-blue-600 text-white"
                         : activeLayer || isLoading
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed" // Disabled when another layer is active or loading
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                         : "hover:bg-gray-100 text-gray-700"
                     }`}
                     disabled={!!(activeLayer || isLoading)}
@@ -727,7 +738,6 @@ const MapComponent = memo(
                     ></div>
                     <span className="truncate text-xs">{layer.name}</span>
 
-                    {/* Show "pending" indicator for the pending layer */}
                     {pendingLayer === key && (
                       <span className="ml-2 text-xs text-blue-600 animate-pulse">
                         (queued)
@@ -735,7 +745,6 @@ const MapComponent = memo(
                     )}
                   </button>
 
-                  {/* Delete button - only show for active layer or when loading */}
                   {(activeLayer === key || isLoading) && (
                     <button
                       onClick={clearLayer}
@@ -768,7 +777,7 @@ const MapComponent = memo(
 
         {/* Legend - Updated with accurate classification labels */}
         {activeLayer && (
-          <div className="absolute bottom-4 right-4 bg-white p-3 rounded-md shadow-md z-10 max-w-xs">
+          <div className="absolute bottom-4 left-4 bg-white p-3 rounded-md shadow-md z-10 max-w-xs">
             <h4 className="text-sm font-bold mb-2 text-gray-800">
               {layerConfig[activeLayer].name}
             </h4>

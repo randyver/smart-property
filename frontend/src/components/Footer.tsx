@@ -33,7 +33,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Kontak Kami</h3>
             <ul className="space-y-2">
               <li className="text-gray-400">Email: smartproperty@gmail.com</li>
-              <li className="text-gray-400">Telepon: (+62) 821 1234 5678</li>
+              <li className="text-gray-400">Telepon: (+62) 858 1008 7479</li>
               <li className="flex space-x-4 mt-4">
                 <a href="/" className="text-gray-400 hover:text-smartproperty">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">

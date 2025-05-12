@@ -607,7 +607,7 @@ export default function Dashboard() {
 
           {/* Selected property popup - make responsive */}
           {selectedProperty && (
-            <div className="absolute bottom-4 left-4 right-4 max-w-md mx-auto bg-white rounded-md shadow-lg p-3 sm:p-4 z-20">
+            <div className="absolute bottom-16 max-h-[80vh] overflow-y-auto left-4 right-4 max-w-md mx-auto bg-white rounded-md shadow-lg p-3 sm:p-4 z-20">
               <button
                 onClick={() => setSelectedProperty(null)}
                 className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-xl"

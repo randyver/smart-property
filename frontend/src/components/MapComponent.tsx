@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, memo, useCallback } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Property } from "@/types";
+import { Layers } from 'lucide-react';
 
 export type ClimateLayerType = "lst" | "ndvi" | "uhi" | "utfvi" | undefined;
 
@@ -613,7 +614,7 @@ const MapComponent = memo(
 
     return (
       <div className="w-full h-full relative">
-        <div ref={mapContainer} className="w-full h-full" />
+        <div ref={mapContainer} className="mt-12 w-full h-full" />
 
         {/* Loading progress bar */}
         {isLoading && (
@@ -643,20 +644,7 @@ const MapComponent = memo(
               className="bg-white p-2 mt-12 rounded-full shadow-md hover:bg-gray-100 transition-colors"
               title="Show layer panel"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-700"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16m-7 6h7"
-                />
-              </svg>
+              <Layers className="h-5 w-5 text-gray-700" />
             </button>
           </div>
         )}

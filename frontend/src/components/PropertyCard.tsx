@@ -164,7 +164,7 @@ export default function PropertyCard({
         {/* Property features - responsive grid/flex layout */}
         <div className="grid grid-cols-3 text-xs text-gray-700 mb-1.5 sm:mb-2 gap-1">
           <span>{property.bedrooms ?? "-"} Kamar</span>
-          <span>{property.building_area ?? "-"} m²</span>
+          <span>Rp {formatPrice(property.price_per_meter) ?? "-"}/m²</span>
           <span>{property.land_area ?? "-"} m² Lahan</span>
         </div>
 

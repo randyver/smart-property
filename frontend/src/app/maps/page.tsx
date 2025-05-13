@@ -626,9 +626,11 @@ export default function Dashboard() {
 
               <div className="flex flex-wrap justify-between items-center mb-3 sm:mb-4">
                 <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-700">
-                  <span>{selectedProperty.bedrooms ?? "-"} Kamar Tidur</span>
-                  <span>{selectedProperty.building_area ?? "-"} m²</span>
-                  <span>{selectedProperty.land_area ?? "-"} m² Tanah</span>
+                  <span>{selectedProperty.bedrooms ?? "-"} Kamar</span>
+                  <span>
+                    Rp {formatPrice(selectedProperty.price_per_meter) ?? "-"}/m²
+                  </span>
+                  <span>{selectedProperty.land_area ?? "-"} m² Lahan</span>
                 </div>
 
                 <div className="mt-1.5 sm:mt-0">

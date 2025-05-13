@@ -324,10 +324,10 @@ function ComparisonContent() {
                       ))}
                     </tr>
 
-                    {/* Price per Square Meter */}
+                    {/* Price property */}
                     <tr>
                       <td className="py-3 px-4 font-medium bg-gray-50">
-                        Harga
+                        Harga Properti
                       </td>
                       {properties.map((property) => (
                         <td key={property.id} className="py-3 px-4">
@@ -335,6 +335,55 @@ function ComparisonContent() {
                         </td>
                       ))}
                     </tr>
+
+                    {/* price per meter */}
+                    <tr>
+                      <td className="py-3 px-4 font-medium bg-gray-50">
+                        Harga Tanah
+                      </td>
+                      {properties.map((property) => (
+                        <td key={property.id} className="py-3 px-4">
+                          {formatPrice(property.price_per_meter ?? 0)}/m²
+                        </td>
+                      ))}
+                    </tr>
+
+                    {/* land area */}
+                    <tr>
+                      <td className="py-3 px-4 font-medium bg-gray-50">
+                        Luas Tanah
+                      </td>
+                      {properties.map((property) => (
+                        <td key={property.id} className="py-3 px-4">
+                          {property.land_area} m²
+                        </td>
+                      ))}
+                    </tr>
+
+                    {/* badroom */}
+                    <tr>
+                      <td className="py-3 px-4 font-medium bg-gray-50">
+                        Kamar Tidur
+                      </td>
+                      {properties.map((property) => (
+                        <td key={property.id} className="py-3 px-4">
+                          {property.bedrooms}
+                        </td>
+                      ))}
+                    </tr>
+
+                    {/* certificate */}
+                    <tr>
+                      <td className="py-3 px-4 font-medium bg-gray-50">
+                        Sertifikat
+                      </td>
+                      {properties.map((property) => (
+                        <td key={property.id} className="py-3 px-4">
+                          {property.certificate}
+                        </td>
+                      ))}
+                    </tr>
+
                   </tbody>
                 </table>
               </div>

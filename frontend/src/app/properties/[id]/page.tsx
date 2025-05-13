@@ -23,24 +23,21 @@ export default function PropertyDetailsPage() {
   const [selectedTab, setSelectedTab] = useState<
     "overview" | "climate" | "location"
   >("overview");
-  
+
   // AI Recommendation states
   const [aiRecommendation, setAiRecommendation] = useState<string | null>(null);
   const [aiRecommendationLoading, setAiRecommendationLoading] = useState(false);
-  const [aiRecommendationError, setAiRecommendationError] = useState<string | null>(null);
-  
+  const [aiRecommendationError, setAiRecommendationError] = useState<
+    string | null
+  >(null);
+
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<maplibregl.Map | null>(null);
 
-  // Format price to IDR
-  const formatPrice = (price: number | null | undefined): string => {
-    if (price == null) return "Price not available";
-
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(price);
+  // Format price to Rp
+  const formatPrice = (price: number | undefined): string => {
+    if (!price) return "N/A";
+    return `Rp ${price.toLocaleString("id-ID")}`;
   };
 
   // Get color based on risk level
@@ -65,24 +62,32 @@ export default function PropertyDetailsPage() {
     if (!level) return "Not Available";
     return level.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase());
   };
-  
+
   // Function to get AI recommendation
   const getAIRecommendation = async () => {
     if (!property) return;
-    
+
     setAiRecommendationLoading(true);
     setAiRecommendationError(null);
 
     try {
       // Configuration for OpenRouter API
-      const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-      const OPENROUTER_API_KEY = "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";
+      const OPENROUTER_API_URL =
+        "https://openrouter.ai/api/v1/chat/completions";
+      const OPENROUTER_API_KEY =
+        "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";
 
       // Create a detailed prompt based on the property data
       const propertyDetails = `
         Property Name: ${property.title}
-        Location: ${property.address || "N/A"}, ${property.district || "N/A"}, ${property.city || "N/A"}
-        Price: ${property.price ? `Rp ${property.price.toLocaleString("id-ID")}` : "N/A"}
+        Location: ${property.address || "N/A"}, ${
+        property.district || "N/A"
+      }, ${property.city || "N/A"}
+        Price: ${
+          property.price
+            ? `Rp ${property.price.toLocaleString("id-ID")}`
+            : "N/A"
+        }
         Building Area: ${property.building_area || "N/A"} m²
         Land Area: ${property.land_area || "N/A"} m²
         Bedrooms: ${property.bedrooms || "N/A"}
@@ -90,18 +95,28 @@ export default function PropertyDetailsPage() {
         Climate Risk Score: ${property.climate_risk_score || "N/A"}/100
         
         Climate Scores:
-        - Land Surface Temperature (LST)(Measures ground surface temperature around the property. Higher scores indicate cooler surface temperatures, contributing to a more comfortable microclimate.): ${property.climate_scores?.lst_score || "N/A"}
-        - Vegetation Index (NDVI)(Quantifies vegetation density in the surrounding area. Higher scores reflect greater green coverage, which aids heat absorption and improves air quality.): ${property.climate_scores?.ndvi_score || "N/A"}
-        - Urban Thermal Field (UTFVI)(Assesses urban temperature fluctuations. Higher scores demonstrate more stable thermal conditions, indicating better environmental consistency.): ${property.climate_scores?.utfvi_score || "N/A"}
-        - Urban Heat Island (UHI)(Measures urban heat accumulation compared to surrounding rural areas. Higher scores signify reduced heat island effect, creating a more thermally comfortable zone.): ${property.climate_scores?.uhi_score || "N/A"}
+        - Land Surface Temperature (LST)(Measures ground surface temperature around the property. Higher scores indicate cooler surface temperatures, contributing to a more comfortable microclimate.): ${
+          property.climate_scores?.lst_score || "N/A"
+        }
+        - Vegetation Index (NDVI)(Quantifies vegetation density in the surrounding area. Higher scores reflect greater green coverage, which aids heat absorption and improves air quality.): ${
+          property.climate_scores?.ndvi_score || "N/A"
+        }
+        - Urban Thermal Field (UTFVI)(Assesses urban temperature fluctuations. Higher scores demonstrate more stable thermal conditions, indicating better environmental consistency.): ${
+          property.climate_scores?.utfvi_score || "N/A"
+        }
+        - Urban Heat Island (UHI)(Measures urban heat accumulation compared to surrounding rural areas. Higher scores signify reduced heat island effect, creating a more thermally comfortable zone.): ${
+          property.climate_scores?.uhi_score || "N/A"
+        }
         
         Risk Assessment:
-        - Surface Temperature Risk: ${property.risks?.surface_temperature || "N/A"}
+        - Surface Temperature Risk: ${
+          property.risks?.surface_temperature || "N/A"
+        }
         - Heat Stress Risk: ${property.risks?.heat_stress || "N/A"}
         - Green Cover Risk: ${property.risks?.green_cover || "N/A"}
         - Heat Zone Risk: ${property.risks?.heat_zone || "N/A"}
       `;
-      console.log("PROPERTY DETAILS",propertyDetails)
+      console.log("PROPERTY DETAILS", propertyDetails);
       // Prepare the system message
       const systemMessage = {
         role: "system",
@@ -119,13 +134,13 @@ export default function PropertyDetailsPage() {
         
         Keep your recommendations concise, well-structured, and focused on practical advice.
         Be honest about both positive and negative aspects, and provide a clear recommendation at the end.
-        Write your response in Bahasa Indonesia.`
+        Write your response in Bahasa Indonesia.`,
       };
 
       // Prepare the user message
       const userMessage = {
         role: "user",
-        content: `Sebagai assistant SmartProperty, bisakah kamu memberi rekomendasi yang lengkap untuk rumah berikut, apakah harus dibeli atau jangan, apa yang sebaiknya dilakukan jika membeli, dan pertimbangannya? Analisis dari aspek iklim, harga, lokasi, dan faktor lainnya.\n\n${propertyDetails}`
+        content: `Sebagai assistant SmartProperty, bisakah kamu memberi rekomendasi yang lengkap untuk rumah berikut, apakah harus dibeli atau jangan, apa yang sebaiknya dilakukan jika membeli, dan pertimbangannya? Analisis dari aspek iklim, harga, lokasi, dan faktor lainnya.\n\n${propertyDetails}`,
       };
 
       // Prepare the request payload
@@ -133,7 +148,7 @@ export default function PropertyDetailsPage() {
         model: "deepseek/deepseek-chat-v3-0324:free",
         messages: [systemMessage, userMessage],
         temperature: 0.2,
-        max_tokens: 1000
+        max_tokens: 1000,
       };
 
       // Make the API request
@@ -141,11 +156,11 @@ export default function PropertyDetailsPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
           "HTTP-Referer": "https://smartproperty.app",
-          "X-Title": "SmartProperty AI Recommendation"
+          "X-Title": "SmartProperty AI Recommendation",
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -153,16 +168,18 @@ export default function PropertyDetailsPage() {
       }
 
       const data = await response.json();
-      
+
       // Extract the AI's recommendation
       if (data.choices && data.choices.length > 0) {
         setAiRecommendation(data.choices[0].message.content);
       } else {
-        throw new Error('Invalid response format from API');
+        throw new Error("Invalid response format from API");
       }
     } catch (error) {
       console.error("Error generating AI recommendation:", error);
-      setAiRecommendationError("Gagal mendapatkan rekomendasi AI. Silakan coba lagi nanti.");
+      setAiRecommendationError(
+        "Gagal mendapatkan rekomendasi AI. Silakan coba lagi nanti."
+      );
     } finally {
       setAiRecommendationLoading(false);
     }
@@ -373,7 +390,7 @@ export default function PropertyDetailsPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
               <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
                 <span className="text-gray-500 text-sm">Kamar Tidur</span>
                 <span className="text-lg font-bold text-gray-800">
@@ -387,15 +404,21 @@ export default function PropertyDetailsPage() {
                 </span>
               </div>
               <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
-              <span className="text-gray-500 text-sm">Luas Bangunan</span>
+                <span className="text-gray-500 text-sm">Harga Tanah</span>
                 <span className="text-lg font-bold text-gray-800">
-                  {property.building_area} m²
+                  {formatPrice(property.price_per_meter)} /m²
                 </span>
               </div>
               <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
                 <span className="text-gray-500 text-sm">Luas Tanah</span>
                 <span className="text-lg font-bold text-gray-800">
                   {property.land_area} m²
+                </span>
+              </div>
+              <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
+                <span className="text-gray-500 text-sm">Sertifikat</span>
+                <span className="text-lg font-bold text-gray-800">
+                  {property.certificate || "N/A"}
                 </span>
               </div>
             </div>
@@ -456,7 +479,7 @@ export default function PropertyDetailsPage() {
                     kenyamanan bagi penghuninya.
                   </p>
                   <p className="text-gray-700 mb-4">
-                    Dengan luas bangunan {property.building_area} m² dan luas
+                    Dengan harga tanah {formatPrice(property.price_per_meter)}/m² dan luas
                     tanah {property.land_area} m², properti ini menawarkan ruang
                     yang luas untuk berbagai kebutuhan. Status kepemilikan
                     properti ini adalah {property.certificate}, memberikan
@@ -545,9 +568,9 @@ export default function PropertyDetailsPage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* AI Recommendation - show only in overview tab */}
-                  <AIRecommendation 
+                  <AIRecommendation
                     property={property}
                     recommendation={aiRecommendation}
                     isLoading={aiRecommendationLoading}
@@ -758,4 +781,3 @@ export default function PropertyDetailsPage() {
     </main>
   );
 }
-             

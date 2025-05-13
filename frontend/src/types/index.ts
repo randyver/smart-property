@@ -11,6 +11,7 @@ export interface Property {
     type: string;
     bathrooms?: number;
     land_area: number;
+    price_per_meter: number;
     certificate: string;
     building_area: number;
     climate_risk_score: number;

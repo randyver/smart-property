@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { useState } from "react";
-import Footer from "@/components/Footer";
 import Image from "next/image";
+import Footer from "@/components/Footer";
 
 // Team member data
 const teamMembers = [
@@ -155,7 +155,8 @@ export default function AboutUs() {
             </h2>
             <p className="text-gray-600">
               Temui para ahli berdedikasi di balik SmartProperty, yang
-              menggabungkan keahlian dalam pengembangan perangkat lunak, AI, dan analisis spasial untuk merevolusi evaluasi properti.
+              menggabungkan keahlian dalam pengembangan perangkat lunak, AI, dan
+              analisis spasial untuk merevolusi evaluasi properti.
             </p>
           </motion.div>
 
@@ -229,10 +230,12 @@ export default function AboutUs() {
           className="text-center max-w-3xl mx-auto mb-12"
         >
           <h2 className="text-3xl font-bold text-gray-800 mb-4">
-          Teknologi Kami
+            Teknologi Kami
           </h2>
           <p className="text-gray-600">
-          SmartProperty memanfaatkan teknologi mutakhir untuk memberikan penilaian risiko iklim yang akurat dan wawasan properti yang mendalam.
+            SmartProperty memanfaatkan teknologi mutakhir untuk memberikan
+            penilaian risiko iklim yang akurat dan wawasan properti yang
+            mendalam.
           </p>
         </motion.div>
 
@@ -253,7 +256,6 @@ export default function AboutUs() {
           ))}
         </div>
       </section>
-
       <Footer />
     </main>
   );

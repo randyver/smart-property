@@ -47,7 +47,7 @@ export default function NotFound() {
               variant="outline"
               className="border-blue-600 text-blue-600 py-2 px-6"
             >
-              <Link href="/dashboard">Temukan Properti</Link>
+              <Link href="/maps">Temukan Properti</Link>
             </Button>
           </div>
         </motion.div>

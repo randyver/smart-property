@@ -1,8 +1,8 @@
 "use client";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Earth } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 const Hero = () => {
   return (
@@ -30,12 +30,12 @@ const Hero = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <a href="/dashboard">
+            <Link href="/maps">
               <Button className="relative overflow-hidden rounded-lg bg-gradient-to-r from-smartproperty to-smartproperty-dark px-8 py-6 text-lg font-medium text-white shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-xl">
                 <span className="relative z-10">Jelajahi peta sekarang</span>
                 <span className="absolute inset-0 bg-gradient-to-r from-smartproperty-dark to-smartproperty opacity-0 transition-opacity duration-500 hover:opacity-100"></span>
               </Button>
-            </a>
+            </Link>
           </motion.div>
         </div>
         <div className="hidden md:block md:w-1/2 flex justify-center animate-scale-in md:pl-8">

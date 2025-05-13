@@ -8,6 +8,7 @@ import RiskIndicator from "@/components/RiskIndicator";
 import { propertyAPI, climateAPI } from "@/services/api";
 import ClimateScores from "@/components/ClimateScores";
 import { Property } from "@/types";
+import Link from "next/link";
 
 interface SearchParams {
   min_price?: number;
@@ -377,7 +378,7 @@ export default function Dashboard() {
 
   // Price range options
   const priceOptions = [
-    { label: "Any", min: undefined, max: undefined },
+    { label: "Semua", min: undefined, max: undefined },
     { label: "< 100JT", min: 0, max: 100000000 },
     { label: "100JT - 1M", min: 100000000, max: 1000000000 },
     { label: "1M - 5M", min: 1000000000, max: 5000000000 },
@@ -499,7 +500,7 @@ export default function Dashboard() {
                     value={bedrooms || ""}
                     onChange={(e) => handleBedroomsChange(e.target.value)}
                   >
-                    <option value="">Any</option>
+                    <option value="">Semua</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -516,7 +517,7 @@ export default function Dashboard() {
                     value={minScore || ""}
                     onChange={(e) => handleMinScoreChange(e.target.value)}
                   >
-                    <option value="">Any</option>
+                    <option value="">Semua</option>
                     <option value="50">50+</option>
                     <option value="60">60+</option>
                     <option value="70">70+</option>
@@ -708,12 +709,12 @@ export default function Dashboard() {
                   Tutup
                 </button>
 
-                <a
+                <Link
                   href={`/properties/${selectedProperty.id}`}
                   className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 >
                   Lihat Detail
-                </a>
+                </Link>
               </div>
             </div>
           )}
@@ -753,14 +754,14 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ))}
-                  <a
+                  <Link
                     href={`/comparison?ids=${compareProperties
                       .map((p) => p.id)
                       .join(",")}`}
                     className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white text-xs sm:text-sm rounded-md hover:bg-blue-700 flex items-center justify-center"
                   >
                     Bandingkan
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

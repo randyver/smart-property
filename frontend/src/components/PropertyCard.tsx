@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import RiskIndicator from "@/components/RiskIndicator";
 import { Property } from "@/types";
 
@@ -20,6 +21,7 @@ export default function PropertyCard({
   imageUrl = "/house-image.jpg",
 }: PropertyCardProps) {
   const [showDetails, setShowDetails] = useState(false);
+  const router = useRouter();
 
   // Format price to IDR
   const formatPrice = (price: number | null | undefined): string => {
@@ -90,10 +92,32 @@ export default function PropertyCard({
     return "Sangat Buruk";
   };
 
+  // Handle card click - navigate to property detail
+  const handleCardClick = () => {
+    router.push(`/properties/${property.id}`);
+  };
+
   // Handle details click
-  const handleDetailsClick = () => {
+  const handleDetailsClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click
     if (onViewDetails) {
       onViewDetails(property);
+    } else {
+      router.push(`/properties/${property.id}`);
+    }
+  };
+
+  // Handle toggling details
+  const toggleDetails = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click
+    setShowDetails(!showDetails);
+  };
+
+  // Handle compare click
+  const handleCompareClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click
+    if (onCompare) {
+      onCompare(property);
     }
   };
 
@@ -109,7 +133,10 @@ export default function PropertyCard({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition duration-300 relative mb-2 sm:mb-3">
+    <div 
+      className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition duration-300 relative mb-2 sm:mb-3 cursor-pointer"
+      onClick={handleCardClick}
+    >
       {/* Score badge - responsive sizing */}
       <div
         className={`absolute top-1.5 sm:top-2 right-1.5 sm:right-2 ${getScoreColor(
@@ -267,7 +294,7 @@ export default function PropertyCard({
         {/* Action buttons - more compact for mobile */}
         <div className="mt-1.5 sm:mt-2 flex justify-between items-center">
           <button
-            onClick={() => setShowDetails(!showDetails)}
+            onClick={toggleDetails}
             className="text-blue-700 text-xs hover:underline"
           >
             {showDetails ? "Sembunyikan" : "Lihat Detail"}
@@ -276,7 +303,7 @@ export default function PropertyCard({
           <div className="flex space-x-1">
             {onCompare && (
               <button
-                onClick={() => onCompare(property)}
+                onClick={handleCompareClick}
                 className={`px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs rounded ${
                   isComparing
                     ? "bg-gray-300 text-gray-700"

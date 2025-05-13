@@ -11,6 +11,7 @@ import { propertyAPI } from "@/services/api";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Image from "next/image";
+import Footer from "@/components/Footer";
 
 export default function PropertyDetailsPage() {
   const params = useParams();
@@ -352,19 +353,6 @@ export default function PropertyDetailsPage() {
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 py-6">
-        {/* Breadcrumbs */}
-        <div className="flex text-sm text-gray-500 mb-4">
-          <a href="/" className="hover:text-blue-600">
-            Home
-          </a>
-          <span className="mx-2">›</span>
-          <a href="/" className="hover:text-blue-600">
-            Detail Properti
-          </a>
-          <span className="mx-2">›</span>
-          <span className="text-gray-700">{property.title}</span>
-        </div>
-
         {/* Single Column Layout */}
         <div className="grid grid-cols-1 gap-6">
           {/* Property Basic Info */}
@@ -766,6 +754,7 @@ export default function PropertyDetailsPage() {
           z-index: 20;
         }
       `}</style>
+      <Footer />
     </main>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { House, Menu } from "lucide-react";
+import Link from "next/link";
 import {
   Sheet,
   SheetContent,
@@ -18,39 +19,39 @@ const Navbar = () => {
   return (
     <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <a href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <Image src="/logo.png" alt="Logo" width={50} height={50} />
           <span className="bg-gradient-to-r text-lg font-bold from-smartproperty to-smartproperty-dark bg-clip-text text-transparent">
             SmartProperty
           </span>
-        </a>
+        </Link>
 
         {/* Desktop menu */}
         <nav className="hidden md:flex items-center space-x-6">
-          <a
+          <Link
             href="/"
             className="text-gray-600 hover:text-smartproperty font-medium"
           >
             Home
-          </a>
-          <a
-            href="/dashboard"
+          </Link>
+          <Link
+            href="/maps"
             className="text-gray-600 hover:text-smartproperty font-medium"
           >
             Peta
-          </a>
-          <a
+          </Link>
+          <Link
             href="/analytics"
             className="text-gray-600 hover:text-smartproperty font-medium"
           >
             Analitik
-          </a>
-          <a
+          </Link>
+          <Link
             href="/about-us"
             className="text-gray-600 hover:text-smartproperty font-medium"
           >
             Tentang Kami
-          </a>
+          </Link>
         </nav>
 
         {/* Mobile menu - Sheet Component */}
@@ -73,36 +74,36 @@ const Navbar = () => {
             </SheetHeader>
             <nav className="flex flex-col space-y-4">
               <SheetClose asChild>
-                <a
+                <Link
                   href="/"
                   className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
                 >
                   Home
-                </a>
+                </Link>
               </SheetClose>
               <SheetClose asChild>
-                <a
-                  href="/dashboard"
+                <Link
+                  href="/maps"
                   className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
                 >
                   Peta
-                </a>
+                </Link>
               </SheetClose>
               <SheetClose asChild>
-                <a
+                <Link
                   href="/analytics"
                   className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
                 >
                   Analitik
-                </a>
+                </Link>
               </SheetClose>
               <SheetClose asChild>
-                <a
+                <Link
                   href="/about-us"
                   className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
                 >
                   Tentang Kami
-                </a>
+                </Link>
               </SheetClose>
             </nav>
             <div className="mt-8 pt-6 border-t border-gray-200">

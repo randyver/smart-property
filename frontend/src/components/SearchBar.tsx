@@ -107,7 +107,7 @@ export default function SearchBar({ onSearch, className = '' }: SearchBarProps) 
               onChange={(e) => setBedrooms(e.target.value ? Number(e.target.value) : undefined)}
               className="w-full p-2 border border-gray-300 rounded-md"
             >
-              <option value="">Any</option>
+              <option value="">Semua</option>
               {[1, 2, 3, 4, 5].map(num => (
                 <option key={num} value={num}>{num}+</option>
               ))}
@@ -122,7 +122,7 @@ export default function SearchBar({ onSearch, className = '' }: SearchBarProps) 
               onChange={(e) => setBathrooms(e.target.value ? Number(e.target.value) : undefined)}
               className="w-full p-2 border border-gray-300 rounded-md"
             >
-              <option value="">Any</option>
+              <option value="">Semua</option>
               {[1, 2, 3, 4].map(num => (
                 <option key={num} value={num}>{num}+</option>
               ))}
@@ -137,7 +137,7 @@ export default function SearchBar({ onSearch, className = '' }: SearchBarProps) 
               onChange={(e) => setMinScore(e.target.value ? Number(e.target.value) : undefined)}
               className="w-full p-2 border border-gray-300 rounded-md"
             >
-              <option value="">Any</option>
+              <option value="">Semua</option>
               <option value="50">50+</option>
               <option value="60">60+</option>
               <option value="70">70+</option>

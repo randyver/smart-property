@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { CloudSun, House, Map, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 // Animation variants for consistent animations
 const fadeInUp = {
@@ -175,12 +176,12 @@ const Features = () => {
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.6 }}
         >
-          <a href="/dashboard">
+          <Link href="/maps">
             <Button className="relative overflow-hidden rounded-lg bg-gradient-to-r from-smartproperty to-smartproperty-dark px-8 py-6 text-lg font-medium text-white shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-xl">
               <span className="relative z-10">Jelajahi semua fitur</span>
               <span className="absolute inset-0 bg-gradient-to-r from-smartproperty-dark to-smartproperty opacity-0 transition-opacity duration-500 hover:opacity-100"></span>
             </Button>
-          </a>
+          </Link>
         </motion.div>
       </div>
     </section>

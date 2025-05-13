@@ -182,7 +182,7 @@ export default function AnalyticsPage() {
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-md">
                   <h3 className="text-sm font-medium text-gray-500">
-                    Properti Aman Iklim
+                    Properti Ramah Iklim
                   </h3>
                   <p className="text-2xl font-bold text-gray-800">
                     {formatter.formatPercentage(
@@ -674,7 +674,7 @@ export default function AnalyticsPage() {
           )}
         </div>
       </div>
-      <Footer />
+    <Footer />
     </main>
   );
 }

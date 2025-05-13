@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import RiskIndicator from "@/components/RiskIndicator";
 import { propertyAPI } from "@/services/api";
 import { Property } from "@/types";
+import Link from "next/link";
+import Footer from "@/components/Footer";
 
 function ComparisonContent() {
   const searchParams = useSearchParams();
@@ -89,12 +91,12 @@ function ComparisonContent() {
       <div className="flex-1 bg-gray-50 p-6 text-black pt-20">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Property Comparison</h2>
+            <h2 className="text-2xl font-bold">Perbandingan Properti</h2>
           </div>
 
           {loading ? (
             <div className="text-center py-8">
-              <p>Loading property data...</p>
+              <p>Loading data properti...</p>
             </div>
           ) : error ? (
             <div className="bg-red-50 p-4 rounded-md text-red-700 mb-6">
@@ -105,12 +107,12 @@ function ComparisonContent() {
               <p className="text-gray-500">
                 No properties selected for comparison.
               </p>
-              <a
+              <Link
                 href="/"
                 className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
                 Return to Map
-              </a>
+              </Link>
             </div>
           ) : (
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -120,7 +122,7 @@ function ComparisonContent() {
                   <thead>
                     <tr className="bg-gray-50">
                       <th className="py-3 px-4 text-left font-medium text-gray-500 w-1/4">
-                        Feature
+                        Fitur
                       </th>
                       {properties.map((property) => (
                         <th
@@ -339,17 +341,18 @@ function ComparisonContent() {
 
               {/* Action buttons */}
               <div className="bg-gray-50 px-4 py-3 flex justify-end space-x-3">
-                <a
-                  href="/"
+                <Link
+                  href="/maps"
                   className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-100"
                 >
                   Kembali ke Peta
-                </a>
+                </Link>
               </div>
             </div>
           )}
         </div>
       </div>
+      <Footer />
     </main>
   );
 }

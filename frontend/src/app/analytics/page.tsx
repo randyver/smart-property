@@ -16,9 +16,22 @@ export default function AnalyticsPage() {
   const [bedroomDistribution, setBedroomDistribution] = useState<any[]>([]);
   const [distributionData, setDistributionData] = useState<any>(null);
   const [climateImpactData, setClimateImpactData] = useState<any[]>([]);
-  const [activeClimateMetric, setActiveClimateMetric] =
-    useState<string>("overall_score");
+  const [activeClimateMetric, setActiveClimateMetric] = useState<string>("overall_score");
   const [activeTab, setActiveTab] = useState<string>("price");
+
+  // New state variables for the additional analytics data
+  const [landPriceDistribution, setLandPriceDistribution] = useState<any[]>([]);
+  const [certificateDistribution, setCertificateDistribution] = useState<any[]>([]);
+  const [priceVsClimate, setPriceVsClimate] = useState<any[]>([]);
+  const [priceVsLandPrice, setPriceVsLandPrice] = useState<any[]>([]);
+  const [priceVsLandArea, setPriceVsLandArea] = useState<any[]>([]);
+  const [landPriceVsClimate, setLandPriceVsClimate] = useState<any[]>([]);
+  const [priceByCertificate, setPriceByCertificate] = useState<any[]>([]);
+  const [multiFactorAnalysis, setMultiFactorAnalysis] = useState<any[]>([]);
+  
+  // Active subtabs for each main tab
+  const [priceSubtab, setPriceSubtab] = useState<string>("distribution");
+  const [relationshipSubtab, setRelationshipSubtab] = useState<string>("priceVsClimate");
 
   // Map for climate metric labels
   const climateMetricLabels: Record<string, string> = {
@@ -48,8 +61,7 @@ export default function AnalyticsPage() {
         setClimateByDistrict(climateResponse.data);
 
         // Fetch property distribution
-        const distributionResponse =
-          await analyticsAPI.getPropertyDistribution();
+        const distributionResponse = await analyticsAPI.getPropertyDistribution();
         setDistributionData(distributionResponse.data);
 
         // Fetch bedroom distribution
@@ -59,6 +71,65 @@ export default function AnalyticsPage() {
         // Fetch climate impact
         const impactResponse = await analyticsAPI.getClimateImpact();
         setClimateImpactData(impactResponse.data);
+
+        // NEW DATA FETCHES
+
+        // Fetch land price distribution
+        const landPriceResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/land-price-distribution`);
+        const landPriceData = await landPriceResponse.json();
+        if (landPriceData.status === "success") {
+          setLandPriceDistribution(landPriceData.data);
+        }
+
+        // Fetch certificate distribution
+        const certificateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/certificate-distribution`);
+        const certificateData = await certificateResponse.json();
+        if (certificateData.status === "success") {
+          setCertificateDistribution(certificateData.data);
+        }
+
+        // Fetch price by certificate
+        const priceByCertResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/price-by-certificate`);
+        const priceByCertData = await priceByCertResponse.json();
+        if (priceByCertData.status === "success") {
+          setPriceByCertificate(priceByCertData.data);
+        }
+
+        // Fetch price vs climate data
+        const priceVsClimateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/price-vs-climate`);
+        const priceVsClimateData = await priceVsClimateResponse.json();
+        if (priceVsClimateData.status === "success") {
+          setPriceVsClimate(priceVsClimateData.data);
+        }
+
+        // Fetch price vs land price data
+        const priceVsLandPriceResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/price-vs-land-price`);
+        const priceVsLandPriceData = await priceVsLandPriceResponse.json();
+        if (priceVsLandPriceData.status === "success") {
+          setPriceVsLandPrice(priceVsLandPriceData.data);
+        }
+
+        // Fetch price vs land area data
+        const priceVsLandAreaResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/price-vs-land-area`);
+        const priceVsLandAreaData = await priceVsLandAreaResponse.json();
+        if (priceVsLandAreaData.status === "success") {
+          setPriceVsLandArea(priceVsLandAreaData.data);
+        }
+
+        // Fetch land price vs climate data
+        const landPriceVsClimateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/land-price-vs-climate`);
+        const landPriceVsClimateData = await landPriceVsClimateResponse.json();
+        if (landPriceVsClimateData.status === "success") {
+          setLandPriceVsClimate(landPriceVsClimateData.data);
+        }
+
+        // Fetch multi-factor analysis data
+        const multiFactorResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/multi-factor-analysis`);
+        const multiFactorData = await multiFactorResponse.json();
+        if (multiFactorData.status === "success") {
+          setMultiFactorAnalysis(multiFactorData.data);
+        }
+
       } catch (err) {
         setError("Failed to load analytics data. Please refresh the page.");
         console.error(err);
@@ -101,6 +172,28 @@ export default function AnalyticsPage() {
     return distributionData.property_type_distribution || [];
   };
 
+  // Format certificate distribution data
+  const getCertificateDistributionData = () => {
+    if (!certificateDistribution) return [];
+    return certificateDistribution;
+  };
+
+  // Format price by certificate data
+  const getPriceByCertificateData = () => {
+    if (!priceByCertificate) return [];
+    return priceByCertificate.map(item => ({
+      certificate: item.certificate,
+      average_price: item.average_price,
+      property_count: item.property_count
+    }));
+  };
+
+  // Format land price distribution data
+  const getLandPriceDistributionData = () => {
+    if (!landPriceDistribution) return [];
+    return landPriceDistribution;
+  };
+
   // Format climate impact data for selected factor
   const getClimateImpactData = (factorName: string) => {
     if (!climateImpactData || climateImpactData.length === 0) return [];
@@ -136,6 +229,42 @@ export default function AnalyticsPage() {
     });
 
     return data;
+  };
+
+  // Format data for the relationship charts
+  const formatScatterData = (data: any[], xKey: string, yKey: string) => {
+    if (!data || data.length === 0) return [];
+    
+    // Only take a representative sample for scatter plots (max 100 points)
+    const sampleSize = Math.min(data.length, 100);
+    const step = Math.max(1, Math.floor(data.length / sampleSize));
+    
+    const sampleData = [];
+    for (let i = 0; i < data.length; i += step) {
+      if (data[i] && data[i][xKey] !== undefined && data[i][yKey] !== undefined) {
+        sampleData.push({
+          x: data[i][xKey],
+          y: data[i][yKey],
+          district: data[i].district || 'Unknown'
+        });
+      }
+    }
+    
+    return sampleData;
+  };
+
+  // Format multi-factor analysis data
+  const getMultiFactorData = () => {
+    if (!multiFactorAnalysis || multiFactorAnalysis.length === 0) return [];
+    
+    return multiFactorAnalysis.map(item => ({
+      district: item.district,
+      avg_price: item.avg_price,
+      avg_climate_score: item.avg_climate_score,
+      avg_land_price: item.avg_land_price,
+      avg_land_area: item.avg_land_area,
+      property_count: item.property_count
+    }));
   };
 
   return (
@@ -234,43 +363,165 @@ export default function AnalyticsPage() {
                   >
                     Jenis Properti
                   </TabsTrigger>
+                  <TabsTrigger
+                    value="relationships"
+                    className="px-4 py-2 rounded-t-md data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:text-blue-600 data-[state=active]:shadow-none"
+                  >
+                    Hubungan Variabel
+                  </TabsTrigger>
                 </TabsList>
 
+                {/* PRICE ANALYSIS TAB */}
                 <TabsContent value="price" className="mt-0">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    {priceByDistrict.length > 0 && (
-                      <AnalyticsChart
-                        type="horizontalBar"
-                        data={priceByDistrict.slice(0, 10)}
-                        xKey="district"
-                        yKey="average_price"
-                        title="Harga Properti Rata-rata per Kecamatan"
-                        dataKey="Harga"
-                        height={400}
-                        currency={true}
-                        sorting="desc"
-                      />
-                    )}
-
-                    {getPriceDistributionData().length > 0 && (
-                      <AnalyticsChart
-                        type="pie"
-                        data={getPriceDistributionData()}
-                        xKey="range"
-                        yKey="count"
-                        title="Distribusi Harga Properti"
-                        height={400}
-                        colors={[
-                          "#93C5FD",
-                          "#60A5FA",
-                          "#3B82F6",
-                          "#2563EB",
-                          "#1D4ED8",
-                        ]}
-                        showLabels={true}
-                      />
-                    )}
+                  {/* Sub-tabs for Price Analysis */}
+                  <div className="mb-4 border-b border-gray-200">
+                    <div className="flex space-x-4">
+                      <button
+                        className={`px-4 py-2 text-sm font-medium ${
+                          priceSubtab === "distribution"
+                            ? "border-b-2 border-blue-600 text-blue-600"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
+                        onClick={() => setPriceSubtab("distribution")}
+                      >
+                        Distribusi Harga Properti
+                      </button>
+                      <button
+                        className={`px-4 py-2 text-sm font-medium ${
+                          priceSubtab === "landDistribution"
+                            ? "border-b-2 border-blue-600 text-blue-600"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
+                        onClick={() => setPriceSubtab("landDistribution")}
+                      >
+                        Distribusi Harga Tanah
+                      </button>
+                      <button
+                        className={`px-4 py-2 text-sm font-medium ${
+                          priceSubtab === "certificates"
+                            ? "border-b-2 border-blue-600 text-blue-600"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
+                        onClick={() => setPriceSubtab("certificates")}
+                      >
+                        Sertifikat
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Price Distribution Content */}
+                  {priceSubtab === "distribution" && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                      {priceByDistrict.length > 0 && (
+                        <AnalyticsChart
+                          type="horizontalBar"
+                          data={priceByDistrict.slice(0, 10)}
+                          xKey="district"
+                          yKey="average_price"
+                          title="Harga Properti Rata-rata per Kecamatan"
+                          dataKey="Harga"
+                          height={400}
+                          currency={true}
+                          sorting="desc"
+                        />
+                      )}
+
+                      {getPriceDistributionData().length > 0 && (
+                        <AnalyticsChart
+                          type="pie"
+                          data={getPriceDistributionData()}
+                          xKey="range"
+                          yKey="count"
+                          title="Distribusi Harga Properti"
+                          height={400}
+                          colors={[
+                            "#93C5FD",
+                            "#60A5FA",
+                            "#3B82F6",
+                            "#2563EB",
+                            "#1D4ED8",
+                          ]}
+                          showLabels={true}
+                        />
+                      )}
+                    </div>
+                  )}
+
+                  {/* Land Price Distribution Content */}
+                  {priceSubtab === "landDistribution" && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                      {getLandPriceDistributionData().length > 0 && (
+                        <AnalyticsChart
+                          type="pie"
+                          data={getLandPriceDistributionData()}
+                          xKey="range"
+                          yKey="count"
+                          title="Distribusi Harga Tanah per Meter Persegi"
+                          height={400}
+                          colors={[
+                            "#93C5FD",
+                            "#60A5FA",
+                            "#3B82F6",
+                            "#2563EB",
+                            "#1D4ED8",
+                          ]}
+                          showLabels={true}
+                        />
+                      )}
+
+                      {multiFactorAnalysis.length > 0 && (
+                        <AnalyticsChart
+                          type="horizontalBar"
+                          data={multiFactorAnalysis.slice(0, 10)}
+                          xKey="district"
+                          yKey="avg_land_price"
+                          title="Harga Tanah Rata-rata per Kecamatan"
+                          dataKey="Harga/m²"
+                          height={400}
+                          currency={true}
+                          sorting="desc"
+                        />
+                      )}
+                    </div>
+                  )}
+
+                  {/* Certificate Analysis Content */}
+                  {priceSubtab === "certificates" && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                      {getCertificateDistributionData().length > 0 && (
+                        <AnalyticsChart
+                          type="pie"
+                          data={getCertificateDistributionData()}
+                          xKey="certificate"
+                          yKey="count"
+                          title="Distribusi Jenis Sertifikat"
+                          height={400}
+                          colors={[
+                            "#10B981",
+                            "#34D399",
+                            "#6EE7B7",
+                            "#A7F3D0",
+                            "#D1FAE5",
+                          ]}
+                          showLabels={true}
+                        />
+                      )}
+
+                      {getPriceByCertificateData().length > 0 && (
+                        <AnalyticsChart
+                          type="bar"
+                          data={getPriceByCertificateData()}
+                          xKey="certificate"
+                          yKey="average_price"
+                          title="Harga Rata-rata Berdasarkan Jenis Sertifikat"
+                          height={400}
+                          currency={true}
+                          colors={["#10B981"]}
+                          dataKey="Harga Rata-rata"
+                        />
+                      )}
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {bedroomDistribution.length > 0 && (
@@ -307,6 +558,7 @@ export default function AnalyticsPage() {
                   </div>
                 </TabsContent>
 
+                {/* CLIMATE ANALYSIS TAB */}
                 <TabsContent value="climate" className="mt-0">
                   {/* Climate Score Selector */}
                   <div className="bg-white p-4 rounded-lg shadow-md mb-6">
@@ -668,6 +920,248 @@ export default function AnalyticsPage() {
                       </div>
                     </div>
                   </div>
+                </TabsContent>
+
+                {/* RELATIONSHIPS TAB */}
+                <TabsContent value="relationships" className="mt-0">
+                  {/* Sub-tabs for Relationship Analysis */}
+                  <div className="mb-4 border-b border-gray-200">
+                    <div className="flex space-x-4 overflow-x-auto pb-1">
+                      <button
+                        className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${
+                          relationshipSubtab === "priceVsClimate"
+                            ? "border-b-2 border-blue-600 text-blue-600"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
+                        onClick={() => setRelationshipSubtab("priceVsClimate")}
+                      >
+                        Harga vs Skor Iklim
+                      </button>
+                      <button
+                        className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${
+                          relationshipSubtab === "priceVsLandPrice"
+                            ? "border-b-2 border-blue-600 text-blue-600"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
+                        onClick={() => setRelationshipSubtab("priceVsLandPrice")}
+                      >
+                        Harga Properti vs Harga Tanah
+                      </button>
+                      <button
+                        className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${
+                          relationshipSubtab === "priceVsLandArea"
+                            ? "border-b-2 border-blue-600 text-blue-600"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
+                        onClick={() => setRelationshipSubtab("priceVsLandArea")}
+                      >
+                        Harga vs Luas Tanah
+                      </button>
+                      <button
+                        className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${
+                          relationshipSubtab === "landPriceVsClimate"
+                            ? "border-b-2 border-blue-600 text-blue-600"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
+                        onClick={() => setRelationshipSubtab("landPriceVsClimate")}
+                      >
+                        Harga Tanah vs Skor Iklim
+                      </button>
+                      <button
+                        className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${
+                          relationshipSubtab === "multiFactorAnalysis"
+                            ? "border-b-2 border-blue-600 text-blue-600"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
+                        onClick={() => setRelationshipSubtab("multiFactorAnalysis")}
+                      >
+                        Analisis Multi-Faktor
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Price vs Climate */}
+                  {relationshipSubtab === "priceVsClimate" && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      {priceVsClimate.length > 0 && (
+                        <div className="bg-white p-4 rounded-lg shadow-md col-span-2 py-12">
+                          <h3 className="font-bold text-lg mb-4 text-gray-800">
+                            Hubungan Harga Properti dengan Skor Iklim
+                          </h3>
+                          <div className="h-80">
+                            <AnalyticsChart
+                              type="line"
+                              data={formatScatterData(priceVsClimate, "climate_score", "price")}
+                              xKey="x"
+                              yKey="y"
+                              title=""
+                              dataKey="Harga"
+                              height={300}
+                              currency={true}
+                              colors={["#3B82F6"]}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Price vs Land Price */}
+                  {relationshipSubtab === "priceVsLandPrice" && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      {priceVsLandPrice.length > 0 && (
+                        <div className="bg-white p-4 rounded-lg shadow-md col-span-2 py-12">
+                          <h3 className="font-bold text-lg mb-4 text-gray-800">
+                            Hubungan Harga Properti dengan Harga Tanah
+                          </h3>
+                          <div className="h-80">
+                            <AnalyticsChart
+                              type="line"
+                              data={formatScatterData(priceVsLandPrice, "land_price", "property_price")}
+                              xKey="x"
+                              yKey="y"
+                              title=""
+                              dataKey="Harga Properti"
+                              height={300}
+                              currency={true}
+                              colors={["#10B981"]}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Price vs Land Area */}
+                  {relationshipSubtab === "priceVsLandArea" && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      {priceVsLandArea.length > 0 && (
+                        <div className="bg-white p-4 rounded-lg shadow-md col-span-2 py-12">
+                          <h3 className="font-bold text-lg mb-4 text-gray-800">
+                            Hubungan Harga Properti dengan Luas Tanah
+                          </h3>
+                          <div className="h-80">
+                            <AnalyticsChart
+                              type="line"
+                              data={formatScatterData(priceVsLandArea, "land_area", "property_price")}
+                              xKey="x"
+                              yKey="y"
+                              title=""
+                              dataKey="Harga Properti"
+                              height={300}
+                              currency={true}
+                              colors={["#F59E0B"]}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Land Price vs Climate */}
+                  {relationshipSubtab === "landPriceVsClimate" && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      {landPriceVsClimate.length > 0 && (
+                        <div className="bg-white p-4 rounded-lg shadow-md col-span-2 py-12">
+                          <h3 className="font-bold text-lg mb-4 text-gray-800">
+                            Hubungan Harga Tanah dengan Skor Iklim
+                          </h3>
+                          <div className="h-80">
+                            <AnalyticsChart
+                              type="line"
+                              data={formatScatterData(landPriceVsClimate, "climate_score", "land_price")}
+                              xKey="x"
+                              yKey="y"
+                              title=""
+                              dataKey="Harga Tanah/m²"
+                              height={300}
+                              currency={true}
+                              colors={["#8B5CF6"]}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Multi-Factor Analysis */}
+                  {relationshipSubtab === "multiFactorAnalysis" && (
+                    <div className="grid grid-cols-1 gap-6 mb-6">
+                      {multiFactorAnalysis.length > 0 && (
+                        <div className="bg-white p-4 rounded-lg shadow-md">
+                          <h3 className="font-bold text-lg mb-4 text-gray-800">
+                            Analisis Multi-Faktor Berdasarkan Kecamatan
+                          </h3>
+                          <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200">
+                              <thead className="bg-gray-50">
+                                <tr>
+                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Kecamatan
+                                  </th>
+                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Harga Rata-rata
+                                  </th>
+                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Harga Tanah/m²
+                                  </th>
+                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Luas Tanah Rata-rata
+                                  </th>
+                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Skor Iklim
+                                  </th>
+                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Jumlah Properti
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody className="bg-white divide-y divide-gray-200">
+                                {multiFactorAnalysis
+                                  .sort((a, b) => b.avg_price - a.avg_price)
+                                  .slice(0, 10)
+                                  .map((item, index) => (
+                                    <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        {item.district}
+                                      </td>
+                                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {formatter.formatCurrency(item.avg_price)}
+                                      </td>
+                                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {formatter.formatCurrency(item.avg_land_price)}/m²
+                                      </td>
+                                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {Math.round(item.avg_land_area)} m²
+                                      </td>
+                                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                        <div className="flex items-center">
+                                          <div
+                                            className={`w-2 h-2 rounded-full ${formatter.getClimateScoreColor(
+                                              item.avg_climate_score
+                                            )} mr-2`}
+                                          ></div>
+                                          <span>{Math.round(item.avg_climate_score)}</span>
+                                        </div>
+                                      </td>
+                                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {item.property_count}
+                                      </td>
+                                    </tr>
+                                  ))}
+                              </tbody>
+                            </table>
+                          </div>
+                          <div className="mt-4 text-gray-700">
+                            <p>
+                              Tabel ini menyajikan analisis komprehensif dari berbagai faktor yang memengaruhi pasar properti di tiap kecamatan.
+                              Anda dapat melihat bagaimana harga properti, harga tanah, skor iklim, dan luas tanah bervariasi di berbagai wilayah.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </TabsContent>
               </Tabs>
             </>

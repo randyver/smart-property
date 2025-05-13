@@ -1,3 +1,6 @@
+# backend/routes/analytics_routes.py
+# Adding new analytics endpoints for additional data visualizations
+
 from flask import Blueprint, jsonify, request
 import json
 import os
@@ -25,6 +28,7 @@ def process_property_data(df):
     df['LUAS TANAH (M²)'] = pd.to_numeric(df['LUAS TANAH (M²)'], errors='coerce')
     df['LUAS BANGUNAN (M²)'] = pd.to_numeric(df['LUAS BANGUNAN (M²)'], errors='coerce')
     df['JUMLAH KAMAR TIDUR'] = pd.to_numeric(df['JUMLAH KAMAR TIDUR'], errors='coerce')
+    df['HARGA TANAH NET (RP/M²)'] = pd.to_numeric(df['HARGA TANAH NET (RP/M²)'], errors='coerce')
     
     # Filter out properties with missing prices
     df = df.dropna(subset=['HARGA PROPERTI NET (RP)'])
@@ -311,4 +315,254 @@ def get_dashboard_summary():
             },
             "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
+    })
+
+# NEW API ENDPOINTS
+
+@analytics_bp.route('/api/analytics/land-price-distribution', methods=['GET'])
+def get_land_price_distribution():
+    """Get land price distribution statistics"""
+    df = get_property_data()
+    
+    if df.empty:
+        return jsonify({
+            "status": "error",
+            "message": "Failed to load property data"
+        }), 500
+    
+    df = process_property_data(df)
+    
+    # Define land price ranges in millions (IDR/m²)
+    land_price_ranges = [
+        {"range": "< 5jt/m²", "min": 0, "max": 5000000},
+        {"range": "5-10jt/m²", "min": 5000000, "max": 10000000},
+        {"range": "10-15jt/m²", "min": 10000000, "max": 15000000},
+        {"range": "15-20jt/m²", "min": 15000000, "max": 20000000},
+        {"range": "> 20jt/m²", "min": 20000000, "max": 1000000000}  # Very large max
+    ]
+    
+    # Count properties in each range
+    for r in land_price_ranges:
+        count = len(df[(df['HARGA TANAH NET (RP/M²)'] >= r['min']) & (df['HARGA TANAH NET (RP/M²)'] < r['max'])])
+        r['count'] = int(count)
+    
+    return jsonify({
+        "status": "success",
+        "data": land_price_ranges
+    })
+
+@analytics_bp.route('/api/analytics/certificate-distribution', methods=['GET'])
+def get_certificate_distribution():
+    """Get certificate type distribution"""
+    df = get_property_data()
+    
+    if df.empty:
+        return jsonify({
+            "status": "error",
+            "message": "Failed to load property data"
+        }), 500
+    
+    df = process_property_data(df)
+    
+    # Group by certificate type
+    certificate_counts = df['SERTIFIKAT'].value_counts().reset_index()
+    certificate_counts.columns = ['certificate', 'count']
+    
+    # Convert to list of dictionaries
+    result = []
+    for _, row in certificate_counts.iterrows():
+        result.append({
+            'certificate': row['certificate'],
+            'count': int(row['count'])
+        })
+    
+    return jsonify({
+        "status": "success",
+        "data": result
+    })
+
+@analytics_bp.route('/api/analytics/price-vs-climate', methods=['GET'])
+def get_price_vs_climate():
+    """Get property price vs climate score correlation data"""
+    df = get_property_data()
+    
+    if df.empty:
+        return jsonify({
+            "status": "error",
+            "message": "Failed to load property data"
+        }), 500
+    
+    df = process_property_data(df)
+    
+    # Prepare data points for scatter plot
+    scatter_data = []
+    for _, row in df.iterrows():
+        if not pd.isna(row['HARGA PROPERTI NET (RP)']) and not pd.isna(row['Overall_Score']):
+            scatter_data.append({
+                'price': float(row['HARGA PROPERTI NET (RP)']),
+                'climate_score': float(row['Overall_Score']),
+                'district': row['KECAMATAN']
+            })
+    
+    return jsonify({
+        "status": "success",
+        "data": scatter_data
+    })
+
+@analytics_bp.route('/api/analytics/price-vs-land-price', methods=['GET'])
+def get_price_vs_land_price():
+    """Get property price vs land price correlation data"""
+    df = get_property_data()
+    
+    if df.empty:
+        return jsonify({
+            "status": "error",
+            "message": "Failed to load property data"
+        }), 500
+    
+    df = process_property_data(df)
+    
+    # Prepare data points for scatter plot
+    scatter_data = []
+    for _, row in df.iterrows():
+        if (not pd.isna(row['HARGA PROPERTI NET (RP)']) and 
+            not pd.isna(row['HARGA TANAH NET (RP/M²)'])):
+            scatter_data.append({
+                'property_price': float(row['HARGA PROPERTI NET (RP)']),
+                'land_price': float(row['HARGA TANAH NET (RP/M²)']),
+                'district': row['KECAMATAN']
+            })
+    
+    return jsonify({
+        "status": "success",
+        "data": scatter_data
+    })
+
+@analytics_bp.route('/api/analytics/price-vs-land-area', methods=['GET'])
+def get_price_vs_land_area():
+    """Get property price vs land area correlation data"""
+    df = get_property_data()
+    
+    if df.empty:
+        return jsonify({
+            "status": "error",
+            "message": "Failed to load property data"
+        }), 500
+    
+    df = process_property_data(df)
+    
+    # Prepare data points for scatter plot
+    scatter_data = []
+    for _, row in df.iterrows():
+        if (not pd.isna(row['HARGA PROPERTI NET (RP)']) and 
+            not pd.isna(row['LUAS TANAH (M²)'])):
+            scatter_data.append({
+                'property_price': float(row['HARGA PROPERTI NET (RP)']),
+                'land_area': float(row['LUAS TANAH (M²)']),
+                'district': row['KECAMATAN']
+            })
+    
+    return jsonify({
+        "status": "success",
+        "data": scatter_data
+    })
+
+@analytics_bp.route('/api/analytics/land-price-vs-climate', methods=['GET'])
+def get_land_price_vs_climate():
+    """Get land price vs climate score correlation data"""
+    df = get_property_data()
+    
+    if df.empty:
+        return jsonify({
+            "status": "error",
+            "message": "Failed to load property data"
+        }), 500
+    
+    df = process_property_data(df)
+    
+    # Prepare data points for scatter plot
+    scatter_data = []
+    for _, row in df.iterrows():
+        if (not pd.isna(row['HARGA TANAH NET (RP/M²)']) and 
+            not pd.isna(row['Overall_Score'])):
+            scatter_data.append({
+                'land_price': float(row['HARGA TANAH NET (RP/M²)']),
+                'climate_score': float(row['Overall_Score']),
+                'district': row['KECAMATAN']
+            })
+    
+    return jsonify({
+        "status": "success",
+        "data": scatter_data
+    })
+
+@analytics_bp.route('/api/analytics/price-by-certificate', methods=['GET'])
+def get_price_by_certificate():
+    """Get average property prices by certificate type"""
+    df = get_property_data()
+    
+    if df.empty:
+        return jsonify({
+            "status": "error",
+            "message": "Failed to load property data"
+        }), 500
+    
+    df = process_property_data(df)
+    
+    # Group by certificate type and calculate average price
+    price_by_cert = df.groupby('SERTIFIKAT')['HARGA PROPERTI NET (RP)'].agg(['mean', 'count']).reset_index()
+    price_by_cert.columns = ['certificate', 'average_price', 'property_count']
+    
+    # Convert to native Python types for JSON serialization
+    result = []
+    for _, row in price_by_cert.iterrows():
+        result.append({
+            'certificate': row['certificate'],
+            'average_price': float(row['average_price']),
+            'property_count': int(row['property_count'])
+        })
+    
+    # Sort by count descending
+    result = sorted(result, key=lambda x: x['property_count'], reverse=True)
+    
+    return jsonify({
+        "status": "success",
+        "data": result
+    })
+
+@analytics_bp.route('/api/analytics/multi-factor-analysis', methods=['GET'])
+def get_multi_factor_analysis():
+    """Get multi-factor analysis data (price, climate, land area, district)"""
+    df = get_property_data()
+    
+    if df.empty:
+        return jsonify({
+            "status": "error",
+            "message": "Failed to load property data"
+        }), 500
+    
+    df = process_property_data(df)
+    
+    # Calculate district-level statistics
+    district_stats = []
+    districts = df['KECAMATAN'].unique()
+    
+    for district in districts:
+        district_df = df[df['KECAMATAN'] == district]
+        if len(district_df) >= 5:  # Only include districts with at least 5 properties
+            district_stats.append({
+                'district': district,
+                'avg_price': float(district_df['HARGA PROPERTI NET (RP)'].mean()),
+                'avg_land_price': float(district_df['HARGA TANAH NET (RP/M²)'].mean()),
+                'avg_land_area': float(district_df['LUAS TANAH (M²)'].mean()),
+                'avg_climate_score': float(district_df['Overall_Score'].mean()),
+                'property_count': int(len(district_df))
+            })
+    
+    # Sort by average price
+    district_stats = sorted(district_stats, key=lambda x: x['avg_price'], reverse=True)
+    
+    return jsonify({
+        "status": "success",
+        "data": district_stats
     })

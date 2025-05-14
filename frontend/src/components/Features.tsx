@@ -190,35 +190,15 @@ const Features = () => {
                               onClick={() => handleCardClick(actualIndex)}
                               className="flex justify-center"
                             >
-                              <div 
-                                className={`rounded-2xl overflow-hidden shadow-lg h-[400px] w-full max-w-sm transition-all duration-300 ${
-                                  actualIndex === activeIndex ? "bg-blue-600" : "bg-white"
-                                }`}
-                              >
+                              <div className="rounded-2xl overflow-hidden shadow-lg h-[400px] w-full max-w-sm transition-all duration-300 bg-white hover:shadow-xl hover:-translate-y-1 hover:scale-105 cursor-pointer group">
                                 <div className="p-6 flex flex-col items-center text-center justify-center h-full">
-                                  <div 
-                                    className={`w-16 h-16 rounded-full flex items-center justify-center mb-6 ${
-                                      actualIndex === activeIndex ? "bg-white" : "bg-blue-600"
-                                    }`}
-                                  >
-                                    <Icon
-                                      className={`h-8 w-8 ${
-                                        actualIndex === activeIndex ? "text-blue-600" : "text-white"
-                                      }`}
-                                    />
+                                  <div className="w-16 h-16 rounded-full flex items-center justify-center mb-6 bg-blue-600 transition-all duration-300 group-hover:scale-110">
+                                    <Icon className="h-8 w-8 text-white" />
                                   </div>
-                                  <h3 
-                                    className={`text-xl font-bold mb-4 ${
-                                      actualIndex === activeIndex ? "text-white" : "text-gray-800"
-                                    }`}
-                                  >
+                                  <h3 className="text-xl font-bold mb-4 text-gray-800">
                                     {feature.title}
                                   </h3>
-                                  <p
-                                    className={`text-sm ${
-                                      actualIndex === activeIndex ? "text-blue-100" : "text-gray-700"
-                                    }`}
-                                  >
+                                  <p className="text-sm text-gray-700">
                                     {feature.description}
                                   </p>
                                 </div>
@@ -266,35 +246,15 @@ const Features = () => {
                     onClick={() => handleCardClick(index)}
                     className="flex justify-center"
                   >
-                    <div 
-                      className={`rounded-2xl overflow-hidden shadow-lg h-[400px] w-full max-w-sm transition-all duration-300 ${
-                        index === activeIndex ? "bg-blue-600" : "bg-white"
-                      }`}
-                    >
+                    <div className="rounded-2xl overflow-hidden shadow-lg h-[400px] w-full max-w-sm transition-all duration-300 bg-white hover:shadow-xl hover:-translate-y-1 hover:scale-105 cursor-pointer group">
                       <div className="p-6 flex flex-col items-center text-center justify-center h-full">
-                        <div 
-                          className={`w-16 h-16 rounded-full flex items-center justify-center mb-6 ${
-                            index === activeIndex ? "bg-white" : "bg-blue-600"
-                          }`}
-                        >
-                          <Icon
-                            className={`h-8 w-8 ${
-                              index === activeIndex ? "text-blue-600" : "text-white"
-                            }`}
-                          />
+                        <div className="w-16 h-16 rounded-full flex items-center justify-center mb-6 bg-blue-600 transition-all duration-300 group-hover:scale-110">
+                          <Icon className="h-8 w-8 text-white" />
                         </div>
-                        <h3 
-                          className={`text-xl font-bold mb-4 ${
-                            index === activeIndex ? "text-white" : "text-gray-800"
-                          }`}
-                        >
+                        <h3 className="text-xl font-bold mb-4 text-gray-800">
                           {feature.title}
                         </h3>
-                        <p
-                          className={`text-sm ${
-                            index === activeIndex ? "text-blue-100" : "text-gray-700"
-                          }`}
-                        >
+                        <p className="text-sm text-gray-700">
                           {feature.description}
                         </p>
                       </div>
@@ -303,20 +263,6 @@ const Features = () => {
                 );
               })}
             </div>
-          </div>
-          
-          {/* Pagination dots for large screens */}
-          <div className="flex justify-center mt-8 space-x-2">
-            {features.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => handleCardClick(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  activeIndex === index ? "bg-blue-600 w-6" : "bg-white"
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
           </div>
         </div>
         
@@ -336,35 +282,15 @@ const Features = () => {
                 
                 return (
                   <CarouselItem key={index} className="flex justify-center basis-full">
-                    <div 
-                      className={`rounded-2xl overflow-hidden shadow-lg mx-auto h-[400px] w-full max-w-xs ${
-                        index === activeIndex ? "bg-blue-600" : "bg-white"
-                      }`}
-                    >
+                    <div className="rounded-2xl overflow-hidden shadow-lg mx-auto h-[400px] w-full max-w-xs bg-white hover:scale-105 transition-all duration-300 cursor-pointer group">
                       <div className="p-6 flex flex-col items-center text-center justify-center h-full">
-                        <div 
-                          className={`w-16 h-16 rounded-full flex items-center justify-center mb-6 ${
-                            index === activeIndex ? "bg-white" : "bg-blue-600"
-                          }`}
-                        >
-                          <Icon
-                            className={`h-8 w-8 ${
-                              index === activeIndex ? "text-blue-600" : "text-white"
-                            }`}
-                          />
+                        <div className="w-16 h-16 rounded-full flex items-center justify-center mb-6 bg-blue-600 transition-all duration-300 group-hover:scale-110">
+                          <Icon className="h-8 w-8 text-white" />
                         </div>
-                        <h3 
-                          className={`text-xl font-bold mb-4 ${
-                            index === activeIndex ? "text-white" : "text-gray-800"
-                          }`}
-                        >
+                        <h3 className="text-xl font-bold mb-4 text-gray-800">
                           {feature.title}
                         </h3>
-                        <p
-                          className={`text-sm ${
-                            index === activeIndex ? "text-blue-100" : "text-gray-700"
-                          }`}
-                        >
+                        <p className="text-sm text-gray-700">
                           {feature.description}
                         </p>
                       </div>
@@ -393,6 +319,15 @@ const Features = () => {
             ))}
           </div>
         </div>
+      </div>
+      
+      {/* Action button */}
+      <div className="container mx-auto text-center mt-16">
+        <Link href="/maps">
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 py-6 text-base xl:text-xl">
+            Jelajahi Peta Sekarang
+          </Button>
+        </Link>
       </div>
     </section>
   );

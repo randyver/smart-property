@@ -30,27 +30,31 @@ const Navbar = () => {
         <nav className="hidden md:flex items-center space-x-6">
           <Link
             href="/"
-            className="text-gray-600 hover:text-smartproperty font-medium"
+            className="text-gray-600 hover:text-smartproperty font-medium relative group"
           >
-            Home
+            <span>Home</span>
+            <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
           </Link>
           <Link
             href="/maps"
-            className="text-gray-600 hover:text-smartproperty font-medium"
+            className="text-gray-600 hover:text-smartproperty font-medium relative group"
           >
-            Peta
+            <span>Peta</span>
+            <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
           </Link>
           <Link
             href="/analytics"
-            className="text-gray-600 hover:text-smartproperty font-medium"
+            className="text-gray-600 hover:text-smartproperty font-medium relative group"
           >
-            Analitik
+            <span>Analitik</span>
+            <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
           </Link>
           <Link
             href="/about-us"
-            className="text-gray-600 hover:text-smartproperty font-medium"
+            className="text-gray-600 hover:text-smartproperty font-medium relative group"
           >
-            Tentang Kami
+            <span>Tentang Kami</span>
+            <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
           </Link>
         </nav>
 
@@ -76,33 +80,37 @@ const Navbar = () => {
               <SheetClose asChild>
                 <Link
                   href="/"
-                  className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
+                  className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors relative group overflow-hidden"
                 >
-                  Home
+                  <span>Home</span>
+                  <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
                 </Link>
               </SheetClose>
               <SheetClose asChild>
                 <Link
                   href="/maps"
-                  className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
+                  className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors relative group overflow-hidden"
                 >
-                  Peta
+                  <span>Peta</span>
+                  <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
                 </Link>
               </SheetClose>
               <SheetClose asChild>
                 <Link
                   href="/analytics"
-                  className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
+                  className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors relative group overflow-hidden"
                 >
-                  Analitik
+                  <span>Analitik</span>
+                  <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
                 </Link>
               </SheetClose>
               <SheetClose asChild>
                 <Link
                   href="/about-us"
-                  className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors"
+                  className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors relative group overflow-hidden"
                 >
-                  Tentang Kami
+                  <span>Tentang Kami</span>
+                  <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
                 </Link>
               </SheetClose>
             </nav>

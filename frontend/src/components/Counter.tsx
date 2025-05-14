@@ -68,8 +68,8 @@ const AnimatedCounter = ({ value = 0, duration = 2000, symbol = "" }) => {
  
   return (
     <div ref={nodeRef} className="inline-flex items-baseline">
-      <span className="text-white text-5xl md:text-6xl font-bold">{count}</span>
-      <span className="text-white text-4xl md:text-5xl font-bold ml-1">{symbol}</span>
+      <span className="text-blue-600 text-5xl md:text-6xl font-bold">{count}</span>
+      <span className="text-blue-600 text-4xl md:text-5xl font-bold ml-1">{symbol}</span>
     </div>
   );
 };
@@ -115,19 +115,19 @@ const Counter = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ duration: 0.5, delay: index * 0.15 }}
-                className="flex flex-col items-center text-center bg-blue-600 p-8 rounded-2xl border border-blue-500/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                className="flex flex-col items-center text-center"
               >
                 <div className="bg-blue-500/30 p-5 rounded-full mb-6 border-2 border-blue-400/30 shadow-inner">
-                  <Icon className="h-10 w-10 text-white" />
+                  <Icon className="h-10 w-10 text-blue-600" />
                 </div>
-                <div className="mb-3">
+                <div className="mb-3 text-blue-600">
                   <AnimatedCounter
                     value={stat.value}
                     symbol={stat.symbol}
                     duration={2000}
                   />
                 </div>
-                <p className="text-blue-100 text-xl font-medium">{stat.label}</p>
+                <p className="text-blue-600 text-xl font-medium">{stat.label}</p>
               </motion.div>
             );
           })}

@@ -1,188 +1,398 @@
 "use client";
 
-import { useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
-import { CloudSun, House, Map, MessageSquare } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { CloudSun, Home, Map, MessageSquare } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { cn } from "@/lib/utils";
+import * as React from "react";
 
-// Animation variants for consistent animations
-const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: "easeOut",
-    },
+// Feature data
+const features = [
+  {
+    icon: CloudSun,
+    title: "Penilaian Properti Iklim",
+    description: "Dapatkan rekomendasi properti dari jawaban drai pertanyaan iklim secara instan"
   },
-};
-
-// Animation variant specifically for hover effect
-const hoverAnimation = {
-  rest: { y: 0 },
-  hover: {
-    y: -5,
-    transition: {
-      duration: 0.3,
-      ease: "easeOut",
-    },
+  {
+    icon: Home,
+    title: "Perbandingan Properti",
+    description: "Dapatkan rekomendasi properti dari jawaban drai pertanyaan iklim secara instan"
   },
-};
-
-const FeatureCard = ({
-  icon: Icon,
-  title,
-  description,
-  index,
-  inView,
-}: {
-  icon: React.ElementType;
-  title: string;
-  description: string;
-  index: number;
-  inView: boolean;
-}) => {
-  return (
-    <motion.div
-      className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-sm transition-shadow duration-300 hover:shadow-lg flex items-center justify-center"
-      initial="hidden"
-      animate={inView ? "visible" : "hidden"}
-      variants={fadeInUp}
-      custom={index}
-      whileHover="hover"
-    >
-      <div className="absolute inset-0 bg-gradient-to-r from-smartproperty/5 to-smartproperty-dark/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
-
-      <div className="relative z-10">
-        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-smartproperty to-smartproperty-dark p-3 shadow-sm">
-          <Icon className="h-8 w-8 text-white" />
-        </div>
-
-        <h3 className="mb-3 text-center text-xl font-semibold text-gray-800">
-          {title}
-        </h3>
-        <p className="text-center text-gray-600 transition-colors duration-300 group-hover:text-gray-800">
-          {description}
-        </p>
-
-        <div className="mt-6 flex justify-center">
-          <span className="inline-block h-0.5 w-8 bg-gradient-to-r from-smartproperty to-smartproperty-dark opacity-0 transition-all duration-300 group-hover:w-16 group-hover:opacity-100"></span>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
+  {
+    icon: Map,
+    title: "Peta GIS Interaktif",
+    description: "Dapatkan rekomendasi properti dari jawaban drai pertanyaan iklim secara instan"
+  },
+  {
+    icon: MessageSquare,
+    title: "Asisten AI",
+    description: "Dapatkan rekomendasi properti dari jawaban drai pertanyaan iklim secara instan"
+  }
+];
 
 const Features = () => {
-  // Create a single ref for the entire section
-  const sectionRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(2); // Setting default to the third item (index 2)
+  const featureRef = useRef(null);
+  const isInView = useInView(featureRef, { once: true, amount: 0.3 });
+  
+  // Create a separate API for each breakpoint with proper typing
+  const [mobileApi, setMobileApi] = React.useState<any>(null);
+  const [mediumApi, setMediumApi] = React.useState<any>(null);
+  const [activeApi, setActiveApi] = React.useState<any>(null);
+  const [isMediumScreen, setIsMediumScreen] = React.useState(false);
 
-  // Check if section is in view - this will trigger just once
-  const isInView = useInView(sectionRef, {
-    once: true,
-    amount: 0.1, // Trigger when 10% of the section is visible
-  });
+  // Update active API based on current screen size
+  useEffect(() => {
+    const handleResize = () => {
+      const mediumScreen = window.innerWidth >= 768 && window.innerWidth < 1280;
+      setIsMediumScreen(mediumScreen);
+      
+      if (window.innerWidth < 768) {
+        setActiveApi(mobileApi);
+      } else if (mediumScreen) {
+        setActiveApi(mediumApi);
+      }
+    };
 
-  // Feature data for cleaner rendering
-  const features = [
-    {
-      icon: CloudSun,
-      title: "Penilaian Properti Iklim",
-      description:
-        "Evaluasi properti berdasarkan faktor risiko iklim dan metrik keberlanjutan.",
-    },
-    {
-      icon: House,
-      title: "Perbandingan Properti",
-      description:
-        "Bandingkan beberapa properti secara berdampingan dengan analisis iklim yang terperinci.",
-    },
-    {
-      icon: Map,
-      title: "Peta GIS Interaktif",
-      description:
-        "Visualisasikan data iklim dengan teknologi pemetaan canggih dan lapisan-lapisan.",
-    },
-    {
-      icon: MessageSquare,
-      title: "Asisten AI",
-      description:
-        "Dapatkan rekomendasi properti dan jawaban atas pertanyaan iklim secara instan.",
-    },
-  ];
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [mobileApi, mediumApi]);
+  
+  // Auto rotation for carousel
+  useEffect(() => {
+    if (!activeApi) return;
+    
+    const interval = setInterval(() => {
+      let nextIndex = (activeIndex + 1) % features.length;
+      setActiveIndex(nextIndex);
+      
+      if (isMediumScreen) {
+        // For medium screens, calculate the pair index
+        const pairIndex = Math.floor(nextIndex / 2);
+        if (activeApi && typeof activeApi.scrollTo === 'function') {
+          activeApi.scrollTo(pairIndex);
+        }
+      } else {
+        // For mobile and large screens
+        if (activeApi && typeof activeApi.scrollTo === 'function') {
+          activeApi.scrollTo(nextIndex);
+        }
+      }
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, [activeApi, activeIndex, isMediumScreen]);
+
+  // Handle carousel slide changes
+  const onSelectMobile = React.useCallback(() => {
+    if (!mobileApi) return;
+    if (typeof mobileApi.selectedScrollSnap === 'function') {
+      const selectedIndex = mobileApi.selectedScrollSnap();
+      setActiveIndex(selectedIndex);
+    }
+  }, [mobileApi]);
+
+  const onSelectMedium = React.useCallback(() => {
+    if (!mediumApi) return;
+    if (typeof mediumApi.selectedScrollSnap === 'function') {
+      const pairIndex = mediumApi.selectedScrollSnap();
+      // For the first pair, active could be 0 or 1, for the second pair, active could be 2 or 3
+      // We'll default to the first item in each pair (0 or 2)
+      const baseIndex = pairIndex * 2;
+      setActiveIndex(baseIndex);
+    }
+  }, [mediumApi]);
+
+  React.useEffect(() => {
+    if (mobileApi) {
+      mobileApi.on("select", onSelectMobile);
+      return () => mobileApi.off("select", onSelectMobile);
+    }
+  }, [mobileApi, onSelectMobile]);
+
+  React.useEffect(() => {
+    if (mediumApi) {
+      mediumApi.on("select", onSelectMedium);
+      return () => mediumApi.off("select", onSelectMedium);
+    }
+  }, [mediumApi, onSelectMedium]);
+
+  // Function to handle manual card selection
+  const handleCardClick = (index: number) => {
+    setActiveIndex(index);
+    
+    if (window.innerWidth < 768 && mobileApi) {
+      if (typeof mobileApi.scrollTo === 'function') {
+        mobileApi.scrollTo(index);
+      }
+    } else if (isMediumScreen && mediumApi) {
+      // For medium screens, calculate which pair the clicked item belongs to
+      const pairIndex = Math.floor(index / 2);
+      if (typeof mediumApi.scrollTo === 'function') {
+        mediumApi.scrollTo(pairIndex);
+      }
+    }
+  };
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative overflow-hidden py-16 bg-gradient-to-b from-gray-50 to-white min-h-screen flex items-center justify-center"
-    >
-      {/* Decorative elements */}
-      <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-smartproperty/10 blur-3xl"></div>
-      <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-smartproperty-dark/10 blur-3xl"></div>
-
-      <div className="container relative mx-auto px-4">
+    <section ref={featureRef} className="min-h-screen py-16 bg-gradient-to-b from-white to-blue-50 flex flex-col items-center">
+      <div className="container mx-auto px-4">
         <motion.h2
-          className="text-center text-3xl font-bold text-gray-800 mb-12"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+          transition={{ duration: 0.6 }}
+          className="text-center text-4xl md:text-5xl font-bold text-blue-600 mb-24"
         >
-          <span className="bg-gradient-to-r from-smartproperty to-smartproperty-dark bg-clip-text text-transparent">
-            Fitur Utama Kami
-          </span>
+          Fitur Utama <span className="text-black">Kami</span>
         </motion.h2>
+      </div>
 
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{
-                duration: 0.6,
-                ease: "easeOut",
-                delay: 0.2 + index * 0.1,
+      {/* Background Rectangle with Gradient - Full Width */}
+      <div className="w-full bg-[linear-gradient(to_right,_#56869D_0%,_#788781_27%,_#A5B792_50%,_#C29E83_74%,_#4D7DE9_100%)] py-16 relative -mt-6">
+        {/* Medium screens - horizontal carousel with 2 visible items */}
+        <div className="hidden md:block xl:hidden relative z-10">
+          <div className="mx-auto max-w-7xl px-4">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
               }}
+              className="w-full"
+              setApi={setMediumApi}
             >
-              <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-white to-gray-50 p-6 shadow-sm hover:shadow-lg transition-all duration-300 flex items-center justify-center h-full">
-                <div className="absolute inset-0 bg-gradient-to-r from-smartproperty/5 to-smartproperty-dark/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
-
-                <div className="relative z-10">
-                  <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-smartproperty to-smartproperty-dark p-3 shadow-sm">
-                    <feature.icon className="h-8 w-8 text-white" />
-                  </div>
-
-                  <h3 className="mb-3 text-center text-xl font-semibold text-gray-800">
-                    {feature.title}
-                  </h3>
-                  <p className="text-center text-gray-600 transition-colors duration-300 group-hover:text-gray-800">
-                    {feature.description}
-                  </p>
-
-                  <div className="mt-6 flex justify-center">
-                    <span className="inline-block h-0.5 w-8 bg-gradient-to-r from-smartproperty to-smartproperty-dark opacity-0 transition-all duration-300 group-hover:w-16 group-hover:opacity-100"></span>
-                  </div>
-                </div>
+              <CarouselContent>
+                {/* Create pairs of feature items */}
+                {[0, 1].map((pairIndex) => {
+                  const startIndex = pairIndex * 2;
+                  return (
+                    <CarouselItem key={pairIndex} className="basis-full pl-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        {features.slice(startIndex, startIndex + 2).map((feature, idx) => {
+                          const Icon = feature.icon;
+                          const actualIndex = startIndex + idx;
+                          
+                          return (
+                            <div
+                              key={actualIndex}
+                              onClick={() => handleCardClick(actualIndex)}
+                              className="flex justify-center"
+                            >
+                              <div 
+                                className={`rounded-2xl overflow-hidden shadow-lg h-[400px] w-full max-w-sm transition-all duration-300 ${
+                                  actualIndex === activeIndex ? "bg-blue-600" : "bg-white"
+                                }`}
+                              >
+                                <div className="p-6 flex flex-col items-center text-center justify-center h-full">
+                                  <div 
+                                    className={`w-16 h-16 rounded-full flex items-center justify-center mb-6 ${
+                                      actualIndex === activeIndex ? "bg-white" : "bg-blue-600"
+                                    }`}
+                                  >
+                                    <Icon
+                                      className={`h-8 w-8 ${
+                                        actualIndex === activeIndex ? "text-blue-600" : "text-white"
+                                      }`}
+                                    />
+                                  </div>
+                                  <h3 
+                                    className={`text-xl font-bold mb-4 ${
+                                      actualIndex === activeIndex ? "text-white" : "text-gray-800"
+                                    }`}
+                                  >
+                                    {feature.title}
+                                  </h3>
+                                  <p
+                                    className={`text-sm ${
+                                      actualIndex === activeIndex ? "text-blue-100" : "text-gray-700"
+                                    }`}
+                                  >
+                                    {feature.description}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <div className="flex justify-center mt-4 gap-2">
+                <CarouselPrevious className="relative static transform-none bg-white hover:bg-gray-100" />
+                <CarouselNext className="relative static transform-none bg-white hover:bg-gray-100" />
               </div>
-            </motion.div>
-          ))}
+            </Carousel>
+          </div>
+          
+          {/* Pagination dots for medium screens */}
+          <div className="flex justify-center mt-8 space-x-2">
+            {[0, 1].map((pairIndex) => (
+              <button
+                key={pairIndex}
+                onClick={() => handleCardClick(pairIndex * 2)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  Math.floor(activeIndex / 2) === pairIndex ? "bg-blue-600 w-6" : "bg-white"
+                }`}
+                aria-label={`Go to slide ${pairIndex + 1}`}
+              />
+            ))}
+          </div>
         </div>
-
-        <motion.div
-          className="mt-16 flex justify-center"
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.6, ease: "easeOut", delay: 0.6 }}
-        >
-          <Link href="/maps">
-            <Button className="relative overflow-hidden rounded-lg bg-gradient-to-r from-smartproperty to-smartproperty-dark px-8 py-6 text-lg font-medium text-white shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-xl">
-              <span className="relative z-10">Jelajahi semua fitur</span>
-              <span className="absolute inset-0 bg-gradient-to-r from-smartproperty-dark to-smartproperty opacity-0 transition-opacity duration-500 hover:opacity-100"></span>
-            </Button>
-          </Link>
-        </motion.div>
+        
+        {/* Large screens - 4 columns grid */}
+        <div className="hidden xl:block relative z-10">
+          <div className="mx-auto max-w-7xl px-4">
+            <div className="grid xl:grid-cols-4 gap-6">
+              {features.map((feature, index) => {
+                const Icon = feature.icon;
+                
+                return (
+                  <div
+                    key={index}
+                    onClick={() => handleCardClick(index)}
+                    className="flex justify-center"
+                  >
+                    <div 
+                      className={`rounded-2xl overflow-hidden shadow-lg h-[400px] w-full max-w-sm transition-all duration-300 ${
+                        index === activeIndex ? "bg-blue-600" : "bg-white"
+                      }`}
+                    >
+                      <div className="p-6 flex flex-col items-center text-center justify-center h-full">
+                        <div 
+                          className={`w-16 h-16 rounded-full flex items-center justify-center mb-6 ${
+                            index === activeIndex ? "bg-white" : "bg-blue-600"
+                          }`}
+                        >
+                          <Icon
+                            className={`h-8 w-8 ${
+                              index === activeIndex ? "text-blue-600" : "text-white"
+                            }`}
+                          />
+                        </div>
+                        <h3 
+                          className={`text-xl font-bold mb-4 ${
+                            index === activeIndex ? "text-white" : "text-gray-800"
+                          }`}
+                        >
+                          {feature.title}
+                        </h3>
+                        <p
+                          className={`text-sm ${
+                            index === activeIndex ? "text-blue-100" : "text-gray-700"
+                          }`}
+                        >
+                          {feature.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          
+          {/* Pagination dots for large screens */}
+          <div className="flex justify-center mt-8 space-x-2">
+            {features.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => handleCardClick(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  activeIndex === index ? "bg-blue-600 w-6" : "bg-white"
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+        
+        {/* Mobile Carousel - only visible on small screens */}
+        <div className="md:hidden mx-auto px-4 relative z-10">
+          <Carousel
+            opts={{
+              align: "center",
+              loop: true,
+            }}
+            className="w-full"
+            setApi={setMobileApi}
+          >
+            <CarouselContent>
+              {features.map((feature, index) => {
+                const Icon = feature.icon;
+                
+                return (
+                  <CarouselItem key={index} className="flex justify-center basis-full">
+                    <div 
+                      className={`rounded-2xl overflow-hidden shadow-lg mx-auto h-[400px] w-full max-w-xs ${
+                        index === activeIndex ? "bg-blue-600" : "bg-white"
+                      }`}
+                    >
+                      <div className="p-6 flex flex-col items-center text-center justify-center h-full">
+                        <div 
+                          className={`w-16 h-16 rounded-full flex items-center justify-center mb-6 ${
+                            index === activeIndex ? "bg-white" : "bg-blue-600"
+                          }`}
+                        >
+                          <Icon
+                            className={`h-8 w-8 ${
+                              index === activeIndex ? "text-blue-600" : "text-white"
+                            }`}
+                          />
+                        </div>
+                        <h3 
+                          className={`text-xl font-bold mb-4 ${
+                            index === activeIndex ? "text-white" : "text-gray-800"
+                          }`}
+                        >
+                          {feature.title}
+                        </h3>
+                        <p
+                          className={`text-sm ${
+                            index === activeIndex ? "text-blue-100" : "text-gray-700"
+                          }`}
+                        >
+                          {feature.description}
+                        </p>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                );
+              })}
+            </CarouselContent>
+            <div className="flex justify-center mt-4 gap-2">
+              <CarouselPrevious className="relative static transform-none bg-white hover:bg-gray-100" />
+              <CarouselNext className="relative static transform-none bg-white hover:bg-gray-100" />
+            </div>
+          </Carousel>
+          
+          {/* Pagination dots for mobile */}
+          <div className="flex justify-center mt-6 space-x-2">
+            {features.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => handleCardClick(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  activeIndex === index ? "bg-blue-600 w-6" : "bg-white"
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

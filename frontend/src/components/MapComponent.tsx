@@ -595,7 +595,7 @@ const MapComponent = memo(
 
     return (
       <div className="w-full h-full relative">
-        <div ref={mapContainer} className="mt-12 w-full h-full" />
+        <div ref={mapContainer} className="mt-16 w-full h-full" />
 
         {/* Loading progress bar */}
         {isLoading && (

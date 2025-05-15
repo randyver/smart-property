@@ -180,19 +180,14 @@ export default function PredictionResultPanel({ prediction, predictionFactors }:
       <div className="grid grid-cols-1 gap-6">
         {/* Panel Hasil Harga */}
         <div className="bg-green-50 p-6 border border-green-200 rounded-lg">
-          <h3 className="font-bold text-xl text-gray-800 mb-3">Estimasi Harga Properti</h3>
+          <h3 className="font-bold text-xl text-gray-800 mb-3">Prediksi Harga Properti</h3>
           <p className="text-3xl font-bold text-green-700 mb-4">
             {formatPrice(prediction)}
           </p>
           
           <div className="text-sm text-gray-600 mb-4">
-            <p>Estimasi ini didasarkan pada detail properti yang Anda berikan dan skor iklim lokasi.</p>
+            <p>Prediksi ini didasarkan pada detail properti yang Anda berikan dan skor iklim lokasi.</p>
             <p className="mt-2 italic">Harga properti sebenarnya dapat bervariasi tergantung pada kondisi pasar dan faktor lainnya.</p>
-          </div>
-          
-          <div className="flex items-center text-sm text-blue-600">
-            <div className="w-2 h-2 bg-blue-600 rounded-full mr-2"></div>
-            <span>Tingkat kepercayaan: 85%</span>
           </div>
         </div>
         

@@ -18,7 +18,7 @@ const Navbar = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="container mx-auto px-4 py-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/logo.png" alt="Logo" width={50} height={50} />
           <span className="bg-gradient-to-r text-lg font-bold from-smartproperty to-smartproperty-dark bg-clip-text text-transparent">
@@ -33,35 +33,35 @@ const Navbar = () => {
             className="text-gray-600 hover:text-smartproperty font-medium relative group"
           >
             <span>Home</span>
-            <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
+            <span className="absolute -bottom-2 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
           </Link>
           <Link
             href="/maps"
             className="text-gray-600 hover:text-smartproperty font-medium relative group"
           >
             <span>Peta</span>
-            <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
+            <span className="absolute -bottom-2 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
           </Link>
           <Link
             href="/analytics"
             className="text-gray-600 hover:text-smartproperty font-medium relative group"
           >
             <span>Analitik</span>
-            <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
+            <span className="absolute -bottom-2 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
           </Link>
           <Link
             href="/developer"
             className="text-gray-600 hover:text-smartproperty font-medium relative group"
           >
             <span>Pengembangan Properti</span>
-            <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
+            <span className="absolute -bottom-2 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
           </Link>
           <Link
             href="/about-us"
             className="text-gray-600 hover:text-smartproperty font-medium relative group"
           >
             <span>Tentang Kami</span>
-            <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
+            <span className="absolute -bottom-2 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
           </Link>
         </nav>
 

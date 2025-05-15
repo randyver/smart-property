@@ -80,7 +80,7 @@ const Description = () => {
                     variant="outline"
                     className="rounded-full border-blue-400 text-blue-600 hover:text-blue-700 px-8 text-base xl:text-xl"
                   >
-                    Read More
+                    Baca Selengkapnya
                   </Button>
                 </Link>
               </div>

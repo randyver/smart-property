@@ -222,10 +222,10 @@ export default function DeveloperPage() {
   return (
     <main className="pt-20 bg-gray-50 min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Alat Pengembang Properti</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">Pengembangan Properti</h1>
         <p className="text-gray-600 mb-8">
-          Alat ini membantu pengembang dan investor properti memperkirakan harga properti berdasarkan data lokasi dan skor iklim.
-          Klik pada peta untuk memilih lokasi bangunan, masukkan detail properti, dan dapatkan prediksi harga.
+          Sistem ini membantu pengembang dan investor properti memperkirakan harga properti berdasarkan data lokasi dan skor iklim.
+          Klik pada peta untuk memilih lokasi bangunan, masukkan detail properti, dan dapatkan prediksi harga serta rekomendasi pengembangan oleh AI.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -309,7 +309,7 @@ export default function DeveloperPage() {
                 </p>
                 <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200">
                   <p className="text-sm text-yellow-700">
-                    Sistem akan secara otomatis menganalisis data iklim untuk lokasi yang dipilih, termasuk Suhu Permukaan Tanah, Indeks Vegetasi, efek Pulau Panas Perkotaan, dan lainnya.
+                    Sistem akan secara otomatis menganalisis data iklim untuk lokasi yang dipilih, termasuk Suhu Permukaan Tanah, Indeks Vegetasi, efek Pulau Panas Perkotaan, dan Tekanan Panas.
                   </p>
                 </div>
               </div>

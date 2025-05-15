@@ -6,14 +6,14 @@ import { AlertTriangle } from "lucide-react";
 
 // Tipe sertifikat
 const CERTIFICATE_TYPES = [
-  "SHM - Sertifikat Hak Milik",
-  "HGB - Hak Guna Bangunan",
+  "Sertifikat Hak Milik",
+  "Sertifikat Hak Guna Bangunan",
 ];
 
 // Tipe properti
 const PROPERTY_TYPES = [
-  "RUMAH SEKEN",
-  "RUMAH BARU",
+  "Rumah Seken",
+  "Rumah Baru",
 ];
 
 interface DeveloperFormProps {

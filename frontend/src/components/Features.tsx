@@ -325,15 +325,6 @@ const Features = () => {
           </div>
         </div>
       </div>
-      
-      {/* Action button */}
-      <div className="container mx-auto text-center mt-16">
-        <Link href="/maps">
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 py-6 text-base xl:text-xl">
-            Jelajahi Peta Sekarang
-          </Button>
-        </Link>
-      </div>
     </section>
   );
 };

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import Link from "next/link";
-import { CloudSun, Home, Map, MessageSquare } from "lucide-react";
+import { CloudSun, Home, Map, MessageSquare, Building } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -20,22 +20,27 @@ const features = [
   {
     icon: CloudSun,
     title: "Penilaian Properti Iklim",
-    description: "Dapatkan rekomendasi properti dari jawaban drai pertanyaan iklim secara instan"
+    description: "Evaluasi properti berdasarkan parameter iklim untuk mengetahui tingkat keamanannya dari risiko perubahan iklim"
   },
   {
     icon: Home,
     title: "Perbandingan Properti",
-    description: "Dapatkan rekomendasi properti dari jawaban drai pertanyaan iklim secara instan"
+    description: "Bandingkan hingga 3 properti secara bersamaan dengan detail lengkap faktor iklim dan spesifikasi bangunan"
   },
   {
     icon: Map,
     title: "Peta GIS Interaktif",
-    description: "Dapatkan rekomendasi properti dari jawaban drai pertanyaan iklim secara instan"
+    description: "Jelajahi peta interaktif dengan lapisan data iklim untuk menemukan properti terbaik di lokasi pilihan Anda"
+  },
+  {
+    icon: Building,
+    title: "Pengembangan Properti",
+    description: "Dapatkan prediksi harga dan rekomendasi pengembangan berdasarkan data iklim untuk investasi properti lebih cerdas"
   },
   {
     icon: MessageSquare,
     title: "Asisten AI",
-    description: "Dapatkan rekomendasi properti dari jawaban drai pertanyaan iklim secara instan"
+    description: "Konsultasikan kebutuhan properti Anda dengan asisten AI untuk mendapatkan saran dan jawaban personal"
   }
 ];
 
@@ -236,7 +241,7 @@ const Features = () => {
         {/* Large screens - 4 columns grid */}
         <div className="hidden xl:block relative z-10">
           <div className="mx-auto max-w-7xl px-4">
-            <div className="grid xl:grid-cols-4 gap-6">
+            <div className="grid xl:grid-cols-5 gap-6">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
                 

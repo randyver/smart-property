@@ -13,8 +13,8 @@ const Description = () => {
     transition: {
       duration: 6,
       repeat: Infinity,
-      ease: "easeInOut"
-    }
+      ease: "easeInOut",
+    },
   };
 
   return (
@@ -30,17 +30,17 @@ const Description = () => {
           >
             Welcome to <span className="text-blue-600">Smart Property</span>
           </motion.h2>
-          
+
           <div className="flex flex-col md:flex-row items-center gap-20 p-8">
             {/* Animated Icon - Changed to Home and Leaf icons */}
             <div className="relative flex-shrink-0">
-              <motion.div 
+              <motion.div
                 animate={floatingAnimation}
                 className="bg-blue-100 p-8 rounded-full"
               >
                 <Home className="h-16 w-16 lg:h-20 lg:w-20 xl:h-60 xl:w-60 text-blue-600" />
               </motion.div>
-              
+
               {/* Small leaf icon with separate animation */}
               <motion.div
                 className="absolute -top-2 -right-2 bg-green-100 p-2 rounded-full"
@@ -51,26 +51,28 @@ const Description = () => {
                     duration: 4,
                     repeat: Infinity,
                     ease: "easeInOut",
-                    delay: 0.5
-                  }
+                    delay: 0.5,
+                  },
                 }}
               >
                 <Leaf className="h-8 w-8 xl:h-20 xl:w-20 text-green-600" />
               </motion.div>
             </div>
-            
+
             {/* Text Content */}
             <div className="flex-1">
               <p className="text-base text-justify md:text-lg text-gray-600 leading-relaxed mb-6">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean tempus cursus
-                elit, vel auctor odio condimentum et. Nam elementum dolor eget condimentum
-                hendrerit. Proin id dolor sed lectus suscipit rutrum. Ut aliquet nunc quam.
-                Quisque a velit finibus, aliquet dolor ac, pharetra lorem. Nunc auctor ante vel
-                diam dictum vulputate. Nullam dignissim turpis lectus, ac tempus eros porta in.
-                Donec ipsum magna, imperdiet eu mollis nec, viverra id metus. Maecenas sed nunc
-                at mi fermentum commodo. Etiam ullamcorper elit non purus tincidunt, sit amet
-                eleifend nisi rutrum. Aliquam erat volutpat. Nulla facilisi. Praesent quis magna
-                turpis. Sed tincidunt urna mauris, at luctus enim sagittis sit amet.
+                SmartProperty mengintegrasikan analisis iklim berbasis GIS untuk
+                evaluasi properti yang lebih komprehensif. Platform kami
+                menganalisis parameter iklim seperti suhu permukaan tanah,
+                indeks vegetasi, dan efek pulau panas perkotaan untuk memberikan
+                skor keamanan iklim yang akurat pada setiap properti. Kami
+                membantu Anda menemukan properti yang tidak hanya memenuhi
+                kebutuhan estetika dan fungsional, tetapi juga tahan terhadap
+                risiko perubahan iklim jangka panjang. Dengan SmartProperty,
+                Anda dapat membuat keputusan investasi properti yang lebih
+                cerdas dan berkelanjutan di tengah tantangan iklim yang semakin
+                nyata.
               </p>
               <div className="text-center md:text-right">
                 <Link href="/about-us">

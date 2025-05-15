@@ -19,9 +19,6 @@ const CERTIFICATE_TYPES = [
 const PROPERTY_TYPES = [
   "RUMAH SEKEN",
   "RUMAH BARU",
-  "RUMAH MEWAH",
-  "VILLA",
-  "TOWNHOUSE",
 ];
 
 export default function DeveloperPage() {

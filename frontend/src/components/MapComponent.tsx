@@ -3,7 +3,9 @@ import { useEffect, useRef, useState, memo, useCallback } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Property } from "@/types";
-import { Layers } from 'lucide-react';
+import { Layers } from "lucide-react";
+import { MapPin, Eye, EyeOff, Plus, Trash2, X } from "lucide-react";
+import Image from "next/image";
 
 export type ClimateLayerType = "lst" | "ndvi" | "uhi" | "utfvi" | undefined;
 
@@ -79,13 +81,7 @@ const MapComponent = memo(
     const layerConfig = {
       uhi: {
         name: "Urban Heat Island",
-        colors: [
-          "#F5F500", // Sangat Lemah (<0) - kuning terang
-          "#F5CA00", // Lemah (0-0.005) - kuning keemasan
-          "#FA9600", // Sedang (0.005-0.01) - oranye terang
-          "#EE5D00", // Kuat (0.01-0.015) - oranye gelap
-          "#C70000", // Sangat Kuat (>0.015) - merah tua
-        ],
+        colors: ["#F5F500", "#F5CA00", "#FA9600", "#EE5D00", "#C70000"],
         gridcodeCount: 5,
         legendLabels: [
           "Sangat Lemah (<0)",
@@ -94,17 +90,11 @@ const MapComponent = memo(
           "Kuat (0.01-0.015)",
           "Sangat Kuat (>0.015)",
         ],
+        image: "/peta-uhi.jpg",
       },
-
       utfvi: {
         name: "Urban Thermal Field Variance Index",
-        colors: [
-          "#5C09FC", // Non-UHI
-          "#4EC9FD", // UHI Lemah
-          "#B4FEA3", // UHI Sedang
-          "#FBD513", // UHI Kuat
-          "#FE230A", // UHI Sangat Kuat
-        ],
+        colors: ["#5C09FC", "#4EC9FD", "#B4FEA3", "#FBD513", "#FE230A"],
         gridcodeCount: 5,
         legendLabels: [
           "Non (<0)",
@@ -113,16 +103,11 @@ const MapComponent = memo(
           "Kuat (0.01-0.015)",
           "Sangat Kuat (>0.015)",
         ],
+        image: "/peta-utfvi.jpg",
       },
       lst: {
         name: "Land Surface Temperature",
-        colors: [
-          "#F5F500", // Sangat Dingin
-          "#F5B800", // Dingin
-          "#F57A00", // Sedang
-          "#F53D00", // Panas
-          "#F50000", // Sangat Panas
-        ],
+        colors: ["#F5F500", "#F5B800", "#F57A00", "#F53D00", "#F50000"],
         gridcodeCount: 5,
         legendLabels: [
           "Sangat Dingin (<24°C)",
@@ -131,16 +116,11 @@ const MapComponent = memo(
           "Panas (32-36°C)",
           "Sangat Panas (>36°C)",
         ],
+        image: "/peta-lst.jpg",
       },
       ndvi: {
         name: "Vegetation Index",
-        colors: [
-          "#A50026", // Non-vegetasi/Air/Tanah Terbangun
-          "#FF0000", // Vegetasi Sangat Jarang
-          "#FFFF00", // Vegetasi Jarang
-          "#86CB66", // Vegetasi Sedang
-          "#4C7300", // Vegetasi Lebat
-        ],
+        colors: ["#A50026", "#FF0000", "#FFFF00", "#86CB66", "#4C7300"],
         gridcodeCount: 5,
         legendLabels: [
           "Non-vegetasi (<0.2)",
@@ -149,6 +129,7 @@ const MapComponent = memo(
           "Sedang (0.6-0.8)",
           "Lebat (>0.8)",
         ],
+        image: "/peta-ndvi.jpg",
       },
     };
 
@@ -649,30 +630,17 @@ const MapComponent = memo(
           </div>
         )}
 
-        {/* Layer controls with integrated close button */}
+        {/* Layer panel with integrated close button */}
         {showLayerPanel && (
-          <div className="absolute top-32 right-4 bg-white rounded-xl shadow-md z-10 w-72">
-            <div className="flex justify-between items-center border-b pb-2 pt-2 px-3">
+          <div className="absolute top-32 right-4 bg-white rounded-xl shadow-md z-10 w-80 max-h-[400px] overflow-y-auto">
+            <div className="flex justify-between items-center border-b pb-2 pt-2 px-3 sticky top-0 bg-white">
               <h3 className="text-sm font-bold text-gray-800">Map Layers</h3>
               <button
                 onClick={toggleLayerPanel}
                 className="text-gray-500 hover:text-gray-700"
                 title="Close panel"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <X className="h-5 w-5" />
               </button>
             </div>
 
@@ -684,90 +652,104 @@ const MapComponent = memo(
               </p>
             </div>
 
+            {/* Property location layer - always enabled */}
             <div className="mb-3 border-b pb-2 px-2">
-              <button
-                onClick={togglePropertyVisibility}
-                className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
-                  showProperties
-                    ? "bg-blue-600 text-white"
-                    : "hover:bg-gray-100 text-gray-700"
-                }`}
-              >
-                <div
-                  className={`w-4 h-4 min-w-[16px] min-h-[16px] rounded-full flex-shrink-0 mr-2 ${
-                    showProperties ? "bg-white" : "bg-blue-600"
-                  }`}
-                ></div>
-                <span className="truncate text-xs">Lokasi Properti</span>
-              </button>
+              <div className="flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors hover:bg-gray-50">
+                <div className="flex items-center">
+                  <MapPin className="h-4 w-4 mr-2 text-gray-600" />
+                  <span className="truncate text-xs">Lokasi Properti</span>
+                </div>
+                <button
+                  onClick={togglePropertyVisibility}
+                  className="p-1 text-gray-600 hover:text-blue-600"
+                  title={showProperties ? "Hide properties" : "Show properties"}
+                >
+                  {showProperties ? (
+                    <Eye className="h-4 w-4" />
+                  ) : (
+                    <EyeOff className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
 
-            <h4 className="text-xs font-medium text-gray-600 mb-1 px-2">
+            <h4 className="text-xs font-medium text-gray-600 mb-1 px-2 sticky top-[68px] bg-white pt-2">
               Climate Layers
             </h4>
-            <div className="space-y-1 px-2 pb-2">
+            <div className="space-y-1 px-2 pb-4">
               {Object.entries(layerConfig).map(([key, layer]) => (
-                <div key={key} className="relative group">
-                  <button
-                    onClick={() => handleLayerSelect(key as ClimateLayerType)}
-                    className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
-                      activeLayer === key
-                        ? "bg-blue-600 text-white"
-                        : activeLayer || isLoading
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        : "hover:bg-gray-100 text-gray-700"
-                    }`}
-                    disabled={!!(activeLayer || isLoading)}
-                  >
-                    <div
-                      className={`w-4 h-4 min-w-[16px] min-h-[16px] rounded-full flex-shrink-0 mr-2 ${
-                        activeLayer === key ? "bg-white" : "bg-blue-600"
-                      }`}
-                    ></div>
+                <div
+                  key={key}
+                  className={`flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors ${
+                    activeLayer === key ? "bg-blue-50" : "hover:bg-gray-50"
+                  }`}
+                >
+                  <div className="flex items-center">
+                    <Image
+                      width={60}
+                      height={60}
+                      src={layer.image}
+                      alt={layer.name}
+                      className="mr-2 rounded-md object-cover"
+                    />
                     <span className="truncate text-xs">{layer.name}</span>
+                  </div>
 
-                    {pendingLayer === key && (
-                      <span className="ml-2 text-xs text-blue-600 animate-pulse">
-                        (queued)
-                      </span>
-                    )}
-                  </button>
-
-                  {(activeLayer === key || isLoading) && (
-                    <button
-                      onClick={clearLayer}
-                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 ${
-                        activeLayer ? "text-white" : "text-gray-400"
-                      } hover:text-red-500 p-1`}
-                      title="Clear layer"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+                  <div className="flex space-x-1">
+                    {/* Delete button - only shown for active layer */}
+                    {activeLayer === key && (
+                      <button
+                        onClick={clearLayer}
+                        className="p-1 text-red-600 hover:text-red-800"
+                        title="Remove layer"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </button>
-                  )}
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
+
+                    {/* Add button - only shown when no layer is active */}
+                    {!activeLayer && (
+                      <button
+                        onClick={() =>
+                          handleLayerSelect(key as ClimateLayerType)
+                        }
+                        className="p-1 text-blue-600 hover:text-blue-800"
+                        title={`Add ${layer.name} layer`}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    )}
+
+                    {/* Disabled buttons when another layer is active */}
+                    {activeLayer && activeLayer !== key && (
+                      <div className="flex space-x-1">
+                        <button
+                          className="p-1 text-gray-400 cursor-not-allowed"
+                          disabled
+                          title="Clear active layer first"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          className="p-1 text-gray-400 cursor-not-allowed"
+                          disabled
+                          title="Clear active layer first"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         )}
-
         {/* Legend - Updated with accurate classification labels */}
         {activeLayer && (
-          <div className="absolute bottom-4 left-4 bg-white p-3 rounded-md shadow-md z-10 max-w-xs">
+          <div className="absolute bottom-20 left-4 bg-white p-3 rounded-md shadow-md z-10 max-w-xs">
             <h4 className="text-sm font-bold mb-2 text-gray-800">
-              {layerConfig[activeLayer].name}
+              Legenda {layerConfig[activeLayer].name}
             </h4>
             <div className="space-y-1">
               {layerConfig[activeLayer].colors

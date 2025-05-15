@@ -50,6 +50,13 @@ const Navbar = () => {
             <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
           </Link>
           <Link
+            href="/developer"
+            className="text-gray-600 hover:text-smartproperty font-medium relative group"
+          >
+            <span>Pengembangan Properti</span>
+            <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
+          </Link>
+          <Link
             href="/about-us"
             className="text-gray-600 hover:text-smartproperty font-medium relative group"
           >
@@ -101,6 +108,15 @@ const Navbar = () => {
                   className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors relative group overflow-hidden"
                 >
                   <span>Analitik</span>
+                  <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
+                </Link>
+              </SheetClose>
+              <SheetClose asChild>
+                <Link
+                  href="/developer"
+                  className="flex items-center py-2 px-3 text-gray-700 hover:text-smartproperty hover:bg-gray-100 rounded-md transition-colors relative group overflow-hidden"
+                >
+                  <span>Pengembangan Properti</span>
                   <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-smartproperty group-hover:w-full group-hover:left-0 transition-all duration-300 origin-center"></span>
                 </Link>
               </SheetClose>

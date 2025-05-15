@@ -673,67 +673,6 @@ export default function AnalyticsPage() {
                         />
                       )}
                   </div>
-
-                  {/* Climate analysis text */}
-                  <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-                    <h3 className="text-lg font-bold mb-4 text-black">
-                      Analisis Dampak Iklim
-                    </h3>
-                    <p className="text-gray-700 mb-4">
-                      Analisis kami menunjukkan bagaimana faktor iklim
-                      mempengaruhi nilai properti di berbagai distrik. Properti
-                      di daerah dengan kualitas lingkungan yang lebih baik dan
-                      risiko iklim yang lebih rendah secara konsisten memiliki
-                      harga yang lebih tinggi dan mempertahankan nilai yang
-                      lebih baik dari waktu ke waktu.
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 text-black">
-                      <div className="border p-4 rounded-md">
-                        <h4 className="font-bold mb-2">Temuan Utama</h4>
-                        <ul className="list-disc pl-5 space-y-1 text-gray-700">
-                          <li>
-                            Properti dengan indeks vegetasi tinggi (NDVI)
-                            menunjukkan valuasi hingga 15% lebih tinggi
-                          </li>
-                          <li>
-                            Daerah dengan suhu permukaan lebih rendah umumnya
-                            memiliki nilai properti yang lebih tinggi
-                          </li>
-                          <li>
-                            Efek pulau panas perkotaan berhubungan dengan
-                            penurunan harga properti
-                          </li>
-                          <li>
-                            Properti yang aman terhadap iklim mempertahankan
-                            nilai lebih baik dari waktu ke waktu
-                          </li>
-                        </ul>
-                      </div>
-
-                      <div className="border p-4 rounded-md">
-                        <h4 className="font-bold mb-2">Rekomendasi</h4>
-                        <ul className="list-disc pl-5 space-y-1 text-gray-700">
-                          <li>
-                            Prioritaskan distrik dengan skor iklim keseluruhan
-                            yang lebih tinggi
-                          </li>
-                          <li>
-                            Pertimbangkan properti dengan cakupan vegetasi yang
-                            baik
-                          </li>
-                          <li>
-                            Cari daerah dengan strategi pendinginan perkotaan
-                            yang efektif
-                          </li>
-                          <li>
-                            Investasikan dalam perbaikan properti yang mendukung
-                            iklim untuk meningkatkan nilai
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
                 </TabsContent>
 
                 <TabsContent value="property" className="mt-0">
@@ -756,10 +695,10 @@ export default function AnalyticsPage() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="gap-6">
                     {/* Distribution of climate scores */}
                     {summaryData && summaryData.avg_climate_scores && (
-                      <div className="bg-white p-4 rounded-lg shadow-md text-black">
+                      <div className="bg-white w-full p-4 rounded-lg shadow-md text-black">
                         <h3 className="font-bold text-lg mb-4">
                           Rata-rata Skor Iklim
                         </h3>
@@ -871,54 +810,6 @@ export default function AnalyticsPage() {
                         </div>
                       </div>
                     )}
-
-                    {/* Property characteristics summary */}
-                    <div className="bg-white p-4 rounded-lg shadow-md text-black">
-                      <h3 className="font-bold text-lg mb-4">
-                        Ikhtisar Pasar Properti
-                      </h3>
-                      <div className="space-y-4">
-                        <p className="text-gray-700">
-                          Pasar properti di Bandung menunjukkan variasi harga
-                          yang signifikan di berbagai distrik, dengan faktor
-                          iklim yang memainkan peran penting dalam penilaian
-                          properti.
-                        </p>
-
-                        <div className="border-t border-b py-4">
-                          <h4 className="font-medium mb-2">Analisis Harga</h4>
-                          <ul className="space-y-2 text-gray-700">
-                            <li className="flex justify-between">
-                              <span>Harga Rata-rata:</span>
-                              <span className="font-medium">
-                                {formatter.formatCurrency(
-                                  summaryData?.average_price || 0
-                                )}
-                              </span>
-                            </li>
-                            <li className="flex justify-between">
-                              <span>Jenis Properti Paling Umum:</span>
-                              <span className="font-medium">
-                                {getPropertyTypeData().length > 0 &&
-                                  getPropertyTypeData().sort(
-                                    (
-                                      a: { count: number },
-                                      b: { count: number }
-                                    ) => b.count - a.count
-                                  )[0].type}
-                              </span>
-                            </li>
-                          </ul>
-                        </div>
-
-                        <p className="text-gray-700">
-                          Properti dengan skor keselamatan iklim yang lebih
-                          tinggi cenderung mematok harga premium, yang
-                          menunjukkan bahwa faktor lingkungan semakin penting
-                          dalam pasar real estat di Bandung.
-                        </p>
-                      </div>
-                    </div>
                   </div>
                 </TabsContent>
 
@@ -1151,12 +1042,6 @@ export default function AnalyticsPage() {
                                   ))}
                               </tbody>
                             </table>
-                          </div>
-                          <div className="mt-4 text-gray-700">
-                            <p>
-                              Tabel ini menyajikan analisis komprehensif dari berbagai faktor yang memengaruhi pasar properti di tiap kecamatan.
-                              Anda dapat melihat bagaimana harga properti, harga tanah, skor iklim, dan luas tanah bervariasi di berbagai wilayah.
-                            </p>
                           </div>
                         </div>
                       )}

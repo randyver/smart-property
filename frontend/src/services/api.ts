@@ -1,4 +1,3 @@
-// API service for interacting with the backend
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -81,11 +80,24 @@ export const propertyAPI = {
   }
 };
 
-// Climate data API
 export const climateAPI = {
   // Get available risk layers for map
   getRiskLayers: async () => {
     return fetchFromAPI<any>('/api/climate/risk-layers');
+  },
+  
+  // Get climate scores for a specific location
+  getLocationScores: async (latitude: number, longitude: number) => {
+    return fetchFromAPI<{
+      status: string;
+      data: {
+        lst_score: number;
+        ndvi_score: number;
+        utfvi_score: number;
+        uhi_score: number;
+        overall_score: number;
+      }
+    }>(`/api/climate/scores?lat=${latitude}&lng=${longitude}`);
   }
 };
 
@@ -122,6 +134,30 @@ export const analyticsAPI = {
   }
 };
 
+export const developerAPI = {
+  // Predict property price
+  predictPrice: async (data: {
+    location: { latitude: number; longitude: number };
+    bedrooms: number;
+    landArea: number;
+    certificate: string;
+    propertyType: string;
+    landPricePerMeter: number;
+    climateScores?: Record<string, number | null>;
+  }) => {
+    return fetchFromAPI<{
+      message: string;
+      status: string;
+      predicted_price: number;
+      confidence: number;
+      factors: Record<string, number>;
+    }>('/api/developer/predict-price', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+};
+
 // Test connection API
 export const testAPI = {
   testConnection: async () => {
@@ -133,5 +169,6 @@ export default {
   property: propertyAPI,
   climate: climateAPI,
   analytics: analyticsAPI,
+  developer: developerAPI,
   test: testAPI
 };

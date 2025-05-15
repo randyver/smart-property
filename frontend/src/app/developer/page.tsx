@@ -230,8 +230,28 @@ export default function DeveloperPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Kontainer Peta */}
-          <div className="lg:col-span-2 bg-white rounded-lg shadow-md overflow-hidden">
-            <div ref={mapContainer} className="h-[500px]" />
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div ref={mapContainer} className="h-[420px]" />
+            </div>
+            
+            {/* Placeholder message when no prediction yet */}
+            {!prediction && !predictionFactors && (
+              <div className="mt-4 bg-blue-50 p-4 rounded-lg border border-blue-100 text-center">
+                <p className="text-blue-800 font-medium">Hasil prediksi harga properti akan ditampilkan di sini setelah Anda mengisi form.</p>
+                <p className="text-blue-600 text-sm mt-1">Pastikan untuk memilih lokasi di peta dan mengisi semua detail properti.</p>
+              </div>
+            )}
+            
+            {/* Panel Hasil Prediksi di bawah peta */}
+            {prediction !== null && predictionFactors !== null && (
+              <div ref={resultsPanelRef} className="mt-4">
+                <PredictionResultPanel 
+                  prediction={prediction} 
+                  predictionFactors={predictionFactors} 
+                />
+              </div>
+            )}
           </div>
 
           {/* Formulir Input */}
@@ -296,16 +316,6 @@ export default function DeveloperPage() {
             )}
           </div>
         </div>
-        
-        {/* Panel Hasil Prediksi di bawah peta */}
-        {prediction !== null && predictionFactors !== null && (
-          <div ref={resultsPanelRef} className="mt-8">
-            <PredictionResultPanel 
-              prediction={prediction} 
-              predictionFactors={predictionFactors} 
-            />
-          </div>
-        )}
       </div>
       <Footer />
     </main>

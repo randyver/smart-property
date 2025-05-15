@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { AlertTriangle, Building, Ruler, CheckCircle2 } from "lucide-react";
 
 interface PredictionResultPanelProps {
@@ -14,6 +15,11 @@ interface PredictionResultPanelProps {
 }
 
 export default function PredictionResultPanel({ prediction, predictionFactors }: PredictionResultPanelProps) {
+  // State for AI recommendation
+  const [aiRecommendation, setAiRecommendation] = useState<string | null>(null);
+  const [isLoadingAI, setIsLoadingAI] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+
   // Format harga untuk tampilan
   const formatPrice = (price: number): string => {
     return new Intl.NumberFormat("id-ID", {
@@ -23,11 +29,155 @@ export default function PredictionResultPanel({ prediction, predictionFactors }:
     }).format(price);
   };
 
+  // Function to generate AI recommendation using OpenRouter
+  const generateAIRecommendation = async () => {
+    setIsLoadingAI(true);
+    setAiError(null);
+
+    try {
+      // Configuration for OpenRouter API
+      const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+      const OPENROUTER_API_KEY = "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";
+
+      // Create a detailed prompt based on the prediction data
+      const propertyDetails = `
+        Harga Properti yang Diprediksi: ${formatPrice(prediction)}
+        Nilai Tanah Dasar: ${formatPrice(predictionFactors.basePrice)}
+        Dampak Sertifikat: ${predictionFactors.certificateImpact > 0 ? "+" : ""}${predictionFactors.certificateImpact.toFixed(1)}%
+        Dampak Jenis Properti: ${predictionFactors.propertyTypeImpact > 0 ? "+" : ""}${predictionFactors.propertyTypeImpact.toFixed(1)}%
+        Dampak Kamar Tidur: ${predictionFactors.bedroomsImpact > 0 ? "+" : ""}${predictionFactors.bedroomsImpact.toFixed(1)}%
+        Dampak Skor Iklim: ${predictionFactors.climateImpact > 0 ? "+" : ""}${predictionFactors.climateImpact.toFixed(1)}%
+      `;
+
+      // Prepare the system message
+      const systemMessage = {
+        role: "system",
+        content: `Anda adalah asisten AI untuk SmartProperty, platform yang membantu pengembang dan investor properti mendapatkan prediksi harga dan rekomendasi pengembangan.
+        
+        Berdasarkan data prediksi harga properti, berikan rekomendasi pengembangan yang terstruktur dalam dua kategori utama:
+        1. "Berdasarkan Analisis Iklim" - Fokus pada bagaimana meningkatkan nilai properti dengan mempertimbangkan faktor iklim dan lingkungan
+        2. "Berdasarkan Nilai Pasar" - Fokus pada fitur dan karakteristik properti yang dapat meningkatkan nilai jualnya di pasar
+        
+        Untuk setiap kategori, berikan 3-4 poin rekomendasi spesifik dan praktis. Jika dampak iklim negatif, berikan lebih banyak saran terkait iklim. Jika dampak sertifikat atau jenis properti rendah, berikan lebih banyak saran untuk meningkatkan aspek tersebut.
+        
+        Gunakan bahasa Indonesia yang jelas dan profesional. Buat rekomendasi yang dapat ditindaklanjuti.
+        
+        FORMAT RESPONS ANDA SEPERTI INI:
+        ## Berdasarkan Analisis Iklim
+        - Rekomendasi 1
+        - Rekomendasi 2
+        - Rekomendasi 3
+        
+        ## Berdasarkan Nilai Pasar
+        - Rekomendasi 1
+        - Rekomendasi 2
+        - Rekomendasi 3`
+      };
+
+      // Prepare the user message
+      const userMessage = {
+        role: "user",
+        content: `Tolong berikan rekomendasi pengembangan untuk properti dengan data prediksi berikut:\n\n${propertyDetails}`
+      };
+
+      // Prepare the request payload
+      const payload = {
+        model: "deepseek/deepseek-chat-v3-0324:free",
+        messages: [systemMessage, userMessage],
+        temperature: 0.2,
+        max_tokens: 1000
+      };
+
+      // Make the API request
+      const response = await fetch(OPENROUTER_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+          "HTTP-Referer": "https://smartproperty.app",
+          "X-Title": "SmartProperty AI Recommendation"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Extract the AI's recommendation
+      if (data.choices && data.choices.length > 0) {
+        setAiRecommendation(data.choices[0].message.content);
+      } else {
+        throw new Error("Invalid response format from API");
+      }
+    } catch (error) {
+      console.error("Error generating AI recommendation:", error);
+      setAiError("Gagal mendapatkan rekomendasi AI. Silakan coba lagi nanti.");
+      
+      // Fallback recommendation if API fails
+      setAiRecommendation(`
+## Berdasarkan Analisis Iklim
+- Pertimbangkan untuk menanam pohon atau tanaman di sekitar properti untuk meningkatkan skor NDVI
+- Gunakan material atap yang reflektif untuk mengurangi penyerapan panas
+- Pertimbangkan sistem drainase yang baik untuk mengurangi risiko banjir
+
+## Berdasarkan Nilai Pasar
+- Fokus pada fitur yang meningkatkan efisiensi energi untuk nilai jual lebih tinggi
+- Sesuaikan jumlah kamar tidur dengan permintaan pasar di area tersebut
+- Pertimbangkan untuk memperoleh sertifikat SHM untuk nilai properti yang lebih tinggi`);
+    } finally {
+      setIsLoadingAI(false);
+    }
+  };
+
+  // Generate AI recommendation when component mounts
+  useEffect(() => {
+    generateAIRecommendation();
+  }, [prediction]); // Re-generate when prediction changes
+
+  // Function to format the recommendation text with proper formatting
+  const formatRecommendation = (text: string) => {
+    if (!text) return null;
+    
+    // Split the text by sections (## headers)
+    const sections = text.split(/(?=##)/);
+    
+    return (
+      <>
+        {sections.map((section, index) => {
+          // Skip empty sections
+          if (!section.trim()) return null;
+          
+          // Split section into title and content
+          const lines = section.split("\n").filter(line => line.trim());
+          const title = lines[0].replace(/^##\s*/, "");
+          const items = lines.slice(1).map(line => line.trim()).filter(line => line.startsWith("-") || line.startsWith("•"));
+          
+          return (
+            <div key={index} className={index > 0 ? "mt-6" : ""}>
+              <h4 className="font-semibold text-gray-800 mb-2">{title}</h4>
+              <ul className="space-y-2 text-sm text-gray-700">
+                {items.map((item, idx) => (
+                  <li key={idx} className="flex items-start">
+                    <div className={index === 0 ? "text-green-600 mr-2 mt-0.5" : "text-blue-600 mr-2 mt-0.5"}>•</div>
+                    <span>{item.replace(/^[•-]\s*/, "")}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })}
+      </>
+    );
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Hasil Prediksi Harga Properti</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         {/* Panel Hasil Harga */}
         <div className="bg-green-50 p-6 border border-green-200 rounded-lg">
           <h3 className="font-bold text-xl text-gray-800 mb-3">Estimasi Harga Properti</h3>
@@ -46,133 +196,24 @@ export default function PredictionResultPanel({ prediction, predictionFactors }:
           </div>
         </div>
         
-        {/* Panel Faktor Harga */}
-        <div className="bg-gray-50 p-6 border border-gray-200 rounded-lg">
-          <h3 className="font-bold text-xl text-gray-800 mb-3">Faktor-faktor Harga</h3>
+        {/* Rekomendasi dengan AI */}
+        <div className="mt-6 bg-blue-50 p-6 rounded-lg border border-blue-100">
+          <h3 className="font-bold text-xl text-gray-800 mb-3">AI Rekomendasi Pengembangan</h3>
           
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-1">Nilai Tanah Dasar</p>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <Ruler className="w-4 h-4 text-blue-600 mr-2" />
-                  <span>{formatPrice(predictionFactors.basePrice)}</span>
-                </div>
-                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-md">Harga Dasar</span>
-              </div>
+          {isLoadingAI ? (
+            <div className="flex items-center justify-center py-6">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <span className="ml-2 text-blue-600">AI sedang menganalisis, Tunggu ya!</span>
             </div>
-            
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-1">Dampak Sertifikat</p>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <CheckCircle2 className="w-4 h-4 text-green-600 mr-2" />
-                  <span>+{predictionFactors.certificateImpact.toFixed(1)}%</span>
-                </div>
-                <span className={`text-xs px-2 py-1 rounded-md ${
-                  predictionFactors.certificateImpact > 0 
-                    ? "bg-green-100 text-green-800" 
-                    : "bg-red-100 text-red-800"
-                }`}>
-                  {predictionFactors.certificateImpact > 0 ? "Positif" : "Negatif"}
-                </span>
-              </div>
+          ) : aiError ? (
+            <div className="bg-red-50 text-red-700 p-4 rounded-md mb-4">
+              <p>{aiError}</p>
             </div>
-            
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-1">Dampak Jenis Properti</p>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <Building className="w-4 h-4 text-purple-600 mr-2" />
-                  <span>+{predictionFactors.propertyTypeImpact.toFixed(1)}%</span>
-                </div>
-                <span className={`text-xs px-2 py-1 rounded-md ${
-                  predictionFactors.propertyTypeImpact > 0 
-                    ? "bg-green-100 text-green-800" 
-                    : "bg-red-100 text-red-800"
-                }`}>
-                  {predictionFactors.propertyTypeImpact > 0 ? "Positif" : "Negatif"}
-                </span>
-              </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+              {formatRecommendation(aiRecommendation || "")}
             </div>
-            
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-1">Dampak Kamar Tidur</p>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <Building className="w-4 h-4 text-gray-600 mr-2" />
-                  <span>+{predictionFactors.bedroomsImpact.toFixed(1)}%</span>
-                </div>
-                <span className={`text-xs px-2 py-1 rounded-md ${
-                  predictionFactors.bedroomsImpact > 0 
-                    ? "bg-green-100 text-green-800" 
-                    : "bg-red-100 text-red-800"
-                }`}>
-                  {predictionFactors.bedroomsImpact > 0 ? "Positif" : "Negatif"}
-                </span>
-              </div>
-            </div>
-            
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-1">Dampak Skor Iklim</p>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <AlertTriangle className="w-4 h-4 text-yellow-600 mr-2" />
-                  <span>{predictionFactors.climateImpact > 0 ? "+" : ""}{predictionFactors.climateImpact.toFixed(1)}%</span>
-                </div>
-                <span className={`text-xs px-2 py-1 rounded-md ${
-                  predictionFactors.climateImpact > 0 
-                    ? "bg-green-100 text-green-800" 
-                    : "bg-red-100 text-red-800"
-                }`}>
-                  {predictionFactors.climateImpact > 0 ? "Positif" : "Negatif"}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Rekomendasi */}
-      <div className="mt-6 bg-blue-50 p-6 rounded-lg border border-blue-100">
-        <h3 className="font-bold text-xl text-gray-800 mb-3">Rekomendasi Pengembangan</h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h4 className="font-semibold text-gray-800 mb-2">Berdasarkan Analisis Iklim</h4>
-            <ul className="space-y-2 text-sm text-gray-700">
-              <li className="flex items-start">
-                <div className="text-green-600 mr-2 mt-0.5">•</div>
-                <span>Pertimbangkan untuk menanam pohon atau tanaman di sekitar properti untuk meningkatkan skor NDVI</span>
-              </li>
-              <li className="flex items-start">
-                <div className="text-green-600 mr-2 mt-0.5">•</div>
-                <span>Gunakan material atap yang reflektif untuk mengurangi penyerapan panas</span>
-              </li>
-              <li className="flex items-start">
-                <div className="text-green-600 mr-2 mt-0.5">•</div>
-                <span>Pertimbangkan sistem drainase yang baik untuk mengurangi risiko banjir</span>
-              </li>
-            </ul>
-          </div>
-          
-          <div>
-            <h4 className="font-semibold text-gray-800 mb-2">Berdasarkan Nilai Pasar</h4>
-            <ul className="space-y-2 text-sm text-gray-700">
-              <li className="flex items-start">
-                <div className="text-blue-600 mr-2 mt-0.5">•</div>
-                <span>Fokus pada fitur yang meningkatkan efisiensi energi untuk nilai jual lebih tinggi</span>
-              </li>
-              <li className="flex items-start">
-                <div className="text-blue-600 mr-2 mt-0.5">•</div>
-                <span>Sesuaikan jumlah kamar tidur dengan permintaan pasar di area tersebut</span>
-              </li>
-              <li className="flex items-start">
-                <div className="text-blue-600 mr-2 mt-0.5">•</div>
-                <span>Pertimbangkan untuk memperoleh sertifikat SHM untuk nilai properti yang lebih tinggi</span>
-              </li>
-            </ul>
-          </div>
+          )}
         </div>
       </div>
     </div>

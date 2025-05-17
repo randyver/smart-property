@@ -206,11 +206,11 @@ export default function DeveloperPage() {
 
         // Simpan faktor prediksi untuk ditampilkan
         setPredictionFactors({
-          basePrice: response.factors.basePrice || 0,
-          certificateImpact: response.factors.certificateImpact || 0,
-          propertyTypeImpact: response.factors.propertyTypeImpact || 0,
-          bedroomsImpact: response.factors.bedroomsImpact || 0,
-          climateImpact: response.factors.climateImpact || 0,
+          basePrice: response.factors.landPricePerMeter|| 0,
+          certificateImpact: response.factors.certificate || 0,
+          propertyTypeImpact: response.factors.propertyType || 0,
+          bedroomsImpact: response.factors.bedrooms || 0,
+          climateImpact: response.factors.climateScores || 0,
         });
 
         // Scroll ke hasil prediksi

@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
 
 // Tipe sertifikat
 const CERTIFICATE_TYPES = [
-  "Sertifikat Hak Milik",
-  "Sertifikat Hak Guna Bangunan",
+  "SHM - Sertifikat Hak Milik",
+  "HGB - Hak Guna Bangunan",
 ];
 
 // Tipe properti
@@ -16,6 +16,27 @@ const PROPERTY_TYPES = [
   "Rumah Baru",
 ];
 
+// Kabupaten and Kecamatan data
+const LOCATION_DATA = {
+  "Kabupaten Bandung": [
+    'Cimenyan', 'Majalaya', 'Bojongsoang', 'Pameungpeuk', 'Arjasari',
+    'Cileunyi', 'Margahayu', 'Margaasih', 'Dayeuhkolot', 'Ciparay',
+    'Cilengkrang', 'Baleendah', 'Ciwidey', 'Rancaekek', 'Katapang',
+    'Soreang', 'Paseh', 'Cikancung', 'Banjaran', 'Rancabali',
+    'Cangkuang', 'Solokanjeruk', 'Cicalengka', 'Kutawaringin',
+    'Pangalengan'
+  ],
+  "Kota Bandung": [
+    'Mandalajati', 'Buahbatu', 'Kiaracondong', 'Rancasari', 'Sukajadi',
+    'Gedebage', 'Coblong', 'Ujungberung', 'Cibiru', 'Antapani',
+    'Arcamanik', 'Bojongloa Kidul', 'Sukasari', 'Batununggal',
+    'Sumur Bandung', 'Regol', 'Andir', 'Cicendo', 'Bojongloa Kaler',
+    'Astana Anyar', 'Lengkong', 'Babakan Ciparay', 'Bandung Kulon',
+    'Bandung Kidul', 'Bandung Wetan', 'Cidadap', 'Cinambo',
+    'Panyileukan', 'Cibeunying Kaler', 'Cibeunying Kidul'
+  ]
+};
+
 interface DeveloperFormProps {
   onSubmit: (formData: {
     bedrooms: string;
@@ -23,21 +44,46 @@ interface DeveloperFormProps {
     certificate: string;
     propertyType: string;
     landPricePerMeter: string;
+    city: string; // New field for Kota/Kabupaten
+    district: string; // New field for Kecamatan
   }) => void;
   isLoading: boolean;
   error: string | null;
+  climateScores?: {
+    lst_score: number | null;
+    ndvi_score: number | null;
+    utfvi_score: number | null;
+    uhi_score: number | null;
+    overall_score: number | null;
+  } | null;
 }
 
-export default function DeveloperForm({ onSubmit, isLoading, error }: DeveloperFormProps) {
+export default function DeveloperForm({ onSubmit, isLoading, error, climateScores }: DeveloperFormProps) {
   const [formData, setFormData] = useState({
     bedrooms: "",
     landArea: "",
     certificate: "",
     propertyType: "",
-    landPricePerMeter: ""
+    landPricePerMeter: "",
+    city: "", // New field for Kota/Kabupaten
+    district: "" // New field for Kecamatan
   });
   
-  // Tangani perubahan input
+  // State to track available districts based on selected city
+  const [availableDistricts, setAvailableDistricts] = useState<string[]>([]);
+  
+  // Update available districts when city changes
+  useEffect(() => {
+    if (formData.city && LOCATION_DATA[formData.city as keyof typeof LOCATION_DATA]) {
+      setAvailableDistricts(LOCATION_DATA[formData.city as keyof typeof LOCATION_DATA]);
+      // Reset district when city changes
+      setFormData(prev => ({...prev, district: ""}));
+    } else {
+      setAvailableDistricts([]);
+    }
+  }, [formData.city]);
+  
+  // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prevData => ({
@@ -46,10 +92,23 @@ export default function DeveloperForm({ onSubmit, isLoading, error }: DeveloperF
     }));
   };
   
-  // Tangani pengiriman formulir
+  // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    
+    // Include climate scores in the submission if available
+    const submissionData = {
+      ...formData,
+      ...(climateScores && { 
+        lst_score: climateScores.lst_score,
+        ndvi_score: climateScores.ndvi_score,
+        utfvi_score: climateScores.utfvi_score,
+        uhi_score: climateScores.uhi_score,
+        overall_score: climateScores.overall_score
+      })
+    };
+    
+    onSubmit(submissionData);
   };
   
   return (
@@ -62,6 +121,44 @@ export default function DeveloperForm({ onSubmit, isLoading, error }: DeveloperF
       </div>
       
       <div className="space-y-4">
+        {/* Location Selection - New addition */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Kota/Kabupaten <span className="text-red-500">*</span>
+          </label>
+          <select
+            name="city"
+            value={formData.city}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md text-black text-sm"
+          >
+            <option value="">Pilih Kota/Kabupaten</option>
+            {Object.keys(LOCATION_DATA).map((city) => (
+              <option key={city} value={city}>{city}</option>
+            ))}
+          </select>
+          <p className="text-xs text-gray-500 mt-1">Pilih kota atau kabupaten lokasi properti</p>
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Kecamatan <span className="text-red-500">*</span>
+          </label>
+          <select
+            name="district"
+            value={formData.district}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md text-black text-sm"
+            disabled={!formData.city}
+          >
+            <option value="">Pilih Kecamatan</option>
+            {availableDistricts.map((district) => (
+              <option key={district} value={district}>{district}</option>
+            ))}
+          </select>
+          <p className="text-xs text-gray-500 mt-1">Pilih kecamatan lokasi properti</p>
+        </div>
+        
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Jumlah Kamar Tidur <span className="text-red-500">*</span>

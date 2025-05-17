@@ -137,25 +137,27 @@ export const analyticsAPI = {
 export const developerAPI = {
   // Predict property price
   predictPrice: async (data: {
-    location: { latitude: number; longitude: number };
-    bedrooms: number;
-    landArea: number;
-    certificate: string;
-    propertyType: string;
-    landPricePerMeter: number;
-    climateScores?: Record<string, number | null>;
-  }) => {
-    return fetchFromAPI<{
-      message: string;
-      status: string;
-      predicted_price: number;
-      confidence: number;
-      factors: Record<string, number>;
-    }>('/api/developer/predict-price', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
+  location: { latitude: number; longitude: number };
+  bedrooms: number;
+  landArea: number;
+  certificate: string;
+  propertyType: string;
+  landPricePerMeter: number;
+  climateScores?: Record<string, number | null>;
+  city: string;
+  district: string;
+}) => {
+  return fetchFromAPI<{
+    message: string;
+    status: string;
+    predicted_price: number;
+    confidence: number;
+    factors: Record<string, number>;
+  }>('/api/developer/predict-price', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
 };
 
 // Test connection API

@@ -69,7 +69,7 @@ export default function DeveloperPage() {
     });
 
     map.addControl(new maplibregl.NavigationControl(), "top-right");
-    
+
     // Tambahkan handler klik ke peta
     map.on("click", async (e) => {
       const { lng, lat } = e.lngLat;
@@ -84,7 +84,7 @@ export default function DeveloperPage() {
       const marker = new maplibregl.Marker({ color: "#3B82F6" })
         .setLngLat([lng, lat])
         .addTo(map);
-      
+
       markerRef.current = marker;
 
       // Tetapkan lokasi yang dipilih
@@ -120,7 +120,7 @@ export default function DeveloperPage() {
       // Panggil API untuk mendapatkan skor iklim yang sebenarnya
       const response = await climateAPI.getLocationScores(lat, lng);
       console.log("Climate scores response:", response);
-      
+
       // Periksa apakah kita mendapatkan respons yang valid
       if (response.status === "success" && response.data) {
         setClimateScores(response.data);
@@ -129,30 +129,35 @@ export default function DeveloperPage() {
       }
     } catch (error) {
       console.error("Error fetching climate scores:", error);
-      
+
       // Tetapkan skor default jika API gagal
       setClimateScores({
         lst_score: 70,
         ndvi_score: 65,
         utfvi_score: 75,
         uhi_score: 68,
-        overall_score: 70
+        overall_score: 70,
       });
-      
+
       // Tampilkan pesan kesalahan kepada pengguna
-      setPredictionError("Tidak dapat mengambil data iklim untuk lokasi ini. Menggunakan nilai default sebagai gantinya.");
+      setPredictionError(
+        "Tidak dapat mengambil data iklim untuk lokasi ini. Menggunakan nilai default sebagai gantinya."
+      );
     } finally {
       setLoadingClimateScores(false);
     }
   };
 
-  // Tangani pengiriman formulir
+  // Update the handlePredictPrice function in developer/page.tsx
+
   const handlePredictPrice = async (formData: {
     bedrooms: string;
     landArea: string;
     certificate: string;
     propertyType: string;
     landPricePerMeter: string;
+    city: string;
+    district: string;
   }) => {
     if (!selectedLocation) {
       setPredictionError("Silakan pilih lokasi di peta terlebih dahulu");
@@ -160,8 +165,15 @@ export default function DeveloperPage() {
     }
 
     // Validasi formulir
-    if (!formData.bedrooms || !formData.landArea || !formData.certificate || 
-        !formData.propertyType || !formData.landPricePerMeter) {
+    if (
+      !formData.bedrooms ||
+      !formData.landArea ||
+      !formData.certificate ||
+      !formData.propertyType ||
+      !formData.landPricePerMeter ||
+      !formData.city ||
+      !formData.district
+    ) {
       setPredictionError("Harap isi semua kolom");
       return;
     }
@@ -171,9 +183,9 @@ export default function DeveloperPage() {
 
     try {
       // Konversi climateScores dari objek yang mungkin null ke tipe Record
-      const climateScoresRecord = climateScores ? 
-        {...climateScores} as Record<string, number | null> : 
-        undefined;
+      const climateScoresRecord = climateScores
+        ? ({ ...climateScores } as Record<string, number | null>)
+        : undefined;
 
       // Panggil API sebenarnya untuk prediksi harga
       const response = await developerAPI.predictPrice({
@@ -183,33 +195,38 @@ export default function DeveloperPage() {
         certificate: formData.certificate,
         propertyType: formData.propertyType,
         landPricePerMeter: parseFloat(formData.landPricePerMeter),
-        climateScores: climateScoresRecord
+        climateScores: climateScoresRecord,
+        city: formData.city,
+        district: formData.district,
       });
-      
+
       if (response.status === "success") {
         // Tetapkan harga yang diprediksi
         setPrediction(response.predicted_price);
-        
+
         // Simpan faktor prediksi untuk ditampilkan
         setPredictionFactors({
           basePrice: response.factors.basePrice || 0,
           certificateImpact: response.factors.certificateImpact || 0,
           propertyTypeImpact: response.factors.propertyTypeImpact || 0,
           bedroomsImpact: response.factors.bedroomsImpact || 0,
-          climateImpact: response.factors.climateImpact || 0
+          climateImpact: response.factors.climateImpact || 0,
         });
 
         // Scroll ke hasil prediksi
         setTimeout(() => {
           if (resultsPanelRef.current) {
-            resultsPanelRef.current.scrollIntoView({ 
-              behavior: 'smooth',
-              block: 'start'
+            resultsPanelRef.current.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
             });
           }
         }, 100);
       } else {
-        throw new Error("Gagal memprediksi harga: " + (response.message || "Kesalahan tidak diketahui"));
+        throw new Error(
+          "Gagal memprediksi harga: " +
+            (response.message || "Kesalahan tidak diketahui")
+        );
       }
     } catch (error) {
       console.error("Error predicting price:", error);
@@ -222,10 +239,14 @@ export default function DeveloperPage() {
   return (
     <main className="pt-20 bg-gray-50 min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Pengembangan Properti</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">
+          Pengembangan Properti
+        </h1>
         <p className="text-gray-600 mb-8">
-          Sistem ini membantu pengembang dan investor properti memperkirakan harga properti berdasarkan data lokasi dan skor iklim.
-          Klik pada peta untuk memilih lokasi bangunan, masukkan detail properti, dan dapatkan prediksi harga serta rekomendasi pengembangan oleh AI.
+          Sistem ini membantu pengembang dan investor properti memperkirakan
+          harga properti berdasarkan data lokasi dan skor iklim. Klik pada peta
+          untuk memilih lokasi bangunan, masukkan detail properti, dan dapatkan
+          prediksi harga serta rekomendasi pengembangan oleh AI.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -234,21 +255,27 @@ export default function DeveloperPage() {
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
               <div ref={mapContainer} className="h-[420px]" />
             </div>
-            
+
             {/* Placeholder message when no prediction yet */}
             {!prediction && !predictionFactors && (
               <div className="mt-4 bg-blue-50 p-4 rounded-lg border border-blue-100 text-center">
-                <p className="text-blue-800 font-medium">Hasil prediksi harga properti akan ditampilkan di sini setelah Anda mengisi form.</p>
-                <p className="text-blue-600 text-sm mt-1">Pastikan untuk memilih lokasi di peta dan mengisi semua detail properti.</p>
+                <p className="text-blue-800 font-medium">
+                  Hasil prediksi harga properti akan ditampilkan di sini setelah
+                  Anda mengisi form.
+                </p>
+                <p className="text-blue-600 text-sm mt-1">
+                  Pastikan untuk memilih lokasi di peta dan mengisi semua detail
+                  properti.
+                </p>
               </div>
             )}
-            
+
             {/* Panel Hasil Prediksi di bawah peta */}
             {prediction !== null && predictionFactors !== null && (
               <div ref={resultsPanelRef} className="mt-4">
-                <PredictionResultPanel 
-                  prediction={prediction} 
-                  predictionFactors={predictionFactors} 
+                <PredictionResultPanel
+                  prediction={prediction}
+                  predictionFactors={predictionFactors}
                 />
               </div>
             )}
@@ -258,25 +285,29 @@ export default function DeveloperPage() {
           <div className="bg-white rounded-lg shadow-md p-6">
             {selectedLocation ? (
               <div>
-                <h2 className="text-xl font-bold text-gray-800 mb-4">Detail Lokasi</h2>
+                <h2 className="text-xl font-bold text-gray-800 mb-4">
+                  Detail Lokasi
+                </h2>
                 <div className="mb-4">
                   <p className="text-sm text-gray-600">Koordinat:</p>
                   <p className="font-medium">
-                    Lat: {selectedLocation.latitude.toFixed(6)}, Lng: {selectedLocation.longitude.toFixed(6)}
+                    Lat: {selectedLocation.latitude.toFixed(6)}, Lng:{" "}
+                    {selectedLocation.longitude.toFixed(6)}
                   </p>
                 </div>
 
                 {/* Analisis Iklim */}
-                <ClimateScorePanel 
-                  climateScores={climateScores} 
-                  isLoading={loadingClimateScores} 
+                <ClimateScorePanel
+                  climateScores={climateScores}
+                  isLoading={loadingClimateScores}
                 />
 
                 {/* Formulir Developer */}
-                <DeveloperForm 
+                <DeveloperForm
                   onSubmit={handlePredictPrice}
                   isLoading={isPredicting}
                   error={predictionError}
+                  climateScores={climateScores}
                 />
               </div>
             ) : (
@@ -303,13 +334,18 @@ export default function DeveloperPage() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-medium text-gray-800 mb-2">Pilih Lokasi Bangunan</h3>
+                <h3 className="text-xl font-medium text-gray-800 mb-2">
+                  Pilih Lokasi Bangunan
+                </h3>
                 <p className="text-gray-600 text-center mb-3">
-                  Klik di mana saja pada peta untuk memilih lokasi untuk properti yang diusulkan.
+                  Klik di mana saja pada peta untuk memilih lokasi untuk
+                  properti yang diusulkan.
                 </p>
                 <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200">
                   <p className="text-sm text-yellow-700">
-                    Sistem akan secara otomatis menganalisis data iklim untuk lokasi yang dipilih, termasuk Suhu Permukaan Tanah, Indeks Vegetasi, efek Pulau Panas Perkotaan, dan Tekanan Panas.
+                    Sistem akan secara otomatis menganalisis data iklim untuk
+                    lokasi yang dipilih, termasuk Suhu Permukaan Tanah, Indeks
+                    Vegetasi, efek Pulau Panas Perkotaan, dan Tekanan Panas.
                   </p>
                 </div>
               </div>

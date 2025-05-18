@@ -28,7 +28,7 @@ const Description = () => {
             transition={{ duration: 0.8 }}
             className="text-4xl md:text-5xl font-bold text-center text-gray-800 mb-16"
           >
-            Welcome to <span className="text-blue-600">Smart Property</span>
+            Welcome to <span className="text-blue-600">SmartProperty</span>
           </motion.h2>
 
           <div className="flex flex-col md:flex-row items-center gap-20 p-8">

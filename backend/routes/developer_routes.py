@@ -366,58 +366,136 @@ def generate_climate_scores(lat, lng):
         "overall_score": round(overall_score)
     }
 
-def calculate_property_price(property_type : str, bedrooms : float, certificate : str,  land_price : float, land_area : float, city : str, district : str, climate_scores : dict[str,float]) -> float:
+def calculate_property_price(property_type: str, bedrooms: float, certificate: str, land_price: float, land_area: float, city: str, district: str, climate_scores: dict[str, float]) -> float:
     """
     Calculate property price based on input parameters.
-    
-    Args:
-        bedrooms (int): Number of bedrooms
-        land_area (float): Land area in m²
-        certificate (str): Certificate type
-        property_type (str): Property type
-        land_price_per_meter (float): Land price per m²
-        climate_scores (dict): Climate scores
-        
-    Returns:
-        tuple: (predicted_price, factors)
     """
-    def create_df():
-        # Dummy function to simulate data wrangling
-        # In a real scenario, this would involve more complex operations
-        cert = "Sertifikat Hak Milik" if certificate == "SHM - Sertifikat Hak Milik" else "Sertifikat Hak Guna Bangunan"
+    try:
+        def create_df():
+            # Dummy function to simulate data wrangling
+            # In a real scenario, this would involve more complex operations
+            cert = "Sertifikat Hak Milik" if certificate == "SHM - Sertifikat Hak Milik" else "Sertifikat Hak Guna Bangunan"
+            
+            dict_data = {
+                "TIPE": property_type,
+                "KAMAR": bedrooms,
+                "SERTIFIKAT": cert,
+                "HARGA TANAH": land_price,
+                "LUAS TANAH": land_area,
+                "KOTA": city.upper(),
+                "KEC": district.upper(),
+                "LST": climate_scores["lst_score"],
+                "NDVI": climate_scores["ndvi_score"],
+                "UHI": climate_scores["uhi_score"],
+                "UTFVI": climate_scores["utfvi_score"],
+                "Overall_Score": climate_scores["overall_score"]
+            }
+            df = pd.DataFrame([dict_data])
+            return df
+            
+        df_input = create_df()
         
-        dict_data = {
-            "TIPE": property_type,
-            "KAMAR": bedrooms,
-            "SERTIFIKAT": cert,
-            "HARGA TANAH": land_price,
-            "LUAS TANAH": land_area,
-            "KOTA": city.upper(),
-            "KEC": district.upper(),
-            "LST": climate_scores["lst_score"],
-            "NDVI": climate_scores["ndvi_score"],
-            "UHI": climate_scores["uhi_score"],
-            "UTFVI": climate_scores["utfvi_score"],
-            "Overall_Score": climate_scores["overall_score"]
-        }
-        df= pd.DataFrame([dict_data])
-
-        return df
-    df_input = create_df()
-    def preprocess(df):
-        df['KOTA'] = df['KOTA'].map({'KOTA BANDUNG':1, 'BANDUNG':0})
-        df['SERTIFIKAT'] = df['SERTIFIKAT'].map({
-            'Sertifikat Hak Milik':1,
-            'Sertifikat Hak Guna Bangunan':0
+        def preprocess(df):
+            df['KOTA'] = df['KOTA'].map({'KOTA BANDUNG': 1, 'KABUPATEN BANDUNG': 0})
+            df['SERTIFIKAT'] = df['SERTIFIKAT'].map({
+                'Sertifikat Hak Milik': 1,
+                'Sertifikat Hak Guna Bangunan': 0
             })
-        df['TIPE'] = df['TIPE'].map({'Rumah Baru':1, 'Rumah Seken':0})
-        return df
-    df_input = preprocess(df_input)
-    # Load the model
-    xgb_model = load('routes/model/best_xgb_pipeline.joblib')
+            df['TIPE'] = df['TIPE'].map({'Rumah Baru': 1, 'Rumah Seken': 0})
+            return df
+            
+        df_input = preprocess(df_input)
+        
+        # Try to load the model
+        try:
+            xgb_model = load('routes/model/best_xgb_pipeline.joblib')
+            predicted_price = xgb_model.predict(df_input)
+            return float(predicted_price[0])
+        except Exception as e:
+            print(f"Error loading model: {str(e)}")
+            print("Using fallback calculation method")
+            return calculate_property_price_fallback(
+                property_type, bedrooms, certificate, land_price, land_area, 
+                city, district, climate_scores
+            )
+    except Exception as e:
+        print(f"Error in price calculation: {str(e)}")
+        traceback.print_exc()
+        # Fallback to basic calculation if any error occurs
+        return calculate_property_price_fallback(
+            property_type, bedrooms, certificate, land_price, land_area, 
+            city, district, climate_scores
+        )
 
-    predicted_price = xgb_model.predict(df_input)
-    return float(predicted_price[0])
+def calculate_property_price_fallback(
+    property_type, bedrooms, certificate, land_price, land_area, 
+    city, district, climate_scores):
+    """
+    Fallback method for property price calculation when model loading fails
+    """
+    # Basic land value
+    land_value = land_area * land_price
+    
+    # Certificate multiplier
+    certificate_multiplier = 1.2 if "SHM" in certificate else 1.05
+    
+    # Property type multiplier
+    type_multiplier = 1.15 if property_type == "Rumah Baru" else 1.0
+    
+    # Bedroom multiplier
+    bedroom_multiplier = 1 + (bedrooms * 0.07)
+    
+    # City multiplier
+    city_multiplier = 1.1 if "KOTA BANDUNG" in city.upper() else 1.0
+    
+    # District premium
+    district_premium = 1.0
+    premium_districts = [
+        "CIBEUNYING KALER", "COBLONG", "CIDADAP", "SUKASARI", 
+        "BANDUNG WETAN", "SUMUR BANDUNG"
+    ]
+    mid_tier_districts = [
+        "ANTAPANI", "ARCAMANIK", "BUAHBATU", "CIBEUNYING KIDUL",
+        "SUKAJADI", "LENGKONG", "REGOL"
+    ]
+    
+    if district.upper() in premium_districts:
+        district_premium = 1.25
+    elif district.upper() in mid_tier_districts:
+        district_premium = 1.15
+    
+    # Climate multiplier
+    overall_score = climate_scores.get("overall_score", 70)
+    lst_score = climate_scores.get("lst_score", 70)
+    ndvi_score = climate_scores.get("ndvi_score", 70)
+    
+    # Climate factors have different influences
+    climate_multiplier = 1.0 + (((overall_score - 50) / 100) * 0.15)
+    
+    # Vegetation bonus - slight additional premium for properties with good vegetation
+    if ndvi_score > 75:
+        climate_multiplier += 0.03
+    
+    # Calculate final price
+    predicted_price = (
+        land_value * 
+        certificate_multiplier * 
+        type_multiplier * 
+        bedroom_multiplier * 
+        city_multiplier *
+        district_premium *
+        climate_multiplier
+    )
+    
+    # Add regional price floor based on district
+    if district.upper() in premium_districts:
+        price_floor = 1500000000  # 1.5B minimum for premium districts
+        predicted_price = max(predicted_price, price_floor)
+    
+    # Round to nearest 10 million
+    predicted_price = round(predicted_price / 10000000) * 10000000
+    
+    return predicted_price
 
 
 if __name__ == "__main__":

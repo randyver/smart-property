@@ -11,28 +11,28 @@ const teamMembers = [
     name: "Emery Fathan Zwageri",
     institution: "Institut Teknologi Bandung",
     role: "AI Engineer",
-    photo: "/profile.png", // Replace with actual photo path
+    photo: "/emery.jpg", // Replace with actual photo path
     linkedin: "https://www.linkedin.com/in/emery-fathan-zwageri",
   },
   {
     name: "Randy Verdian",
     institution: "Institut Teknologi Bandung",
     role: "Fullstack Developer",
-    photo: "/profile.png", // Replace with actual photo path
+    photo: "/randy.jpg", // Replace with actual photo path
     linkedin: "https://www.linkedin.com/in/randy-verdian",
   },
   {
     name: "Hega Fauzia Avilah",
     institution: "Universitas Indonesia",
     role: "Spatial Data Analyst",
-    photo: "/profile.png", // Replace with actual photo path
+    photo: "/veela.jpg", // Replace with actual photo path
     linkedin: "https://www.linkedin.com/in/hega-fauzia-avilah-402590258",
   },
   {
     name: "Moch Kahfi Tri Agfria S.",
     institution: "Universitas Indonesia",
     role: "Spatial Data Analyst",
-    photo: "/profile.png", // Replace with actual photo path
+    photo: "/kahfi.jpg", // Replace with actual photo path
     linkedin:
       "https://www.linkedin.com/in/moch-kahfi-tri-agfria-sumitra-26a223247",
   },
@@ -49,16 +49,6 @@ const aboutContent = {
   approach:
     "Dengan menggunakan Sistem Informasi Geografis (GIS) tingkat lanjut, kami menganalisis berbagai parameter lingkungan untuk menghasilkan penilaian risiko iklim yang komprehensif bagi properti.",
 };
-
-// Technology stack information
-const techStack = [
-  { name: "React & Next.js", category: "Frontend" },
-  { name: "Flask", category: "Backend" },
-  { name: "Geodata Mapid & Landsat", category: "Data Source" },
-  { name: "MAPID MAPS", category: "Base Maps" },
-  { name: "Tailwind CSS", category: "Styling" },
-  { name: "ArcGIS Pro", category: "Spatial Analysis" },
-];
 
 export default function AboutUs() {
   const [selectedMember, setSelectedMember] = useState(null);
@@ -142,7 +132,7 @@ export default function AboutUs() {
       </section>
 
       {/* Team Section */}
-      <section className="bg-blue-50 py-16">
+      <section className="bg-blue-50 py-16 min-h-screen flex justify-center items-center">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -218,42 +208,6 @@ export default function AboutUs() {
               </motion.div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Technology Stack */}
-      <section className="container mx-auto px-4 py-16">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center max-w-3xl mx-auto mb-12"
-        >
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">
-            Teknologi Kami
-          </h2>
-          <p className="text-gray-600">
-            SmartProperty memanfaatkan teknologi mutakhir untuk memberikan
-            penilaian risiko iklim yang akurat dan wawasan properti yang
-            mendalam.
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {techStack.map((tech, index) => (
-            <motion.div
-              key={tech.name}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.05 * index }}
-              className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-all"
-            >
-              <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">
-                {tech.category}
-              </span>
-              <h3 className="mt-1 font-medium text-gray-800">{tech.name}</h3>
-            </motion.div>
-          ))}
         </div>
       </section>
       <Footer />

@@ -4,7 +4,7 @@ import Navbar from '@/components/Navbar'
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://elninolanina.mapid.co.id'),
-  title: 'SmartProperty - Climate-Safe Property Analysis',
+  title: 'SmartProperty',
   description: 'Find climate-safe properties with advanced GIS analysis. Compare environmental factors, evaluate climate risks, and make informed real estate decisions.',
   keywords: 'smart property, climate-safe, real estate, GIS, property analysis, flood risk, climate change, sustainable housing, land surface temperature, urban heat island, NDVI',
   authors: [
@@ -17,7 +17,7 @@ export const metadata = {
     type: 'website',
     locale: 'id_ID',
     url: '/',
-    title: 'SmartProperty - Climate-Safe Property Analysis',
+    title: 'SmartProperty',
     description: 'Find climate-safe properties with advanced GIS analysis and make informed real estate decisions.',
     siteName: 'SmartProperty'
   }

@@ -151,7 +151,6 @@ export const developerAPI = {
     message: string;
     status: string;
     predicted_price: number;
-    confidence: number;
     factors: Record<string, number>;
   }>('/api/developer/predict-price', {
     method: 'POST',

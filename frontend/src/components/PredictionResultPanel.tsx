@@ -33,7 +33,7 @@ export default function PredictionResultPanel({ prediction, predictionFactors }:
   const generateAIRecommendation = async () => {
     setIsLoadingAI(true);
     setAiError(null);
-
+    console.log("climate impact: ", predictionFactors.climateImpact)
     try {
       // Configuration for OpenRouter API
       const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
@@ -42,11 +42,11 @@ export default function PredictionResultPanel({ prediction, predictionFactors }:
       // Create a detailed prompt based on the prediction data
       const propertyDetails = `
         Harga Properti yang Diprediksi: ${formatPrice(prediction)}
-        Nilai Tanah Dasar: ${formatPrice(predictionFactors.basePrice)}
-        Dampak Sertifikat: ${predictionFactors.certificateImpact > 0 ? "+" : ""}${predictionFactors.certificateImpact.toFixed(1)}%
-        Dampak Jenis Properti: ${predictionFactors.propertyTypeImpact > 0 ? "+" : ""}${predictionFactors.propertyTypeImpact.toFixed(1)}%
-        Dampak Kamar Tidur: ${predictionFactors.bedroomsImpact > 0 ? "+" : ""}${predictionFactors.bedroomsImpact.toFixed(1)}%
-        Dampak Skor Iklim: ${predictionFactors.climateImpact > 0 ? "+" : ""}${predictionFactors.climateImpact.toFixed(1)}%
+        Harga Tanah per meter: ${formatPrice(predictionFactors.basePrice)}
+        Sertifikat: ${predictionFactors.certificateImpact}
+        Jenis Properti: ${predictionFactors.propertyTypeImpact }
+        Kamar Tidur: ${predictionFactors.bedroomsImpact }
+        Skor Iklim: ${predictionFactors.climateImpact }
       `;
 
       // Prepare the system message

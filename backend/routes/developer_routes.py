@@ -6,7 +6,7 @@ import numpy as np
 import math
 import random
 import traceback
-
+from joblib import load
 developer_bp = Blueprint('developer', __name__)
 
 # Cache for GeoJSON data to avoid repeated file reads
@@ -75,12 +75,13 @@ def predict_property_price():
             }), 400
             
         # Extract property details
-        bedrooms = int(data['bedrooms'])
+        bedrooms = float(data['bedrooms'])
         land_area = float(data['landArea'])
         certificate = data['certificate']
         property_type = data['propertyType']
         land_price_per_meter = float(data['landPricePerMeter'])
-        
+        city = data['city']
+        district  = data['district']
         # Get climate scores, either from request or calculate them
         climate_scores = data.get('climateScores')
         if not climate_scores:
@@ -100,20 +101,30 @@ def predict_property_price():
                 )
         
         # Calculate property price based on all factors
-        predicted_price, factors = calculate_property_price(
-            bedrooms=bedrooms,
-            land_area=land_area,
-            certificate=certificate,
+        predicted_price= calculate_property_price(
             property_type=property_type,
-            land_price_per_meter=land_price_per_meter,
+            bedrooms=bedrooms,
+            certificate=certificate,
+            land_price=land_price_per_meter,
+            land_area=land_area,
+            city=city,
+            district=district,
             climate_scores=climate_scores
         )
         
         return jsonify({
             "status": "success",
             "predicted_price": predicted_price,
-            "confidence": 0.85,  # Mock confidence level
-            "factors": factors
+            "factors": {
+                "predictedPrice" : predicted_price,
+                "propertyType": property_type,
+                "bedrooms": bedrooms,
+                "land_area": land_area,
+                "certificate": certificate,
+                "landPricePerMeter": land_price_per_meter,
+                "climateScores": climate_scores,
+                
+            }
         })
         
     except Exception as e:
@@ -355,7 +366,7 @@ def generate_climate_scores(lat, lng):
         "overall_score": round(overall_score)
     }
 
-def calculate_property_price(bedrooms, land_area, certificate, property_type, land_price_per_meter, climate_scores):
+def calculate_property_price(property_type : str, bedrooms : float, certificate : str,  land_price : float, land_area : float, city : str, district : str, climate_scores : dict[str,float]) -> float:
     """
     Calculate property price based on input parameters.
     
@@ -370,63 +381,60 @@ def calculate_property_price(bedrooms, land_area, certificate, property_type, la
     Returns:
         tuple: (predicted_price, factors)
     """
-    # Basic land value
-    land_value = land_area * land_price_per_meter
-    
-    # Certificate multiplier
-    certificate_multiplier = 1.0
-    if certificate == "SHM - Sertifikat Hak Milik":
-        certificate_multiplier = 1.2
-    elif certificate == "HGB - Hak Guna Bangunan":
-        certificate_multiplier = 1.1
-    elif "SHM" in certificate:
-        certificate_multiplier = 1.15
-    elif "HGB" in certificate:
-        certificate_multiplier = 1.05
-    
-    # Property type multiplier
-    type_multiplier = 1.0
-    if "MEWAH" in property_type.upper() or "LUXURY" in property_type.upper():
-        type_multiplier = 1.5
-    elif "VILLA" in property_type.upper():
-        type_multiplier = 1.4
-    elif "TOWN" in property_type.upper():
-        type_multiplier = 1.3
-    elif "BARU" in property_type.upper() or "NEW" in property_type.upper():
-        type_multiplier = 1.2
-    
-    # Bedroom multiplier
-    bedroom_multiplier = 1 + (bedrooms * 0.1)
-    
-    # Climate score multiplier
-    # Higher climate scores increase property value
-    overall_score = climate_scores.get("overall_score", 50)
-    climate_multiplier = 1 + ((overall_score - 50) / 100)
-    
-    # Calculate final price
-    predicted_price = (
-        land_value * 
-        certificate_multiplier * 
-        type_multiplier * 
-        bedroom_multiplier * 
-        climate_multiplier
+    def create_df():
+        # Dummy function to simulate data wrangling
+        # In a real scenario, this would involve more complex operations
+        cert = "Sertifikat Hak Milik" if certificate == "SHM - Sertifikat Hak Milik" else "Sertifikat Hak Guna Bangunan"
+        
+        dict_data = {
+            "TIPE": property_type,
+            "KAMAR": bedrooms,
+            "SERTIFIKAT": cert,
+            "HARGA TANAH": land_price,
+            "LUAS TANAH": land_area,
+            "KOTA": city.upper(),
+            "KEC": district.upper(),
+            "LST": climate_scores["lst_score"],
+            "NDVI": climate_scores["ndvi_score"],
+            "UHI": climate_scores["uhi_score"],
+            "UTFVI": climate_scores["utfvi_score"],
+            "Overall_Score": climate_scores["overall_score"]
+        }
+        df= pd.DataFrame([dict_data])
+
+        return df
+    df_input = create_df()
+    def preprocess(df):
+        df['KOTA'] = df['KOTA'].map({'KOTA BANDUNG':1, 'BANDUNG':0})
+        df['SERTIFIKAT'] = df['SERTIFIKAT'].map({
+            'Sertifikat Hak Milik':1,
+            'Sertifikat Hak Guna Bangunan':0
+            })
+        df['TIPE'] = df['TIPE'].map({'Rumah Baru':1, 'Rumah Seken':0})
+        return df
+    df_input = preprocess(df_input)
+    # Load the model
+    xgb_model = load('routes/model/best_xgb_pipeline.joblib')
+
+    predicted_price = xgb_model.predict(df_input)
+    return float(predicted_price[0])
+
+
+if __name__ == "__main__":
+    predicted_price = calculate_property_price(
+        property_type="Rumah Baru",
+        bedrooms=2,
+        certificate="SHM - Sertifikat Hak Milik",
+        land_price=14100000,
+        land_area=100,
+        city="Bandung",
+        district="Bojongsoang",
+        climate_scores={
+            "lst_score": 70,
+            "ndvi_score":70,
+            "uhi_score": 70,
+            "utfvi_score":70,
+            "overall_score": 70
+        }
     )
-    
-    # Add some random variation (±5%)
-    random.seed(int(land_area) + bedrooms + int(land_price_per_meter))
-    random_factor = 1 + ((random.random() * 10) - 5) / 100
-    predicted_price *= random_factor
-    
-    # Round to nearest 10 million
-    predicted_price = round(predicted_price / 10000000) * 10000000
-    
-    # Create factors dictionary to explain the prediction
-    factors = {
-        "basePrice": land_value,
-        "certificateImpact": (certificate_multiplier - 1) * 100,
-        "propertyTypeImpact": (type_multiplier - 1) * 100,
-        "bedroomsImpact": (bedroom_multiplier - 1) * 100,
-        "climateImpact": (climate_multiplier - 1) * 100
-    }
-    
-    return predicted_price, factors
+    print(f"Predicted price: {predicted_price}")

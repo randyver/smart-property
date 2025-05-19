@@ -16,22 +16,26 @@ export default function AnalyticsPage() {
   const [bedroomDistribution, setBedroomDistribution] = useState<any[]>([]);
   const [distributionData, setDistributionData] = useState<any>(null);
   const [climateImpactData, setClimateImpactData] = useState<any[]>([]);
-  const [activeClimateMetric, setActiveClimateMetric] = useState<string>("overall_score");
+  const [activeClimateMetric, setActiveClimateMetric] =
+    useState<string>("overall_score");
   const [activeTab, setActiveTab] = useState<string>("price");
 
   // New state variables for the additional analytics data
   const [landPriceDistribution, setLandPriceDistribution] = useState<any[]>([]);
-  const [certificateDistribution, setCertificateDistribution] = useState<any[]>([]);
+  const [certificateDistribution, setCertificateDistribution] = useState<any[]>(
+    []
+  );
   const [priceVsClimate, setPriceVsClimate] = useState<any[]>([]);
   const [priceVsLandPrice, setPriceVsLandPrice] = useState<any[]>([]);
   const [priceVsLandArea, setPriceVsLandArea] = useState<any[]>([]);
   const [landPriceVsClimate, setLandPriceVsClimate] = useState<any[]>([]);
   const [priceByCertificate, setPriceByCertificate] = useState<any[]>([]);
   const [multiFactorAnalysis, setMultiFactorAnalysis] = useState<any[]>([]);
-  
+
   // Active subtabs for each main tab
   const [priceSubtab, setPriceSubtab] = useState<string>("distribution");
-  const [relationshipSubtab, setRelationshipSubtab] = useState<string>("priceVsClimate");
+  const [relationshipSubtab, setRelationshipSubtab] =
+    useState<string>("priceVsClimate");
 
   // Map for climate metric labels
   const climateMetricLabels: Record<string, string> = {
@@ -40,7 +44,7 @@ export default function AnalyticsPage() {
     ndvi_score: "Indeks Vegetasi (NDVI)",
     utfvi_score: "Indeks Variansi Termal Perkotaan (UTFVI)",
     uhi_score: "Pulau Panas Perkotaan (UHI)",
-  };  
+  };
 
   // Fetch analytics data
   useEffect(() => {
@@ -61,7 +65,8 @@ export default function AnalyticsPage() {
         setClimateByDistrict(climateResponse.data);
 
         // Fetch property distribution
-        const distributionResponse = await analyticsAPI.getPropertyDistribution();
+        const distributionResponse =
+          await analyticsAPI.getPropertyDistribution();
         setDistributionData(distributionResponse.data);
 
         // Fetch bedroom distribution
@@ -75,61 +80,92 @@ export default function AnalyticsPage() {
         // NEW DATA FETCHES
 
         // Fetch land price distribution
-        const landPriceResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/land-price-distribution`);
+        const landPriceResponse = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+          }/api/analytics/land-price-distribution`
+        );
         const landPriceData = await landPriceResponse.json();
         if (landPriceData.status === "success") {
           setLandPriceDistribution(landPriceData.data);
         }
 
         // Fetch certificate distribution
-        const certificateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/certificate-distribution`);
+        const certificateResponse = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+          }/api/analytics/certificate-distribution`
+        );
         const certificateData = await certificateResponse.json();
         if (certificateData.status === "success") {
           setCertificateDistribution(certificateData.data);
         }
 
         // Fetch price by certificate
-        const priceByCertResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/price-by-certificate`);
+        const priceByCertResponse = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+          }/api/analytics/price-by-certificate`
+        );
         const priceByCertData = await priceByCertResponse.json();
         if (priceByCertData.status === "success") {
           setPriceByCertificate(priceByCertData.data);
         }
 
         // Fetch price vs climate data
-        const priceVsClimateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/price-vs-climate`);
+        const priceVsClimateResponse = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+          }/api/analytics/price-vs-climate`
+        );
         const priceVsClimateData = await priceVsClimateResponse.json();
         if (priceVsClimateData.status === "success") {
           setPriceVsClimate(priceVsClimateData.data);
         }
 
         // Fetch price vs land price data
-        const priceVsLandPriceResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/price-vs-land-price`);
+        const priceVsLandPriceResponse = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+          }/api/analytics/price-vs-land-price`
+        );
         const priceVsLandPriceData = await priceVsLandPriceResponse.json();
         if (priceVsLandPriceData.status === "success") {
           setPriceVsLandPrice(priceVsLandPriceData.data);
         }
 
         // Fetch price vs land area data
-        const priceVsLandAreaResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/price-vs-land-area`);
+        const priceVsLandAreaResponse = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+          }/api/analytics/price-vs-land-area`
+        );
         const priceVsLandAreaData = await priceVsLandAreaResponse.json();
         if (priceVsLandAreaData.status === "success") {
           setPriceVsLandArea(priceVsLandAreaData.data);
         }
 
         // Fetch land price vs climate data
-        const landPriceVsClimateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/land-price-vs-climate`);
+        const landPriceVsClimateResponse = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+          }/api/analytics/land-price-vs-climate`
+        );
         const landPriceVsClimateData = await landPriceVsClimateResponse.json();
         if (landPriceVsClimateData.status === "success") {
           setLandPriceVsClimate(landPriceVsClimateData.data);
         }
 
         // Fetch multi-factor analysis data
-        const multiFactorResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/multi-factor-analysis`);
+        const multiFactorResponse = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+          }/api/analytics/multi-factor-analysis`
+        );
         const multiFactorData = await multiFactorResponse.json();
         if (multiFactorData.status === "success") {
           setMultiFactorAnalysis(multiFactorData.data);
         }
-
       } catch (err) {
         setError("Failed to load analytics data. Please refresh the page.");
         console.error(err);
@@ -181,10 +217,10 @@ export default function AnalyticsPage() {
   // Format price by certificate data
   const getPriceByCertificateData = () => {
     if (!priceByCertificate) return [];
-    return priceByCertificate.map(item => ({
+    return priceByCertificate.map((item) => ({
       certificate: item.certificate,
       average_price: item.average_price,
-      property_count: item.property_count
+      property_count: item.property_count,
     }));
   };
 
@@ -234,36 +270,40 @@ export default function AnalyticsPage() {
   // Format data for the relationship charts
   const formatScatterData = (data: any[], xKey: string, yKey: string) => {
     if (!data || data.length === 0) return [];
-    
+
     // Only take a representative sample for scatter plots (max 100 points)
     const sampleSize = Math.min(data.length, 100);
     const step = Math.max(1, Math.floor(data.length / sampleSize));
-    
+
     const sampleData = [];
     for (let i = 0; i < data.length; i += step) {
-      if (data[i] && data[i][xKey] !== undefined && data[i][yKey] !== undefined) {
+      if (
+        data[i] &&
+        data[i][xKey] !== undefined &&
+        data[i][yKey] !== undefined
+      ) {
         sampleData.push({
           x: data[i][xKey],
           y: data[i][yKey],
-          district: data[i].district || 'Unknown'
+          district: data[i].district || "Unknown",
         });
       }
     }
-    
+
     return sampleData;
   };
 
   // Format multi-factor analysis data
   const getMultiFactorData = () => {
     if (!multiFactorAnalysis || multiFactorAnalysis.length === 0) return [];
-    
-    return multiFactorAnalysis.map(item => ({
+
+    return multiFactorAnalysis.map((item) => ({
       district: item.district,
       avg_price: item.avg_price,
       avg_climate_score: item.avg_climate_score,
       avg_land_price: item.avg_land_price,
       avg_land_area: item.avg_land_area,
-      property_count: item.property_count
+      property_count: item.property_count,
     }));
   };
 
@@ -344,25 +384,25 @@ export default function AnalyticsPage() {
                 <TabsList className="mb-4 bg-transparent border-b border-gray-200 w-full justify-start space-x-4 rounded-none p-0">
                   <TabsTrigger
                     value="price"
-                    className="px-4 py-2 rounded-t-md data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:text-blue-600 data-[state=active]:shadow-none"
+                    className="px-2 py-2 rounded-t-md data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:text-blue-600 data-[state=active]:shadow-none"
                   >
                     Analisis Harga
                   </TabsTrigger>
                   <TabsTrigger
                     value="climate"
-                    className="px-4 py-2 rounded-t-md data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:text-blue-600 data-[state=active]:shadow-none"
+                    className="px-2 py-2 rounded-t-md data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:text-blue-600 data-[state=active]:shadow-none"
                   >
                     Analisis Iklim
                   </TabsTrigger>
                   <TabsTrigger
                     value="property"
-                    className="px-4 py-2 rounded-t-md data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:text-blue-600 data-[state=active]:shadow-none"
+                    className="px-2 py-2 rounded-t-md data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:text-blue-600 data-[state=active]:shadow-none"
                   >
                     Jenis Properti
                   </TabsTrigger>
                   <TabsTrigger
                     value="relationships"
-                    className="px-4 py-2 rounded-t-md data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:text-blue-600 data-[state=active]:shadow-none"
+                    className="px-2 py-2 rounded-t-md data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:text-blue-600 data-[state=active]:shadow-none"
                   >
                     Hubungan Variabel
                   </TabsTrigger>
@@ -374,7 +414,7 @@ export default function AnalyticsPage() {
                   <div className="mb-4 border-b border-gray-200">
                     <div className="flex space-x-4">
                       <button
-                        className={`px-4 py-2 text-sm font-medium ${
+                        className={`px-2 py-2 text-sm font-medium ${
                           priceSubtab === "distribution"
                             ? "border-b-2 border-blue-600 text-blue-600"
                             : "text-gray-500 hover:text-gray-700"
@@ -384,7 +424,7 @@ export default function AnalyticsPage() {
                         Distribusi Harga Properti
                       </button>
                       <button
-                        className={`px-4 py-2 text-sm font-medium ${
+                        className={`px-2 py-2 text-sm font-medium ${
                           priceSubtab === "landDistribution"
                             ? "border-b-2 border-blue-600 text-blue-600"
                             : "text-gray-500 hover:text-gray-700"
@@ -394,7 +434,7 @@ export default function AnalyticsPage() {
                         Distribusi Harga Tanah
                       </button>
                       <button
-                        className={`px-4 py-2 text-sm font-medium ${
+                        className={`px-2 py-2 text-sm font-medium ${
                           priceSubtab === "certificates"
                             ? "border-b-2 border-blue-600 text-blue-600"
                             : "text-gray-500 hover:text-gray-700"
@@ -420,6 +460,8 @@ export default function AnalyticsPage() {
                           height={400}
                           currency={true}
                           sorting="desc"
+                          xAxisLabel="Kecamatan"
+                          yAxisLabel="Harga (Rp)"
                         />
                       )}
 
@@ -477,6 +519,8 @@ export default function AnalyticsPage() {
                           height={400}
                           currency={true}
                           sorting="desc"
+                          xAxisLabel="Kecamatan"
+                          yAxisLabel="Harga per m² (Rp)"
                         />
                       )}
                     </div>
@@ -515,6 +559,8 @@ export default function AnalyticsPage() {
                           currency={true}
                           colors={["#10B981"]}
                           dataKey="Harga Rata-rata"
+                          xAxisLabel="Jenis Sertifikat"
+                          yAxisLabel="Harga Rata-rata (Rp)"
                         />
                       )}
                     </div>
@@ -531,6 +577,8 @@ export default function AnalyticsPage() {
                         height={350}
                         colors={["#3B82F6"]}
                         dataKey="Jumlah Properti"
+                        xAxisLabel="Jumlah Kamar Tidur"
+                        yAxisLabel="Jumlah Properti"
                       />
                     )}
 
@@ -592,6 +640,8 @@ export default function AnalyticsPage() {
                         height={400}
                         colors={["#10B981"]}
                         dataKey="Skor Iklim"
+                        xAxisLabel="Kecamatan"
+                        yAxisLabel="Skor"
                       />
                     )}
 
@@ -607,6 +657,8 @@ export default function AnalyticsPage() {
                           percentage={true}
                           colors={["#3B82F6"]}
                           dataKey="Dampak ke Harga"
+                          xAxisLabel="Rentang Skor"
+                          yAxisLabel="Dampak ke Harga (%)"
                         />
                       )}
 
@@ -622,6 +674,8 @@ export default function AnalyticsPage() {
                           percentage={true}
                           colors={["#EF4444"]}
                           dataKey="Dampak ke Harga"
+                          xAxisLabel="Rentang Skor"
+                          yAxisLabel="Dampak ke Harga (%)"
                         />
                       )}
 
@@ -637,6 +691,8 @@ export default function AnalyticsPage() {
                           percentage={true}
                           colors={["#10B981"]}
                           dataKey="Dampak ke Harga"
+                          xAxisLabel="Rentang Skor"
+                          yAxisLabel="Dampak ke Harga (%)"
                         />
                       )}
 
@@ -652,6 +708,8 @@ export default function AnalyticsPage() {
                           percentage={true}
                           colors={["#F59E0B"]}
                           dataKey="Dampak ke Harga"
+                          xAxisLabel="Rentang Skor"
+                          yAxisLabel="Dampak ke Harga (%)"
                         />
                       )}
 
@@ -667,6 +725,8 @@ export default function AnalyticsPage() {
                           percentage={true}
                           colors={["#8B5CF6"]}
                           dataKey="Dampak ke Harga"
+                          xAxisLabel="Rentang Skor"
+                          yAxisLabel="Dampak ke Harga (%)"
                         />
                       )}
                   </div>
@@ -688,6 +748,8 @@ export default function AnalyticsPage() {
                         height={400}
                         stacked={false}
                         dataKey="Nilai"
+                        xAxisLabel="Kecamatan"
+                        yAxisLabel="Nilai"
                       />
                     )}
                   </div>
@@ -831,7 +893,9 @@ export default function AnalyticsPage() {
                             ? "border-b-2 border-blue-600 text-blue-600"
                             : "text-gray-500 hover:text-gray-700"
                         }`}
-                        onClick={() => setRelationshipSubtab("priceVsLandPrice")}
+                        onClick={() =>
+                          setRelationshipSubtab("priceVsLandPrice")
+                        }
                       >
                         Harga Properti vs Harga Tanah
                       </button>
@@ -851,7 +915,9 @@ export default function AnalyticsPage() {
                             ? "border-b-2 border-blue-600 text-blue-600"
                             : "text-gray-500 hover:text-gray-700"
                         }`}
-                        onClick={() => setRelationshipSubtab("landPriceVsClimate")}
+                        onClick={() =>
+                          setRelationshipSubtab("landPriceVsClimate")
+                        }
                       >
                         Harga Tanah vs Skor Iklim
                       </button>
@@ -861,7 +927,9 @@ export default function AnalyticsPage() {
                             ? "border-b-2 border-blue-600 text-blue-600"
                             : "text-gray-500 hover:text-gray-700"
                         }`}
-                        onClick={() => setRelationshipSubtab("multiFactorAnalysis")}
+                        onClick={() =>
+                          setRelationshipSubtab("multiFactorAnalysis")
+                        }
                       >
                         Analisis Multi-Faktor
                       </button>
@@ -879,7 +947,11 @@ export default function AnalyticsPage() {
                           <div className="h-80">
                             <AnalyticsChart
                               type="line"
-                              data={formatScatterData(priceVsClimate, "climate_score", "price")}
+                              data={formatScatterData(
+                                priceVsClimate,
+                                "climate_score",
+                                "price"
+                              )}
                               xKey="x"
                               yKey="y"
                               title=""
@@ -887,6 +959,15 @@ export default function AnalyticsPage() {
                               height={300}
                               currency={true}
                               colors={["#3B82F6"]}
+                              xAxisLabel="Skor Iklim"
+                              yAxisLabel="Harga Properti (Rp)"
+                              binData={true}
+                              numBins={8}
+                              legend={{
+                                verticalAlign: "top",
+                                align: "right",
+                                wrapperStyle: { fontSize: 12, paddingTop: 0 },
+                              }}
                             />
                           </div>
                         </div>
@@ -905,7 +986,11 @@ export default function AnalyticsPage() {
                           <div className="h-80">
                             <AnalyticsChart
                               type="line"
-                              data={formatScatterData(priceVsLandPrice, "land_price", "property_price")}
+                              data={formatScatterData(
+                                priceVsLandPrice,
+                                "land_price",
+                                "property_price"
+                              )}
                               xKey="x"
                               yKey="y"
                               title=""
@@ -913,6 +998,15 @@ export default function AnalyticsPage() {
                               height={300}
                               currency={true}
                               colors={["#10B981"]}
+                              xAxisLabel="Harga Tanah per m² (Rp)"
+                              yAxisLabel="Harga Properti (Rp)"
+                              binData={true}
+                              numBins={8}
+                              legend={{
+                                verticalAlign: "top",
+                                align: "right",
+                                wrapperStyle: { fontSize: 12, paddingTop: 0 },
+                              }}
                             />
                           </div>
                         </div>
@@ -931,7 +1025,11 @@ export default function AnalyticsPage() {
                           <div className="h-80">
                             <AnalyticsChart
                               type="line"
-                              data={formatScatterData(priceVsLandArea, "land_area", "property_price")}
+                              data={formatScatterData(
+                                priceVsLandArea,
+                                "land_area",
+                                "property_price"
+                              )}
                               xKey="x"
                               yKey="y"
                               title=""
@@ -939,6 +1037,15 @@ export default function AnalyticsPage() {
                               height={300}
                               currency={true}
                               colors={["#F59E0B"]}
+                              xAxisLabel="Luas Tanah (m²)"
+                              yAxisLabel="Harga Properti (Rp)"
+                              binData={true}
+                              numBins={8}
+                              legend={{
+                                verticalAlign: "top",
+                                align: "right",
+                                wrapperStyle: { fontSize: 12, paddingTop: 0 },
+                              }}
                             />
                           </div>
                         </div>
@@ -957,7 +1064,11 @@ export default function AnalyticsPage() {
                           <div className="h-80">
                             <AnalyticsChart
                               type="line"
-                              data={formatScatterData(landPriceVsClimate, "climate_score", "land_price")}
+                              data={formatScatterData(
+                                landPriceVsClimate,
+                                "climate_score",
+                                "land_price"
+                              )}
                               xKey="x"
                               yKey="y"
                               title=""
@@ -965,6 +1076,15 @@ export default function AnalyticsPage() {
                               height={300}
                               currency={true}
                               colors={["#8B5CF6"]}
+                              xAxisLabel="Skor Iklim"
+                              yAxisLabel="Harga Tanah per m² (Rp)"
+                              binData={true}
+                              numBins={8}
+                              legend={{
+                                verticalAlign: "top",
+                                align: "right",
+                                wrapperStyle: { fontSize: 12, paddingTop: 0 },
+                              }}
                             />
                           </div>
                         </div>
@@ -984,22 +1104,40 @@ export default function AnalyticsPage() {
                             <table className="min-w-full divide-y divide-gray-200">
                               <thead className="bg-gray-50">
                                 <tr>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  <th
+                                    scope="col"
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  >
                                     Kecamatan
                                   </th>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  <th
+                                    scope="col"
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  >
                                     Harga Rata-rata
                                   </th>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  <th
+                                    scope="col"
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  >
                                     Harga Tanah/m²
                                   </th>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  <th
+                                    scope="col"
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  >
                                     Luas Tanah Rata-rata
                                   </th>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  <th
+                                    scope="col"
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  >
                                     Skor Iklim
                                   </th>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  <th
+                                    scope="col"
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  >
                                     Jumlah Properti
                                   </th>
                                 </tr>
@@ -1009,15 +1147,27 @@ export default function AnalyticsPage() {
                                   .sort((a, b) => b.avg_price - a.avg_price)
                                   .slice(0, 10)
                                   .map((item, index) => (
-                                    <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                    <tr
+                                      key={index}
+                                      className={
+                                        index % 2 === 0
+                                          ? "bg-white"
+                                          : "bg-gray-50"
+                                      }
+                                    >
                                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                         {item.district}
                                       </td>
                                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {formatter.formatCurrency(item.avg_price)}
+                                        {formatter.formatCurrency(
+                                          item.avg_price
+                                        )}
                                       </td>
                                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {formatter.formatCurrency(item.avg_land_price)}/m²
+                                        {formatter.formatCurrency(
+                                          item.avg_land_price
+                                        )}
+                                        /m²
                                       </td>
                                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {Math.round(item.avg_land_area)} m²
@@ -1029,7 +1179,9 @@ export default function AnalyticsPage() {
                                               item.avg_climate_score
                                             )} mr-2`}
                                           ></div>
-                                          <span>{Math.round(item.avg_climate_score)}</span>
+                                          <span>
+                                            {Math.round(item.avg_climate_score)}
+                                          </span>
                                         </div>
                                       </td>
                                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -1050,7 +1202,7 @@ export default function AnalyticsPage() {
           )}
         </div>
       </div>
-    <Footer />
+      <Footer />
     </main>
   );
 }

@@ -26,9 +26,9 @@ const stats = [
   },
   {
     icon: Thermometer,
-    value: 4,
+    value: 8,
     symbol: "+",
-    label: "Parameter Iklim"
+    label: "Parameter Iklim & Tata Kota"
   },
 ];
 

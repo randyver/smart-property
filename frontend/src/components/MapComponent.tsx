@@ -6,7 +6,12 @@ import { Property } from "@/types";
 import { Layers } from "lucide-react";
 import { MapPin, Eye, EyeOff, Plus, Trash2, X } from "lucide-react";
 import Image from "next/image";
-import { rt } from "framer-motion/client";
+import { Info } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export type ClimateLayerType =
   | "lst"
@@ -257,6 +262,22 @@ const MapComponent = memo(
         ],
         image: "/foto-rtrw.jpg", // You'll need to create this image
       },
+    };
+
+    const layerExplanations = {
+      lst: "Suhu Permukaan Tanah (LST) menunjukkan seberapa panas permukaan tanah di area tersebut. Skor yang lebih tinggi menunjukkan suhu yang lebih sejuk dan nyaman untuk ditinggali.",
+      ndvi: "Indeks Vegetasi (NDVI) mengukur kepadatan tutupan hijau di area tersebut. Skor yang lebih tinggi menandakan lebih banyak pohon dan tanaman yang membantu menyerap panas dan memperbaiki kualitas udara.",
+      uhi: "Pulau Panas Perkotaan (UHI) mengukur seberapa panas suatu area dibandingkan dengan daerah sekitarnya karena pembangunan perkotaan. Skor yang lebih tinggi berarti area yang lebih sejuk dengan efek pulau panas yang minimal.",
+      utfvi:
+        "Indeks Variansi Termal Perkotaan (UTFVI) mengukur fluktuasi suhu di area perkotaan. Skor yang lebih tinggi menunjukkan kondisi suhu yang lebih stabil.",
+      landuse:
+        "Penggunaan Lahan menunjukkan bagaimana lahan digunakan di area tersebut, seperti daerah terbangun, vegetasi, badan air, atau lahan pertanian. Penting untuk memahami karakteristik lingkungan sekitar.",
+      ndbi: "Indeks Kerapatan Bangunan (NDBI) mengukur tingkat pembangunan di suatu area. Skor yang lebih rendah biasanya menunjukkan area yang lebih hijau dan kurang padat.",
+      jaringan_jalan:
+        "Jaringan Jalan menampilkan jalan utama dan sekunder di area tersebut, membantu Anda memahami aksesibilitas dan potensi kebisingan/polusi.",
+      kemiringan_lereng:
+        "Kemiringan Lereng menunjukkan tingkat kecuraman tanah. Area yang lebih datar (skor rendah) biasanya lebih aman dari risiko longsor dan lebih mudah untuk pembangunan.",
+      rtrw: "Ruang Tata Ruang Wilayah menunjukkan rencana penggunaan lahan resmi dari pemerintah, termasuk zona perumahan, komersial, ruang terbuka, dll. Penting untuk memastikan properti sesuai dengan perencanaan kota.",
     };
 
     // Initialize map
@@ -844,13 +865,49 @@ const MapComponent = memo(
           <div className="absolute top-32 right-4 bg-white rounded-xl shadow-md z-10 w-80 max-h-[400px] overflow-y-auto">
             <div className="flex justify-between items-center border-b pb-2 pt-2 px-3 sticky top-0 bg-white">
               <h3 className="text-sm font-bold text-gray-800">Map Layers</h3>
-              <button
-                onClick={toggleLayerPanel}
-                className="text-gray-500 hover:text-gray-700"
-                title="Close panel"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      className="p-1 rounded-full hover:bg-blue-50 text-blue-600"
+                      title="Informasi Layer"
+                    >
+                      <Info className="h-5 w-5" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72 p-4 text-sm" side="left">
+                    <h4 className="font-bold text-gray-800 mb-2">
+                      Penjelasan Layer Peta
+                    </h4>
+                    <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+                      {Object.entries(layerExplanations).map(
+                        ([key, explanation]) => (
+                          <div
+                            key={key}
+                            className="pb-2 border-b border-gray-100"
+                          >
+                            <p className="font-medium text-gray-800 mb-1">
+                              {key in layerConfig 
+                                ? layerConfig[key as keyof typeof layerConfig].name 
+                                : key}
+                            </p>
+                            <p className="text-gray-600 text-xs">
+                              {explanation}
+                            </p>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+                <button
+                  onClick={toggleLayerPanel}
+                  className="text-gray-500 hover:text-gray-700"
+                  title="Close panel"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
 
             <div className="mb-3 px-2 py-2 bg-yellow-50 text-amber-700 text-xs rounded border border-amber-200 mx-3 mt-2">

@@ -10,7 +10,7 @@ const teamMembers = [
   {
     name: "Emery Fathan Zwageri",
     institution: "Institut Teknologi Bandung",
-    role: "AI Engineer",
+    role: "Fullstack Data Scientist",
     photo: "/emery.jpg", // Replace with actual photo path
     linkedin: "https://www.linkedin.com/in/emery-fathan-zwageri",
   },

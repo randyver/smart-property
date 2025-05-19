@@ -460,8 +460,6 @@ export default function AnalyticsPage() {
                           height={400}
                           currency={true}
                           sorting="desc"
-                          xAxisLabel="Kecamatan"
-                          yAxisLabel="Harga (Rp)"
                         />
                       )}
 
@@ -519,8 +517,6 @@ export default function AnalyticsPage() {
                           height={400}
                           currency={true}
                           sorting="desc"
-                          xAxisLabel="Kecamatan"
-                          yAxisLabel="Harga per m² (Rp)"
                         />
                       )}
                     </div>
@@ -559,8 +555,6 @@ export default function AnalyticsPage() {
                           currency={true}
                           colors={["#10B981"]}
                           dataKey="Harga Rata-rata"
-                          xAxisLabel="Jenis Sertifikat"
-                          yAxisLabel="Harga Rata-rata (Rp)"
                         />
                       )}
                     </div>
@@ -577,8 +571,6 @@ export default function AnalyticsPage() {
                         height={350}
                         colors={["#3B82F6"]}
                         dataKey="Jumlah Properti"
-                        xAxisLabel="Jumlah Kamar Tidur"
-                        yAxisLabel="Jumlah Properti"
                       />
                     )}
 
@@ -640,8 +632,6 @@ export default function AnalyticsPage() {
                         height={400}
                         colors={["#10B981"]}
                         dataKey="Skor Iklim"
-                        xAxisLabel="Kecamatan"
-                        yAxisLabel="Skor"
                       />
                     )}
 
@@ -748,8 +738,6 @@ export default function AnalyticsPage() {
                         height={400}
                         stacked={false}
                         dataKey="Nilai"
-                        xAxisLabel="Kecamatan"
-                        yAxisLabel="Nilai"
                       />
                     )}
                   </div>

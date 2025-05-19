@@ -330,7 +330,7 @@ export default function AnalyticsChart({
                   value={yAxisLabel}
                   position="left"
                   angle={-90}
-                  offset={-10}
+                  offset={10}
                   style={{
                     textAnchor: "middle",
                     fontSize: "12px",
@@ -425,7 +425,7 @@ export default function AnalyticsChart({
             </YAxis>
             <Tooltip content={<CustomTooltip />} />
             {legend && (
-              <Legend wrapperStyle={{ fontSize: 12, paddingTop: 10, marginLeft: 40 }} />
+              <Legend wrapperStyle={{ fontSize: 12, paddingTop: 10 }} />
             )}
             {yKeys.map((key, i) => (
               <Bar
@@ -497,7 +497,7 @@ export default function AnalyticsChart({
             </YAxis>
             <Tooltip content={<CustomTooltip />} />
             {legend && (
-              <Legend wrapperStyle={{ fontSize: 12, paddingTop: 10, marginLeft: 40 }} />
+              <Legend wrapperStyle={{ fontSize: 12, paddingTop: 10 }} />
             )}
             {yKeys.map((key, i) => (
               <Bar

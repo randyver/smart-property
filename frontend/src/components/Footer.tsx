@@ -25,6 +25,7 @@ const Footer = () => {
               <li><Link href="/maps" className="text-gray-400 hover:text-smartproperty">Peta</Link></li>
               <li><Link href="/analytics" className="text-gray-400 hover:text-smartproperty">Analitik</Link></li>
               <li><Link href="/developer" className="text-gray-400 hover:text-smartproperty">Pengembangan Properti</Link></li>
+              <li><Link href="/game" className="text-gray-400 hover:text-smartproperty">Game</Link></li>
               <li><Link href="/about-us" className="text-gray-400 hover:text-smartproperty">Tentang Kami</Link></li>
             </ul>
           </div>

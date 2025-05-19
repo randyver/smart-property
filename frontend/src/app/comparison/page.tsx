@@ -15,29 +15,43 @@ function ComparisonContent() {
   const [error, setError] = useState<string | null>(null);
 
   // Format risk level for display
-  const formatRiskLevel = (level: string | undefined | null): string => {
-    if (!level) return "Unknown";
-
-    return level
-      .replace(/_/g, " ") // Replace all underscores with spaces
-      .replace(/\b\w/g, (l) => l.toUpperCase()); // Capitalize first letter of each word
-  };
-
-  // Get color based on risk level
   const getRiskColor = (level: string): string => {
     const colors: { [key: string]: string } = {
-      very_low: "bg-green-500",
-      low: "bg-green-300",
-      medium: "bg-yellow-500",
-      high: "bg-red-500",
-      very_high: "bg-red-700",
-      excellent: "bg-green-500",
-      good: "bg-green-300",
-      moderate: "bg-yellow-500",
-      poor: "bg-red-500",
-      very_poor: "bg-red-700",
+      very_low: "bg-red-800",
+      low: "bg-red-600",
+      medium: "bg-yellow-600",
+      high: "bg-red-600",
+      very_high: "bg-red-800",
+      excellent: "bg-green-600",
+      good: "bg-green-500",
+      moderate: "bg-yellow-600",
+      poor: "bg-red-600",
+      very_poor: "bg-red-800",
     };
-    return colors[level] || "bg-gray-400";
+    return colors[level] || "bg-gray-500";
+  };
+
+  // Format risk level for display with Indonesian translations
+  const formatRiskLevel = (level: string | undefined | null): string => {
+    if (!level) return "Tidak Ada Data";
+
+    const translations: { [key: string]: string } = {
+      excellent: "Sangat Baik",
+      good: "Baik",
+      moderate: "Sedang",
+      poor: "Buruk",
+      very_poor: "Sangat Buruk",
+      very_low: "Sangat Rendah",
+      low: "Rendah",
+      medium: "Sedang",
+      high: "Tinggi",
+      very_high: "Sangat Tinggi",
+    };
+
+    return (
+      translations[level] ||
+      level.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())
+    );
   };
 
   // Format price to IDR
@@ -51,10 +65,10 @@ function ComparisonContent() {
 
   const getScoreColor = (score: number | null | undefined): string => {
     if (score == null) return "bg-gray-400";
-    if (score >= 80) return "bg-green-600";
-    if (score >= 60) return "bg-green-500";
-    if (score >= 40) return "bg-yellow-500";
-    if (score >= 20) return "bg-orange-500";
+    if (score >= 85) return "bg-green-600";
+    if (score >= 75) return "bg-green-500";
+    if (score >= 65) return "bg-yellow-500";
+    if (score >= 55) return "bg-orange-500";
     return "bg-red-600";
   };
 
@@ -383,7 +397,6 @@ function ComparisonContent() {
                         </td>
                       ))}
                     </tr>
-
                   </tbody>
                 </table>
               </div>

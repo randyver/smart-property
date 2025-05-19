@@ -43,8 +43,8 @@ export default function PropertyDetailsPage() {
   // Get color based on risk level
   const getRiskColor = (level: string): string => {
     const colors: { [key: string]: string } = {
-      very_low: "bg-green-600",
-      low: "bg-green-500",
+      very_low: "bg-red-800",
+      low: "bg-red-600",
       medium: "bg-yellow-600",
       high: "bg-red-600",
       very_high: "bg-red-800",
@@ -57,10 +57,27 @@ export default function PropertyDetailsPage() {
     return colors[level] || "bg-gray-500";
   };
 
-  // Format risk level for display
+  // Format risk level for display with Indonesian translations
   const formatRiskLevel = (level: string | undefined | null): string => {
-    if (!level) return "Not Available";
-    return level.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase());
+    if (!level) return "Tidak Ada Data";
+
+    const translations: { [key: string]: string } = {
+      excellent: "Sangat Baik",
+      good: "Baik",
+      moderate: "Sedang",
+      poor: "Buruk",
+      very_poor: "Sangat Buruk",
+      very_low: "Sangat Rendah",
+      low: "Rendah",
+      medium: "Sedang",
+      high: "Tinggi",
+      very_high: "Sangat Tinggi",
+    };
+
+    return (
+      translations[level] ||
+      level.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())
+    );
   };
 
   // Function to get AI recommendation
@@ -479,11 +496,11 @@ export default function PropertyDetailsPage() {
                     kenyamanan bagi penghuninya.
                   </p>
                   <p className="text-gray-700 mb-4">
-                    Dengan harga tanah {formatPrice(property.price_per_meter)}/m² dan luas
-                    tanah {property.land_area} m², properti ini menawarkan ruang
-                    yang luas untuk berbagai kebutuhan. Status kepemilikan
-                    properti ini adalah {property.certificate}, memberikan
-                    jaminan hukum yang kuat.
+                    Dengan harga tanah {formatPrice(property.price_per_meter)}
+                    /m² dan luas tanah {property.land_area} m², properti ini
+                    menawarkan ruang yang luas untuk berbagai kebutuhan. Status
+                    kepemilikan properti ini adalah {property.certificate},
+                    memberikan jaminan hukum yang kuat.
                   </p>
                   <p className="text-gray-700">
                     Properti ini memiliki skor keamanan iklim sebesar{" "}
@@ -622,13 +639,20 @@ export default function PropertyDetailsPage() {
                           </h4>
                         </div>
                         <p className="text-sm text-gray-600">
-                          {property.risks?.surface_temperature?.includes("low")
-                            ? "Wilayah ini memiliki suhu permukaan yang relatif sejuk, mengurangi efek pulau panas perkotaan."
-                            : "Wilayah ini mengalami suhu permukaan yang tinggi, yang dapat menyebabkan ketidaknyamanan panas dan kebutuhan pendinginan yang lebih besar."}
+                          {property.risks.surface_temperature === "excellent"
+                            ? "Wilayah ini memiliki suhu permukaan yang sangat sejuk, memberikan kenyamanan termal yang optimal dan meminimalkan efek pulau panas perkotaan."
+                            : property.risks.surface_temperature === "good"
+                            ? "Wilayah ini memiliki suhu permukaan yang baik dan nyaman, dengan efek pemanasan yang minimal."
+                            : property.risks.surface_temperature === "moderate"
+                            ? "Wilayah ini memiliki suhu permukaan yang sedang, kadang terasa hangat pada hari-hari tertentu."
+                            : property.risks.surface_temperature === "low" ||
+                              property.risks.surface_temperature === "very_low"
+                            ? "Wilayah ini mengalami suhu permukaan yang tinggi, yang dapat menyebabkan ketidaknyamanan panas dan kebutuhan pendinginan yang lebih besar."
+                            : "Data suhu permukaan tidak tersedia untuk wilayah ini."}
                         </p>
                       </div>
 
-                      {/* Stres Panas */}
+                      {/* Tekanan Panas */}
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <span
@@ -637,14 +661,21 @@ export default function PropertyDetailsPage() {
                             )} mr-2`}
                           ></span>
                           <h4 className="font-medium">
-                            Stres Panas:{" "}
+                            Tekanan Panas:{" "}
                             {formatRiskLevel(property.risks.heat_stress)}
                           </h4>
                         </div>
                         <p className="text-sm text-gray-600">
-                          {property.risks?.heat_stress?.includes("low")
-                            ? "Risiko rendah terhadap dampak kesehatan terkait panas dengan kondisi termal yang nyaman."
-                            : "Potensi tinggi terhadap risiko kesehatan akibat panas selama cuaca ekstrem."}
+                          {property.risks.heat_stress === "excellent"
+                            ? "Tekanan panas sangat rendah dengan kondisi termal yang sangat nyaman sepanjang tahun, bahkan selama musim panas."
+                            : property.risks.heat_stress === "good"
+                            ? "Tekanan panas rendah dengan kondisi termal yang nyaman di sebagian besar waktu dalam setahun."
+                            : property.risks.heat_stress === "moderate"
+                            ? "Tekanan panas sedang dengan beberapa periode kurang nyaman selama hari-hari terpanas."
+                            : property.risks.heat_stress === "low" ||
+                              property.risks.heat_stress === "very_low"
+                            ? "Tekanan panas tinggi dengan potensi risiko kesehatan selama cuaca ekstrem dan gelombang panas."
+                            : "Data tekanan panas tidak tersedia untuk wilayah ini."}
                         </p>
                       </div>
 
@@ -662,10 +693,16 @@ export default function PropertyDetailsPage() {
                           </h4>
                         </div>
                         <p className="text-sm text-gray-600">
-                          {property.risks.green_cover === "excellent" ||
-                          property.risks.green_cover === "good"
-                            ? "Vegetasi yang melimpah memberikan keteduhan, pendinginan alami, dan kualitas udara yang lebih baik."
-                            : "Ruang hijau yang terbatas dapat mengurangi efek pendinginan alami dan penyaringan udara."}
+                          {property.risks.green_cover === "excellent"
+                            ? "Vegetasi sangat melimpah dengan kanopi pohon yang luas, memberikan keteduhan optimal, pendinginan alami, dan kualitas udara yang sangat baik."
+                            : property.risks.green_cover === "good"
+                            ? "Vegetasi yang baik dengan cukup pohon dan tanaman, memberikan keteduhan, pendinginan alami, dan kualitas udara yang lebih baik."
+                            : property.risks.green_cover === "moderate"
+                            ? "Vegetasi sedang dengan beberapa pohon dan ruang hijau, namun masih dapat ditingkatkan untuk efek pendinginan optimal."
+                            : property.risks.green_cover === "low" ||
+                              property.risks.green_cover === "very_low"
+                            ? "Ruang hijau yang sangat terbatas dengan sedikit pohon, mengurangi efek pendinginan alami dan penyaringan udara."
+                            : "Data tutupan hijau tidak tersedia untuk wilayah ini."}
                         </p>
                       </div>
 
@@ -683,9 +720,16 @@ export default function PropertyDetailsPage() {
                           </h4>
                         </div>
                         <p className="text-sm text-gray-600">
-                          {property.risks?.heat_zone?.includes("low")
-                            ? "Terletak di mikroklimat yang lebih sejuk dengan akumulasi panas yang minimal."
-                            : "Terletak di zona pulau panas perkotaan dengan retensi suhu yang lebih tinggi."}
+                          {property.risks.heat_zone === "excellent"
+                            ? "Terletak di mikroklimat yang sangat sejuk dengan hampir tidak ada efek pulau panas perkotaan, memberikan kenyamanan termal sepanjang tahun."
+                            : property.risks.heat_zone === "good"
+                            ? "Terletak di area dengan efek pulau panas perkotaan minimal, memiliki suhu yang relatif sejuk dibandingkan area urban lainnya."
+                            : property.risks.heat_zone === "moderate"
+                            ? "Terletak di area dengan efek pulau panas perkotaan sedang, mengalami peningkatan suhu moderat dibanding daerah rural."
+                            : property.risks.heat_zone === "low" ||
+                              property.risks.heat_zone === "very_low"
+                            ? "Terletak di zona pulau panas perkotaan yang signifikan dengan retensi suhu yang tinggi, terutama di malam hari."
+                            : "Data zona panas tidak tersedia untuk wilayah ini."}
                         </p>
                       </div>
                     </div>
@@ -726,38 +770,11 @@ export default function PropertyDetailsPage() {
                   <h2 className="text-lg font-bold mb-4">Informasi Lokasi</h2>
 
                   {/* Peta menggunakan MAPID */}
-                  <div className="bg-gray-200 h-64 rounded-lg mb-6">
+                  <div className="bg-gray-200 h-80 rounded-lg mb-6">
                     <div
                       ref={mapContainer}
                       className="w-full h-full rounded-lg"
                     />
-                  </div>
-
-                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                    <h3 className="font-bold text-gray-800 mb-2">
-                      Fitur Iklim di Sekitar Lingkungan
-                    </h3>
-                    <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
-                      <li>
-                        Taman kota dalam radius 1 km untuk menjaga kualitas
-                        udara dan mengurangi efek panas
-                      </li>
-                      <li>
-                        Sistem drainase kota yang terawat baik untuk mencegah
-                        banjir
-                      </li>
-                      <li>
-                        Jalur sepeda dan pejalan kaki yang mendukung
-                        transportasi rendah emisi
-                      </li>
-                      <li>
-                        Program penghijauan lingkungan oleh komunitas setempat
-                      </li>
-                      <li>
-                        Akses ke pasar lokal yang menyediakan produk segar
-                        dengan jejak karbon rendah
-                      </li>
-                    </ul>
                   </div>
                 </div>
               )}

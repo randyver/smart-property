@@ -51,8 +51,8 @@ export default function PropertyCard({
   // Get color based on risk level
   const getRiskColor = (level: string): string => {
     const colors: { [key: string]: string } = {
-      very_low: "bg-green-600",
-      low: "bg-green-500",
+      very_low: "bg-red-800",
+      low: "bg-red-600",
       medium: "bg-yellow-500",
       high: "bg-orange-500",
       very_high: "bg-red-600",
@@ -68,16 +68,16 @@ export default function PropertyCard({
   // Format risk level to readable string
   const formatRiskLevel = (level: string): string => {
     const levels: { [key: string]: string } = {
-      very_low: "Sangat Rendah",
-      low: "Rendah",
-      medium: "Sedang",
-      high: "Tinggi",
-      very_high: "Sangat Tinggi",
       excellent: "Sangat Baik",
       good: "Baik",
-      moderate: "Moderat",
+      moderate: "Cukup",
       poor: "Buruk",
       very_poor: "Sangat Buruk",
+      very_low: "Sangat Buruk",
+      low: "Buruk",
+      medium: "Cukup",
+      high: "Baik",
+      very_high: "Sangat Baik",
     };
     return levels[level] || level;
   };
@@ -87,7 +87,7 @@ export default function PropertyCard({
     if (score == null) return "Tidak Ada Data";
     if (score >= 80) return "Sangat Baik";
     if (score >= 60) return "Baik";
-    if (score >= 40) return "Sedang";
+    if (score >= 40) return "Cukup";
     if (score >= 20) return "Buruk";
     return "Sangat Buruk";
   };

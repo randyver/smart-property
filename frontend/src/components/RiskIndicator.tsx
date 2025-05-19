@@ -23,10 +23,11 @@ export default function RiskIndicator({
 
   // Get label based on score
   const getLabel = (score: number): string => {
-    if (score >= 80) return "Aman";
-    if (score >= 60) return "Sedang";
-    if (score >= 40) return "Waspada";
-    return "Risiko Tinggi";
+    if (score >= 80) return "Sangat Baik";
+    if (score >= 60) return "Baik";
+    if (score >= 40) return "Cukup";
+    if (score >= 20) return "Buruk";
+    return "Sangat Buruk";
   };
 
   // Get size classes

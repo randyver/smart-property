@@ -90,19 +90,19 @@ export default function ClimateScoreInfo({
               <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-1">
                 <div className="flex items-center">
                   <span className="inline-block w-3 h-3 rounded-full bg-green-600 mr-2"></span>
-                  <span>80-100: Aman</span>
+                  <span>80-100: Sangat Baik</span>
                 </div>
                 <div className="flex items-center">
                   <span className="inline-block w-3 h-3 rounded-full bg-green-500 mr-2"></span>
-                  <span>60-79: Sedang</span>
+                  <span>60-79: Baik</span>
                 </div>
                 <div className="flex items-center">
                   <span className="inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>
-                  <span>40-59: Waspada</span>
+                  <span>40-59: Cukup</span>
                 </div>
                 <div className="flex items-center">
                   <span className="inline-block w-3 h-3 rounded-full bg-red-600 mr-2"></span>
-                  <span>0-39: Risiko Tinggi</span>
+                  <span>0-39: Buruk</span>
                 </div>
               </div>
             </div>

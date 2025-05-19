@@ -67,6 +67,10 @@ export default function Dashboard() {
       { id: "ndvi", name: "Vegetation Index" },
       { id: "uhi", name: "Urban Heat Island" },
       { id: "utfvi", name: "Urban Thermal Field" },
+      { id: "landuse", name: "Land Use" },
+      { id: "jaringan_jalan", name: "Road Network" },
+      { id: "ndbi", name: "Normalized Difference Built-up Index" },
+      { id: "kemiringan_lereng", name: "Slope" },
     ],
     []
   );
@@ -89,8 +93,8 @@ export default function Dashboard() {
   // Get color based on risk level - memoized to prevent recreating on each render
   const getRiskColor = useCallback((level: string): string => {
     const colors: { [key: string]: string } = {
-      very_low: "bg-green-600",
-      low: "bg-green-500",
+      very_low: "bg-red-800",
+      low: "bg-red-600",
       medium: "bg-yellow-600",
       high: "bg-red-600",
       very_high: "bg-red-800",
@@ -105,7 +109,23 @@ export default function Dashboard() {
 
   // Format risk level for display - memoized
   const formatRiskLevel = useCallback((level: string): string => {
-    return level.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase());
+    const translations: { [key: string]: string } = {
+      excellent: "Sangat Baik",
+      good: "Baik",
+      moderate: "Cukup",
+      poor: "Buruk",
+      very_poor: "Sangat Buruk",
+      very_low: "Sangat Buruk",
+      low: "Buruk",
+      medium: "Cukup",
+      high: "Baik",
+      very_high: "Sangat Baik",
+    };
+
+    return (
+      translations[level] ||
+      level.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())
+    );
   }, []);
 
   // Toggle sidebar function
@@ -282,6 +302,22 @@ export default function Dashboard() {
       } else if (propertyId === 4) {
         // UTFVI layer
         setActiveLayer("utfvi");
+        return;
+      } else if (propertyId === 5) {
+        // Landuse layer
+        setActiveLayer("landuse");
+        return;
+      } else if (propertyId === 6) {
+        // NDBI layer
+        setActiveLayer("ndbi");
+        return;
+      } else if (propertyId === 7) {
+        // Jaringan Jalan layer
+        setActiveLayer("jaringan_jalan");
+        return;
+      } else if (propertyId === 8) {
+        // Kemiringan Lereng layer
+        setActiveLayer("kemiringan_lereng");
         return;
       }
 

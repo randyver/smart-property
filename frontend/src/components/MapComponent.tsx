@@ -7,7 +7,16 @@ import { Layers } from "lucide-react";
 import { MapPin, Eye, EyeOff, Plus, Trash2, X } from "lucide-react";
 import Image from "next/image";
 
-export type ClimateLayerType = "lst" | "ndvi" | "uhi" | "utfvi" | undefined;
+export type ClimateLayerType =
+  | "lst"
+  | "ndvi"
+  | "uhi"
+  | "utfvi"
+  | "landuse"
+  | "ndbi"
+  | "jaringan_jalan"
+  | "kemiringan_lereng"
+  | undefined;
 
 interface MapComponentProps {
   properties?: Property[];
@@ -50,6 +59,10 @@ const MapComponent = memo(
       ndvi: [],
       uhi: [],
       utfvi: [],
+      landuse: [],
+      ndbi: [],
+      jaringan_jalan: [],
+      kemiringan_lereng: [],
     });
 
     // Track pagination state for each layer
@@ -58,6 +71,10 @@ const MapComponent = memo(
       ndvi: 1,
       uhi: 1,
       utfvi: 1,
+      landuse: 1,
+      ndbi: 1,
+      jaringan_jalan: 1,
+      kemiringan_lereng: 1,
     });
 
     const totalPagesRef = useRef<{ [key: string]: number }>({
@@ -65,6 +82,10 @@ const MapComponent = memo(
       ndvi: 1,
       uhi: 1,
       utfvi: 1,
+      landuse: 1,
+      ndbi: 1,
+      jaringan_jalan: 1,
+      kemiringan_lereng: 1,
     });
 
     // For handling cancellation of ongoing requests
@@ -130,6 +151,74 @@ const MapComponent = memo(
           "Lebat (>0.8)",
         ],
         image: "/peta-ndvi.jpg",
+      },
+      landuse: {
+        name: "Penggunaan Lahan",
+        colors: [
+          "#007206",
+          "#FFAA00",
+          "#FFFF4C",
+          "#FFC9B9",
+          "#FC3B09",
+          "#B4B4B4",
+          "#5C09FC",
+        ],
+        gridcodeCount: 7,
+        legendLabels: [
+          "Tutupan Pohon",
+          "Semak Belukar",
+          "Padang Rumput",
+          "Lahan Pertanian",
+          "Area Terbangun",
+          "Lahan Kosong",
+          "Badan Air",
+        ],
+        image: "/peta-landuse.jpg",
+      },
+      ndbi: {
+        name: "Normalized Difference Built-up Index",
+        colors: ["#FFFFE5", "#FEE391", "#FE9929", "#CC4C02", "#662506"],
+        gridcodeCount: 5,
+        legendLabels: [
+          "Vegetasi Sangat Lebat",
+          "Vegetasi Lebat",
+          "Lahan Terbuka",
+          "Permukiman Rendah",
+          "Area Terbangun Padat",
+        ],
+        image: "/peta-ndbi.jpg",
+      },
+      jaringan_jalan: {
+        name: "Jaringan Jalan",
+        colors: [
+          "#FF0000", // Red for major roads
+          "#00FF00", // Green for minor roads
+          "#0000FF", // Blue for water bodies
+          "#FFFF00", // Yellow for agricultural land
+          "#FFA500", // Orange for barren land
+        ],
+        gridcodeCount: 5,
+        legendLabels: [
+          "Jalan Utama",
+          "Jalan Sekunder",
+          "Badan Air",
+          "Lahan Pertanian",
+          "Tanah Kosong",
+        ],
+        image: "/peta-jaringan-jalan.jpg",
+      },
+      kemiringan_lereng: {
+        name: "Kemiringan Lereng",
+        colors: ["#007206", "#7DB810", "#F2FE1E", "#FFAC12", "#FC3B09"],
+        gridcodeCount: 5,
+        legendLabels: [
+          "Datar (0-8°)",
+          "Landai (8-15°)",
+          "Agak Curam (15-25°)",
+          "Curam (25-45°)",
+          "Sangat Curam (>45°)",
+        ],
+        image: "/peta-kemiringan-lereng.jpg",
       },
     };
 
@@ -198,6 +287,14 @@ const MapComponent = memo(
             onMarkerClick(3);
           } else if (layerType === "utfvi") {
             onMarkerClick(4);
+          } else if (layerType === "landuse") {
+            onMarkerClick(5);
+          } else if (layerType === "ndbi") {
+            onMarkerClick(6);
+          } else if (layerType === "jaringan_jalan") {
+            onMarkerClick(7);
+          } else if (layerType === "kemiringan_lereng") {
+            onMarkerClick(8);
           }
         }
       },
@@ -317,31 +414,52 @@ const MapComponent = memo(
                   source: sourceId,
                   layout: { visibility: "visible" },
                   paint: {
-                    "fill-color": [
-                      "match",
-                      ["get", "gridcode"],
-                      1,
-                      layerConfig[layerType].colors[0],
-                      2,
-                      layerConfig[layerType].colors[1],
-                      3,
-                      layerConfig[layerType].colors[2],
-                      4,
-                      layerConfig[layerType].colors[3],
-                      5,
-                      layerConfig[layerType].colors[4],
-                      ...(layerConfig[layerType].gridcodeCount > 5
+                    "fill-color":
+                      layerType === "landuse"
                         ? [
-                            6,
-                            layerConfig[layerType].colors[5],
-                            7,
-                            layerConfig[layerType].colors[6],
-                            8,
-                            layerConfig[layerType].colors[7],
+                            "match",
+                            ["get", "gridcode"],
+                            10,
+                            "#007206", // Tutupan Pohon
+                            20,
+                            "#FFAA00", // Semak Belukar
+                            30,
+                            "#FFFF4C", // Padang Rumput
+                            40,
+                            "#FFC9B9", // Lahan Pertanian
+                            50,
+                            "#FC3B09", // Area Terbangun
+                            60,
+                            "#B4B4B4", // Lahan Kosong
+                            80,
+                            "#5C09FC", // Badan Air
+                            "#000000", // default color for unknown values
                           ]
-                        : []),
-                      layerConfig[layerType].colors[0], // default color
-                    ],
+                        : [
+                            "match",
+                            ["get", "gridcode"],
+                            1,
+                            layerConfig[layerType].colors[0],
+                            2,
+                            layerConfig[layerType].colors[1],
+                            3,
+                            layerConfig[layerType].colors[2],
+                            4,
+                            layerConfig[layerType].colors[3],
+                            5,
+                            layerConfig[layerType].colors[4],
+                            ...(layerConfig[layerType].gridcodeCount > 5
+                              ? [
+                                  6,
+                                  layerConfig[layerType].colors[5],
+                                  7,
+                                  layerConfig[layerType].colors[6],
+                                  8,
+                                  layerConfig[layerType].colors[7],
+                                ]
+                              : []),
+                            layerConfig[layerType].colors[0], // default color
+                          ],
                     "fill-opacity": 0.7,
                   },
                 });
@@ -673,7 +791,7 @@ const MapComponent = memo(
               </div>
             </div>
 
-            <h4 className="text-xs font-medium text-gray-600 mb-1 px-2 sticky top-[68px] bg-white pt-2">
+            <h4 className="text-xs font-medium text-gray-600 mb-1 px-2 top-[68px] bg-white pt-2">
               Climate Layers
             </h4>
             <div className="space-y-1 px-2 pb-4">
@@ -746,28 +864,31 @@ const MapComponent = memo(
           </div>
         )}
         {/* Legend - Updated with accurate classification labels */}
-        {activeLayer && (
-          <div className="absolute bottom-20 left-4 bg-white p-3 rounded-md shadow-md z-10 max-w-xs">
-            <h4 className="text-sm font-bold mb-2 text-gray-800">
-              Legenda {layerConfig[activeLayer].name}
-            </h4>
-            <div className="space-y-1">
-              {layerConfig[activeLayer].colors
-                .slice(0, layerConfig[activeLayer].gridcodeCount)
-                .map((color, i) => (
-                  <div key={i} className="flex items-center">
-                    <div
-                      className="w-4 h-4 mr-2"
-                      style={{ backgroundColor: color }}
-                    ></div>
-                    <span className="text-xs text-gray-700">
-                      {layerConfig[activeLayer].legendLabels[i]}
-                    </span>
-                  </div>
-                ))}
+        {/* jika layer nya jaringan jalan ga perlu tampilin legenda */}
+        {activeLayer &&
+          activeLayer !== "jaringan_jalan" &&
+          layerConfig[activeLayer].legendLabels && (
+            <div className="absolute bottom-20 left-4 bg-white p-3 rounded-md shadow-md z-10 max-w-xs">
+              <h4 className="text-sm font-bold mb-2 text-gray-800">
+                Legenda {layerConfig[activeLayer].name}
+              </h4>
+              <div className="space-y-1">
+                {layerConfig[activeLayer].colors
+                  .slice(0, layerConfig[activeLayer].gridcodeCount)
+                  .map((color, i) => (
+                    <div key={i} className="flex items-center">
+                      <div
+                        className="w-4 h-4 mr-2"
+                        style={{ backgroundColor: color }}
+                      ></div>
+                      <span className="text-xs text-gray-700">
+                        {layerConfig[activeLayer].legendLabels[i]}
+                      </span>
+                    </div>
+                  ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         <style jsx global>{`
           .property-marker {

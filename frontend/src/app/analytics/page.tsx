@@ -276,9 +276,6 @@ export default function AnalyticsPage() {
             <h2 className="text-2xl font-bold text-gray-800">
               Analisis Pasar Properti
             </h2>
-            <div className="text-sm text-gray-500">
-              {summaryData && `Terakhir diperbarui: ${summaryData.last_updated}`}
-            </div>
           </div>
 
           {loading ? (

@@ -10,7 +10,7 @@ data_bp = Blueprint('data', __name__)
 def get_paginated_geojson(layer_name):
     """Get paginated GeoJSON data"""
     try:
-        valid_layers = ['lst', 'ndvi', 'uhi', 'utfvi']
+        valid_layers = ['lst', 'ndvi', 'uhi', 'utfvi', 'landuse', 'jaringan_jalan', 'kemiringan_lereng', 'ndbi']
         if layer_name not in valid_layers:
             return jsonify({"error": "Invalid layer"}), 400
 

@@ -382,7 +382,6 @@ const MapComponent = memo(
           }
 
           // Function to load a specific page of data
-          // Function to load a specific page of data
           const loadPage = async (page: number) => {
             console.log(`Loading ${layerType} page ${page}`);
 
@@ -398,51 +397,10 @@ const MapComponent = memo(
                 );
               }
 
-              let data;
-              try {
-                data = await response.json();
-                console.log(`Raw data for ${layerType}:`, data);
-              } catch (parseError) {
-                console.error(
-                  `Error parsing JSON for ${layerType}:`,
-                  parseError
-                );
-                throw new Error(`Invalid JSON response for ${layerType}`);
-              }
-
-              // Check if data is valid GeoJSON
-              if (!data || !data.features || !Array.isArray(data.features)) {
-                console.error(`Invalid GeoJSON format for ${layerType}:`, data);
-                throw new Error(`Invalid GeoJSON format for ${layerType}`);
-              }
-
-              // Filter out features with invalid geometries
-              const validFeatures = data.features.filter(
-                (feature: {
-                  geometry: { coordinates: any };
-                  properties: { NAMA: any };
-                }) =>
-                  feature &&
-                  feature.geometry &&
-                  feature.geometry.coordinates &&
-                  Array.isArray(feature.geometry.coordinates) &&
-                  feature.properties &&
-                  feature.properties.NAMA
-              );
-
-              if (validFeatures.length === 0) {
-                console.warn(`No valid features found for ${layerType}`);
-              } else {
-                console.log(
-                  `Found ${validFeatures.length} valid features out of ${data.features.length}`
-                );
-              }
-
-              // Replace features with validated ones
-              data.features = validFeatures;
+              const data = await response.json();
 
               // Check for API format - some APIs return nested data
-              const features = validFeatures;
+              const features = data.features || data.data?.features || [];
               const total_features =
                 data.total_features ||
                 data.data?.total_features ||
@@ -605,7 +563,7 @@ const MapComponent = memo(
                   layout: { visibility: "visible" },
                   paint: {
                     "line-color": "#000",
-                    "line-width": 0.5,
+                    "line-width": 0,
                     "line-opacity": 0.3,
                   },
                 });
@@ -924,75 +882,161 @@ const MapComponent = memo(
               </div>
             </div>
 
+            {/* Climate (Iklim) Layers */}
             <h4 className="text-xs font-medium text-gray-600 mb-1 px-2 top-[68px] bg-white pt-2">
-              Climate Layers
+              Layer Iklim
             </h4>
             <div className="space-y-1 px-2 pb-4">
-              {Object.entries(layerConfig).map(([key, layer]) => (
-                <div
-                  key={key}
-                  className={`flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors ${
-                    activeLayer === key ? "bg-blue-50" : "hover:bg-gray-50"
-                  }`}
-                >
-                  <div className="flex items-center">
-                    <Image
-                      width={60}
-                      height={60}
-                      src={layer.image}
-                      alt={layer.name}
-                      className="mr-2 rounded-md object-cover"
-                    />
-                    <span className="truncate text-xs">{layer.name}</span>
-                  </div>
+              {Object.entries(layerConfig)
+                .filter(([key]) =>
+                  ["lst", "ndvi", "utfvi", "uhi", "ndbi"].includes(key)
+                )
+                .map(([key, layer]) => (
+                  <div
+                    key={key}
+                    className={`flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors ${
+                      activeLayer === key ? "bg-blue-50" : "hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <Image
+                        width={60}
+                        height={60}
+                        src={layer.image}
+                        alt={layer.name}
+                        className="mr-2 rounded-md object-cover"
+                      />
+                      <span className="truncate text-xs">{layer.name}</span>
+                    </div>
 
-                  <div className="flex space-x-1">
-                    {/* Delete button - only shown for active layer */}
-                    {activeLayer === key && (
-                      <button
-                        onClick={clearLayer}
-                        className="p-1 text-red-600 hover:text-red-800"
-                        title="Remove layer"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    )}
-
-                    {/* Add button - only shown when no layer is active */}
-                    {!activeLayer && (
-                      <button
-                        onClick={() =>
-                          handleLayerSelect(key as ClimateLayerType)
-                        }
-                        className="p-1 text-blue-600 hover:text-blue-800"
-                        title={`Add ${layer.name} layer`}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </button>
-                    )}
-
-                    {/* Disabled buttons when another layer is active */}
-                    {activeLayer && activeLayer !== key && (
-                      <div className="flex space-x-1">
+                    <div className="flex space-x-1">
+                      {/* Delete button - only shown for active layer */}
+                      {activeLayer === key && (
                         <button
-                          className="p-1 text-gray-400 cursor-not-allowed"
-                          disabled
-                          title="Clear active layer first"
+                          onClick={clearLayer}
+                          className="p-1 text-red-600 hover:text-red-800"
+                          title="Remove layer"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
+                      )}
+
+                      {/* Add button - only shown when no layer is active */}
+                      {!activeLayer && (
                         <button
-                          className="p-1 text-gray-400 cursor-not-allowed"
-                          disabled
-                          title="Clear active layer first"
+                          onClick={() =>
+                            handleLayerSelect(key as ClimateLayerType)
+                          }
+                          className="p-1 text-blue-600 hover:text-blue-800"
+                          title={`Add ${layer.name} layer`}
                         >
                           <Plus className="h-4 w-4" />
                         </button>
-                      </div>
-                    )}
+                      )}
+
+                      {/* Disabled buttons when another layer is active */}
+                      {activeLayer && activeLayer !== key && (
+                        <div className="flex space-x-1">
+                          <button
+                            className="p-1 text-gray-400 cursor-not-allowed"
+                            disabled
+                            title="Clear active layer first"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            className="p-1 text-gray-400 cursor-not-allowed"
+                            disabled
+                            title="Clear active layer first"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+            </div>
+
+            {/* Tata Kota Layers */}
+            <h4 className="text-xs font-medium text-gray-600 mb-1 px-2 bg-white pt-2">
+              Layer Tata Kota
+            </h4>
+            <div className="space-y-1 px-2 pb-4">
+              {Object.entries(layerConfig)
+                .filter(([key]) =>
+                  [
+                    "jaringan_jalan",
+                    "landuse",
+                    "kemiringan_lereng",
+                    "rtrw",
+                  ].includes(key)
+                )
+                .map(([key, layer]) => (
+                  <div
+                    key={key}
+                    className={`flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors ${
+                      activeLayer === key ? "bg-blue-50" : "hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <Image
+                        width={60}
+                        height={60}
+                        src={layer.image}
+                        alt={layer.name}
+                        className="mr-2 rounded-md object-cover"
+                      />
+                      <span className="truncate text-xs">{layer.name}</span>
+                    </div>
+
+                    <div className="flex space-x-1">
+                      {/* Delete button - only shown for active layer */}
+                      {activeLayer === key && (
+                        <button
+                          onClick={clearLayer}
+                          className="p-1 text-red-600 hover:text-red-800"
+                          title="Remove layer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+
+                      {/* Add button - only shown when no layer is active */}
+                      {!activeLayer && (
+                        <button
+                          onClick={() =>
+                            handleLayerSelect(key as ClimateLayerType)
+                          }
+                          className="p-1 text-blue-600 hover:text-blue-800"
+                          title={`Add ${layer.name} layer`}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </button>
+                      )}
+
+                      {/* Disabled buttons when another layer is active */}
+                      {activeLayer && activeLayer !== key && (
+                        <div className="flex space-x-1">
+                          <button
+                            className="p-1 text-gray-400 cursor-not-allowed"
+                            disabled
+                            title="Clear active layer first"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            className="p-1 text-gray-400 cursor-not-allowed"
+                            disabled
+                            title="Clear active layer first"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
         )}
@@ -1007,7 +1051,10 @@ const MapComponent = memo(
               {activeLayer === "rtrw"
                 ? // Special handling for RTRW layer which uses NAMA
                   layerConfig[activeLayer].legendLabels.map((label, i) => {
-                    const color = layerConfig[activeLayer].colors[label as keyof typeof layerConfig.rtrw.colors] || "#CCCCCC";
+                    const color =
+                      layerConfig[activeLayer].colors[
+                        label as keyof typeof layerConfig.rtrw.colors
+                      ] || "#CCCCCC";
                     return (
                       <div key={i} className="flex items-center">
                         <div

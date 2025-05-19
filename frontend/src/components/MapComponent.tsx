@@ -106,7 +106,7 @@ const MapComponent = memo(
     // Updated layer config with accurate classifications
     const layerConfig = {
       uhi: {
-        name: "Urban Heat Island",
+        name: "Pulau Panas Perkotaan - UHI",
         colors: ["#F5F500", "#F5CA00", "#FA9600", "#EE5D00", "#C70000"],
         gridcodeCount: 5,
         legendLabels: [
@@ -119,7 +119,7 @@ const MapComponent = memo(
         image: "/peta-uhi.jpg",
       },
       utfvi: {
-        name: "Urban Thermal Field Variance Index",
+        name: "Tekanan Panas Perkotaan - UTFVI",
         colors: ["#5C09FC", "#4EC9FD", "#B4FEA3", "#FBD513", "#FE230A"],
         gridcodeCount: 5,
         legendLabels: [
@@ -132,7 +132,7 @@ const MapComponent = memo(
         image: "/peta-utfvi.jpg",
       },
       lst: {
-        name: "Land Surface Temperature",
+        name: "Suhu Permukaan Tanah - LST",
         colors: ["#F5F500", "#F5B800", "#F57A00", "#F53D00", "#F50000"],
         gridcodeCount: 5,
         legendLabels: [
@@ -145,7 +145,7 @@ const MapComponent = memo(
         image: "/peta-lst.jpg",
       },
       ndvi: {
-        name: "Vegetation Index",
+        name: "Tutupan Hijau - NDVI",
         colors: ["#A50026", "#FF0000", "#FFFF00", "#86CB66", "#4C7300"],
         gridcodeCount: 5,
         legendLabels: [
@@ -181,7 +181,7 @@ const MapComponent = memo(
         image: "/peta-landuse.jpg",
       },
       ndbi: {
-        name: "Normalized Difference Built-up Index",
+        name: "Kerapatan Bangunan - NDBI",
         colors: ["#FFFFE5", "#FEE391", "#FE9929", "#CC4C02", "#662506"],
         gridcodeCount: 5,
         legendLabels: [

@@ -1,212 +1,110 @@
-# SmartProperty WebGIS Application
+# SmartProperty - Climate-Safe Property Analytics Platform
 
-SmartProperty is a WebGIS system designed to support sustainable urban planning by identifying climate-friendly property areas. The system leverages GIS-based property price analysis to provide insights into the economic value of an area and its environmental impact and sustainability.
+SmartProperty is an innovative property analytics platform that helps users find climate-safe properties through advanced GIS analysis. By evaluating properties based on climate risk parameters such as Land Surface Temperature (LST), Vegetation Index (NDVI), Urban Heat Island (UHI), and Urban Thermal Field Variance (UTFVI), SmartProperty enables homebuyers and developers to make informed decisions about real estate investments in the face of climate change.
 
-## Features
+This application was developed by Team El Nino La Nina for the MAPID Web GIS Competition 2025.
 
-- Interactive property map with climate risk layers
-- Property search and filtering based on various criteria
-- Climate risk assessment for properties
-- Price trend analytics and visualization
-- Property comparison tool
-- Climate-safe property recommendations
+## Key Features
 
-## Tech Stack
+- **Interactive Climate Map**: Explore properties with various climate risk overlays for comprehensive spatial analysis.
+- **Property Comparison**: Compare multiple properties side-by-side based on climate risk factors.
+- **Climate Analytics Dashboard**: Visualize property market trends and climate impacts across different districts.
+- **Developer Tools**: Predict property prices based on climate factors and location data.
+- **Climate Builder Game**: Learn about climate-resilient development through an interactive simulation.
+- **AI Assistant**: Get personalized recommendations and answers about climate-safe properties.
 
-### Backend
-- Python 3.9
-- Flask
-- PostgreSQL
-- TensorFlow & Scikit-learn for ML models
-- GeoPandas for spatial data processing
+## Technical Stack
 
 ### Frontend
-- Next.js
-- React
-- TypeScript
-- TailwindCSS
+- Next.js 14 (React framework)
+- Tailwind CSS for styling
+- MapLibre GL JS for interactive maps
 - Recharts for data visualization
-- MapLibre GL for map rendering
-- MAPID for base maps and GIS layers
+- Framer Motion for animations
 
-## Prerequisites
+### Backend
+- Flask (Python web framework)
+- PostgreSQL database for property and climate data
+- GeoJSON for spatial data
+- XGBoost for price prediction models
+- Pandas for data processing and analytics
 
-- [Docker](https://www.docker.com/get-started) and Docker Compose
-- Node.js 18+ (for local development)
-- Python 3.9+ (for local development)
-- MAPID API Key (sign up at [MAPID](https://mapid.io/))
+## Climate Parameters Explained
 
-## Installation
+SmartProperty evaluates properties using the following climate parameters:
 
-### Using Docker (Recommended)
+- **LST (Land Surface Temperature)**: Measures ground temperature, with lower scores indicating hotter areas that may require more cooling and energy.
+- **NDVI (Normalized Difference Vegetation Index)**: Measures vegetation coverage, with higher scores indicating greener areas that provide natural cooling and better air quality.
+- **UTFVI (Urban Thermal Field Variance Index)**: Measures temperature fluctuations in urban areas, identifying heat pockets and thermal comfort.
+- **UHI (Urban Heat Island)**: Measures how much warmer an area is compared to surrounding rural areas due to urban development.
+- **Overall Climate Score**: A composite score (0-100) that evaluates a property's overall climate safety, with higher scores indicating better climate resilience.
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/smart-property.git
-   cd smart-property
-   ```
+## Use Cases
 
-2. Create a `.env` file in the root directory with your MAPID API key:
-   ```
-   MAPID_API_KEY=your_mapid_api_key_here
-   ```
-
-3. Start the application using Docker Compose:
-   ```bash
-   docker-compose up -d
-   ```
-
-4. The application will be available at:
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:5000
-
-### Manual Installation (Development)
-
-#### Backend Setup
-
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows, use: venv\Scripts\activate
-   ```
-
-3. Install the required packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Create a `.env` file with the necessary configuration:
-   ```
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_NAME=smartproperty
-   DB_USER=postgres
-   DB_PASSWORD=postgres
-   MAPID_API_KEY=your_mapid_api_key_here
-   DEBUG=True
-   ```
-
-5. Start the Flask development server:
-   ```bash
-   python run.py
-   ```
-
-#### Frontend Setup
-
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-
-2. Install the required packages:
-   ```bash
-   npm install
-   ```
-
-3. Create a `.env.local` file with the necessary configuration:
-   ```
-   NEXT_PUBLIC_API_URL=http://localhost:5000
-   NEXT_PUBLIC_MAPID_API_KEY=your_mapid_api_key_here
-   ```
-
-4. Start the Next.js development server:
-   ```bash
-   npm run dev
-   ```
-
-5. The frontend will be available at http://localhost:3000
-
-## API Endpoints
-
-### Property API
-
-- `GET /api/properties` - Get properties with optional filtering
-- `GET /api/properties/:id` - Get details for a specific property
-- `GET /api/properties/compare?ids=1,2,3` - Compare multiple properties
-- `GET /api/properties/recommend` - Get property recommendations
-- `POST /api/price/predict` - Predict property price
-
-### Climate API
-
-- `GET /api/climate/risk-layers` - Get available climate risk map layers
-
-### Analytics API
-
-- `GET /api/analytics/price-trends` - Get property price trends
-- `GET /api/analytics/climate-risks` - Get climate risk analysis
-- `GET /api/analytics/property-distribution` - Get property distribution statistics
-- `GET /api/analytics/climate-impact` - Get climate impact analysis
-- `GET /api/analytics/dashboard-summary` - Get summary for dashboard
+- Homebuyers can find properties with lower climate risks for long-term value retention.
+- Developers can identify optimal areas for climate-resilient construction.
+- Researchers can analyze climate impact on property values across different districts.
+- Urban planners can use data to guide climate-adaptive urban development.
+- Property investors can make informed decisions based on climate risk assessment.
 
 ## Project Structure
 
-```
-smart-property/
-├── backend/               # Flask backend
-│   ├── app/               # Application code
-│   │   ├── __init__.py    # App initialization
-│   │   ├── config.py      # Configuration
-│   │   ├── models/        # Database models
-│   │   └── services/      # Business logic
-│   ├── routes/            # API routes
-│   ├── utils/             # Utility functions
-│   ├── Dockerfile         # Docker configuration
-│   ├── requirements.txt   # Python dependencies
-│   └── run.py             # Application entry point
-├── frontend/              # Next.js frontend
-│   ├── public/            # Static files
-│   ├── src/               # Source code
-│   │   ├── app/           # Next.js app directory
-│   │   ├── components/    # React components
-│   │   ├── contexts/      # React contexts
-│   │   ├── hooks/         # Custom React hooks
-│   │   ├── services/      # API services
-│   │   └── types/         # TypeScript types
-│   ├── .env.local         # Environment variables
-│   └── package.json       # Node.js dependencies
-├── docker-compose.yml     # Docker Compose configuration
-└── README.md              # Documentation
-```
+- `/frontend`: Next.js application with user interface components.
+- `/backend`: Flask application with API endpoints and data processing.
+- `/data`: Climate and property datasets (GeoJSON, CSV).
 
-## Database Setup
+## Team Members
 
-By default, the application uses PostgreSQL. The database will be automatically created when using Docker Compose. For manual setup:
+- Emery Fathan Zwageri (Institut Teknologi Bandung) - AI Engineer
+- Randy Verdian (Institut Teknologi Bandung) - Fullstack Developer
+- Hega Fauzia Avilah (Universitas Indonesia) - Spatial Data Analyst
+- Moch Kahfi Tri Agfria S. (Universitas Indonesia) - Spatial Data Analyst
 
-1. Install PostgreSQL
-2. Create a database named `smartproperty`
-3. Update the `.env` file with your database credentials
+## Getting Started
 
-## Testing the Connection
+### Prerequisites
 
-1. After starting both the backend and frontend, navigate to http://localhost:3000
-2. Click on "Test Backend Connection" to verify that the backend is accessible
-3. You should see a success message if the connection is established properly
+- Node.js (v18.0.0 or higher)
+- Python (v3.8 or higher)
+- PostgreSQL (v14.0 or higher)
 
-## Troubleshooting
+### Installation
 
-- If you encounter CORS issues, make sure your backend is running and accessible from the frontend
-- Check that your MAPID API key is correctly set in the environment variables
-- If the map doesn't load, verify that your MAPID API key has the necessary permissions
-- For database connection issues, check the database credentials in your environment variables
+1. Clone the repository
 
-## Contributing
+    ```bash
+    git clone https://github.com/your-username/smartproperty.git
+    cd smartproperty
+    ```
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Set up the frontend
+
+    ```bash
+    cd frontend
+    npm install
+    npm run dev
+    ```
+
+3. Set up the backend
+
+    ```bash
+    cd backend
+    pip install -r requirements.txt
+    python run.py
+    ```
+
+4. Create a `.env` file in the root directory with the following variables:
+
+    ```
+    NEXT_PUBLIC_API_URL=http://localhost:5000
+    MAPID_API_KEY=your_mapid_api_key
+    ```
+
+## Running the Application
+
+- **Frontend**: `npm run dev` (from the `frontend` directory).
+- **Backend**: `python run.py` (from the `backend` directory).
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgements
-
-- MAPID for providing the WebGIS platform
-- The development team: Randy Verdian, Hega Fauzia Avilah, Emery Fathan Zwageri, and Moch Kahfi Tri Agfria S.
+© 2025 SmartProperty Team. All rights reserved.

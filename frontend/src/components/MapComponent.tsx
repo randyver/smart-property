@@ -6,6 +6,7 @@ import { Property } from "@/types";
 import { Layers } from "lucide-react";
 import { MapPin, Eye, EyeOff, Plus, Trash2, X } from "lucide-react";
 import Image from "next/image";
+import { rt } from "framer-motion/client";
 
 export type ClimateLayerType =
   | "lst"
@@ -16,6 +17,7 @@ export type ClimateLayerType =
   | "ndbi"
   | "jaringan_jalan"
   | "kemiringan_lereng"
+  | "rtrw"
   | undefined;
 
 interface MapComponentProps {
@@ -63,6 +65,7 @@ const MapComponent = memo(
       ndbi: [],
       jaringan_jalan: [],
       kemiringan_lereng: [],
+      rtrw: [],
     });
 
     // Track pagination state for each layer
@@ -75,6 +78,7 @@ const MapComponent = memo(
       ndbi: 1,
       jaringan_jalan: 1,
       kemiringan_lereng: 1,
+      rtrw: 1,
     });
 
     const totalPagesRef = useRef<{ [key: string]: number }>({
@@ -86,6 +90,7 @@ const MapComponent = memo(
       ndbi: 1,
       jaringan_jalan: 1,
       kemiringan_lereng: 1,
+      rtrw: 1,
     });
 
     // For handling cancellation of ongoing requests
@@ -220,6 +225,38 @@ const MapComponent = memo(
         ],
         image: "/peta-kemiringan-lereng.jpg",
       },
+      rtrw: {
+        name: "Ruang Tata Ruang Wilayah",
+        colors: {
+          Bandara: "#F4B183", // Orange for Bandara
+          "Hutan Lindung": "#007A33", // Dark green for Hutan Lindung
+          "Industri dan Pergudangan": "#7F7F7F", // Gray for Industri dan Pergudangan
+          Kesehatan: "#FFFFFF", // White for Kesehatan
+          Pendidikan: "#000066", // Dark blue for Pendidikan
+          Perdagangan: "#FF0000", // Red for Perdagangan
+          Perkantoran: "#F4B6E6", // Light pink for Perkantoran
+          "Pertahanan dan Keamanan": "#7F5A3D", // Brown for Pertahanan dan Keamanan
+          Pertanian: "#A6D785", // Light green for Pertanian
+          "Perumahan Kepadatan Rendah": "#FFD1DC", // Pale pink for Perumahan
+          "Ruang Terbuka Hijau": "#00FF01", // Bright green for RTH
+          "Ruang Terbuka Non Hijau": "#B7E97C", // Light green for RTnH
+        },
+        legendLabels: [
+          "Bandara",
+          "Hutan Lindung",
+          "Industri dan Pergudangan",
+          "Kesehatan",
+          "Pendidikan",
+          "Perdagangan",
+          "Perkantoran",
+          "Pertahanan dan Keamanan",
+          "Pertanian",
+          "Perumahan Kepadatan Rendah",
+          "Ruang Terbuka Hijau",
+          "Ruang Terbuka Non Hijau",
+        ],
+        image: "/foto-rtrw.jpg", // You'll need to create this image
+      },
     };
 
     // Initialize map
@@ -295,6 +332,8 @@ const MapComponent = memo(
             onMarkerClick(7);
           } else if (layerType === "kemiringan_lereng") {
             onMarkerClick(8);
+          } else if (layerType === "rtrw") {
+            onMarkerClick(9);
           }
         }
       },
@@ -343,6 +382,7 @@ const MapComponent = memo(
           }
 
           // Function to load a specific page of data
+          // Function to load a specific page of data
           const loadPage = async (page: number) => {
             console.log(`Loading ${layerType} page ${page}`);
 
@@ -358,10 +398,51 @@ const MapComponent = memo(
                 );
               }
 
-              const data = await response.json();
+              let data;
+              try {
+                data = await response.json();
+                console.log(`Raw data for ${layerType}:`, data);
+              } catch (parseError) {
+                console.error(
+                  `Error parsing JSON for ${layerType}:`,
+                  parseError
+                );
+                throw new Error(`Invalid JSON response for ${layerType}`);
+              }
+
+              // Check if data is valid GeoJSON
+              if (!data || !data.features || !Array.isArray(data.features)) {
+                console.error(`Invalid GeoJSON format for ${layerType}:`, data);
+                throw new Error(`Invalid GeoJSON format for ${layerType}`);
+              }
+
+              // Filter out features with invalid geometries
+              const validFeatures = data.features.filter(
+                (feature: {
+                  geometry: { coordinates: any };
+                  properties: { NAMA: any };
+                }) =>
+                  feature &&
+                  feature.geometry &&
+                  feature.geometry.coordinates &&
+                  Array.isArray(feature.geometry.coordinates) &&
+                  feature.properties &&
+                  feature.properties.NAMA
+              );
+
+              if (validFeatures.length === 0) {
+                console.warn(`No valid features found for ${layerType}`);
+              } else {
+                console.log(
+                  `Found ${validFeatures.length} valid features out of ${data.features.length}`
+                );
+              }
+
+              // Replace features with validated ones
+              data.features = validFeatures;
 
               // Check for API format - some APIs return nested data
-              const features = data.features || data.data?.features || [];
+              const features = validFeatures;
               const total_features =
                 data.total_features ||
                 data.data?.total_features ||
@@ -407,62 +488,114 @@ const MapComponent = memo(
                   },
                 });
 
-                // Add fill layer
-                map.addLayer({
-                  id: layerId,
-                  type: "fill",
-                  source: sourceId,
-                  layout: { visibility: "visible" },
-                  paint: {
-                    "fill-color":
-                      layerType === "landuse"
-                        ? [
-                            "match",
-                            ["get", "gridcode"],
-                            10,
-                            "#007206", // Tutupan Pohon
-                            20,
-                            "#FFAA00", // Semak Belukar
-                            30,
-                            "#FFFF4C", // Padang Rumput
-                            40,
-                            "#FFC9B9", // Lahan Pertanian
-                            50,
-                            "#FC3B09", // Area Terbangun
-                            60,
-                            "#B4B4B4", // Lahan Kosong
-                            80,
-                            "#5C09FC", // Badan Air
-                            "#000000", // default color for unknown values
-                          ]
-                        : [
-                            "match",
-                            ["get", "gridcode"],
-                            1,
-                            layerConfig[layerType].colors[0],
-                            2,
-                            layerConfig[layerType].colors[1],
-                            3,
-                            layerConfig[layerType].colors[2],
-                            4,
-                            layerConfig[layerType].colors[3],
-                            5,
-                            layerConfig[layerType].colors[4],
-                            ...(layerConfig[layerType].gridcodeCount > 5
-                              ? [
-                                  6,
-                                  layerConfig[layerType].colors[5],
-                                  7,
-                                  layerConfig[layerType].colors[6],
-                                  8,
-                                  layerConfig[layerType].colors[7],
-                                ]
-                              : []),
-                            layerConfig[layerType].colors[0], // default color
-                          ],
-                    "fill-opacity": 0.7,
-                  },
-                });
+                // Add fill layer based on layer type
+                if (layerType === "rtrw") {
+                  // For RTRW layer, use NAMA property
+                  map.addLayer({
+                    id: layerId,
+                    type: "fill",
+                    source: sourceId,
+                    layout: { visibility: "visible" },
+                    paint: {
+                      "fill-color": [
+                        "match",
+                        ["get", "NAMA"],
+                        "Bandara",
+                        layerConfig.rtrw.colors["Bandara"],
+                        "Hutan Lindung",
+                        layerConfig.rtrw.colors["Hutan Lindung"],
+                        "Industri dan Pergudangan",
+                        layerConfig.rtrw.colors["Industri dan Pergudangan"],
+                        "Kesehatan",
+                        layerConfig.rtrw.colors["Kesehatan"],
+                        "Pendidikan",
+                        layerConfig.rtrw.colors["Pendidikan"],
+                        "Perdagangan",
+                        layerConfig.rtrw.colors["Perdagangan"],
+                        "Perkantoran",
+                        layerConfig.rtrw.colors["Perkantoran"],
+                        "Pertahanan dan Keamanan",
+                        layerConfig.rtrw.colors["Pertahanan dan Keamanan"],
+                        "Pertanian",
+                        layerConfig.rtrw.colors["Pertanian"],
+                        "Perumahan Kepadatan Rendah",
+                        layerConfig.rtrw.colors["Perumahan Kepadatan Rendah"],
+                        "Ruang Terbuka Hijau",
+                        layerConfig.rtrw.colors["Ruang Terbuka Hijau"],
+                        "Ruang Terbuka Non Hijau",
+                        layerConfig.rtrw.colors["Ruang Terbuka Non Hijau"],
+                        "#CCCCCC", // default color for unknown values
+                      ],
+                      "fill-opacity": 0.7,
+                    },
+                  });
+                } else if (layerType === "landuse") {
+                  // Original code for landuse layer
+                  map.addLayer({
+                    id: layerId,
+                    type: "fill",
+                    source: sourceId,
+                    layout: { visibility: "visible" },
+                    paint: {
+                      "fill-color": [
+                        "match",
+                        ["get", "gridcode"],
+                        10,
+                        "#007206", // Tutupan Pohon
+                        20,
+                        "#FFAA00", // Semak Belukar
+                        30,
+                        "#FFFF4C", // Padang Rumput
+                        40,
+                        "#FFC9B9", // Lahan Pertanian
+                        50,
+                        "#FC3B09", // Area Terbangun
+                        60,
+                        "#B4B4B4", // Lahan Kosong
+                        80,
+                        "#5C09FC", // Badan Air
+                        "#000000", // default color for unknown values
+                      ],
+                      "fill-opacity": 0.7,
+                    },
+                  });
+                } else {
+                  // Original code for other layers
+                  map.addLayer({
+                    id: layerId,
+                    type: "fill",
+                    source: sourceId,
+                    layout: { visibility: "visible" },
+                    paint: {
+                      "fill-color": [
+                        "match",
+                        ["get", "gridcode"],
+                        1,
+                        layerConfig[layerType].colors[0],
+                        2,
+                        layerConfig[layerType].colors[1],
+                        3,
+                        layerConfig[layerType].colors[2],
+                        4,
+                        layerConfig[layerType].colors[3],
+                        5,
+                        layerConfig[layerType].colors[4],
+                        ...(layerConfig[layerType].gridcodeCount > 5
+                          ? [
+                              6,
+                              layerConfig[layerType].colors[5],
+                              7,
+                              layerConfig[layerType].colors[6],
+                              8,
+                              layerConfig[layerType].colors[7],
+                            ]
+                          : []),
+                        layerConfig[layerType].colors[0], // default color
+                      ],
+                      "fill-opacity": 0.7,
+                    },
+                  });
+                }
 
                 // Add outline layer
                 map.addLayer({
@@ -472,7 +605,7 @@ const MapComponent = memo(
                   layout: { visibility: "visible" },
                   paint: {
                     "line-color": "#000",
-                    "line-width": 0,
+                    "line-width": 0.5,
                     "line-opacity": 0.3,
                   },
                 });
@@ -865,30 +998,45 @@ const MapComponent = memo(
         )}
         {/* Legend - Updated with accurate classification labels */}
         {/* jika layer nya jaringan jalan ga perlu tampilin legenda */}
-        {activeLayer &&
-          activeLayer !== "jaringan_jalan" &&
-          layerConfig[activeLayer].legendLabels && (
-            <div className="absolute bottom-20 left-4 bg-white p-3 rounded-md shadow-md z-10 max-w-xs">
-              <h4 className="text-sm font-bold mb-2 text-gray-800">
-                Legenda {layerConfig[activeLayer].name}
-              </h4>
-              <div className="space-y-1">
-                {layerConfig[activeLayer].colors
-                  .slice(0, layerConfig[activeLayer].gridcodeCount)
-                  .map((color, i) => (
-                    <div key={i} className="flex items-center">
-                      <div
-                        className="w-4 h-4 mr-2"
-                        style={{ backgroundColor: color }}
-                      ></div>
-                      <span className="text-xs text-gray-700">
-                        {layerConfig[activeLayer].legendLabels[i]}
-                      </span>
-                    </div>
-                  ))}
-              </div>
+        {activeLayer && (
+          <div className="absolute bottom-20 left-4 bg-white p-3 rounded-md shadow-md z-10 max-w-xs">
+            <h4 className="text-sm font-bold mb-2 text-gray-800">
+              Legenda {layerConfig[activeLayer].name}
+            </h4>
+            <div className="space-y-1">
+              {activeLayer === "rtrw"
+                ? // Special handling for RTRW layer which uses NAMA
+                  layerConfig[activeLayer].legendLabels.map((label, i) => {
+                    const color = layerConfig[activeLayer].colors[label as keyof typeof layerConfig.rtrw.colors] || "#CCCCCC";
+                    return (
+                      <div key={i} className="flex items-center">
+                        <div
+                          className="w-4 h-4 mr-2"
+                          style={{ backgroundColor: color }}
+                        ></div>
+                        <span className="text-xs text-gray-700">{label}</span>
+                      </div>
+                    );
+                  })
+                : activeLayer !== "jaringan_jalan"
+                ? // Original handler for gridcode-based layers
+                  layerConfig[activeLayer].colors
+                    .slice(0, layerConfig[activeLayer].gridcodeCount)
+                    .map((color, i) => (
+                      <div key={i} className="flex items-center">
+                        <div
+                          className="w-4 h-4 mr-2"
+                          style={{ backgroundColor: color }}
+                        ></div>
+                        <span className="text-xs text-gray-700">
+                          {layerConfig[activeLayer].legendLabels[i]}
+                        </span>
+                      </div>
+                    ))
+                : null}
             </div>
-          )}
+          </div>
+        )}
 
         <style jsx global>{`
           .property-marker {

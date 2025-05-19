@@ -71,6 +71,7 @@ export default function Dashboard() {
       { id: "jaringan_jalan", name: "Road Network" },
       { id: "ndbi", name: "Normalized Difference Built-up Index" },
       { id: "kemiringan_lereng", name: "Slope" },
+      { id: "rtrw", name: "Regional Spatial Planning" },
     ],
     []
   );
@@ -318,6 +319,10 @@ export default function Dashboard() {
       } else if (propertyId === 8) {
         // Kemiringan Lereng layer
         setActiveLayer("kemiringan_lereng");
+        return;
+      } else if (propertyId === 9) {
+        // RTRW layer
+        setActiveLayer("rtrw");
         return;
       }
 

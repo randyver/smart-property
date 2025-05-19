@@ -19,8 +19,7 @@ const Description = () => {
 
   return (
     <section className="min-h-screen py-16 bg-gradient-to-b from-blue-50 to-white flex items-center">
-      <div className="container mx-auto">
-        <div className="mx-auto">
+      <div className="md:mx-6 lg:mx-12 xl:mx-24 2xl:mx-32">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -62,17 +61,14 @@ const Description = () => {
             {/* Text Content */}
             <div className="flex-1">
               <p className="text-base text-justify md:text-lg text-gray-600 leading-relaxed mb-6">
-                SmartProperty mengintegrasikan analisis iklim berbasis GIS untuk
-                evaluasi properti yang lebih komprehensif. Platform kami
-                menganalisis parameter iklim seperti suhu permukaan tanah,
-                indeks vegetasi, dan efek pulau panas perkotaan untuk memberikan
-                skor keamanan iklim yang akurat pada setiap properti. Kami
-                membantu Anda menemukan properti yang tidak hanya memenuhi
-                kebutuhan estetika dan fungsional, tetapi juga tahan terhadap
-                risiko perubahan iklim jangka panjang. Dengan SmartProperty,
-                Anda dapat membuat keputusan investasi properti yang lebih
-                cerdas dan berkelanjutan di tengah tantangan iklim yang semakin
-                nyata.
+                SmartProperty membantu Anda menemukan properti yang nyaman dan
+                aman dengan analisis iklim canggih—kami memeriksa seberapa sejuk
+                dan hijau lingkungan sekitar atau efek panas
+                perkotaan, lalu memberikan skor kenyamanan iklim. Hasilnya, Anda
+                bisa dapatkan rekomendasi properti di lokasi yang teduh,
+                udaranya segar, bebas kepanasan, dan minim risiko iklim ekstrem,
+                sehingga investasi Anda tetap nyaman untuk ditinggali sekarang
+                maupun di masa depan.
               </p>
               <div className="text-center md:text-right">
                 <Link href="/about-us">
@@ -86,7 +82,6 @@ const Description = () => {
               </div>
             </div>
           </div>
-        </div>
       </div>
     </section>
   );

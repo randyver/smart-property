@@ -244,7 +244,7 @@ export default function PredictionResultPanel({
         {/* Rekomendasi dengan AI */}
         <div className="mt-6 bg-blue-50 p-6 rounded-lg border border-blue-100">
           <h3 className="font-bold text-xl text-gray-800 mb-3">
-            AI Rekomendasi Pengembangan
+            Rekomendasi Pengembangan
           </h3>
 
           {isLoadingAI ? (

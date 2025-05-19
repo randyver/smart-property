@@ -45,7 +45,7 @@ const aboutContent = {
   vision:
     "Kami membayangkan masa depan di mana ketahanan terhadap iklim menjadi pertimbangan standar dalam pengembangan dan pembelian properti.",
   story:
-    "SmartProperty lahir dari kesadaran bahwa perubahan iklim secara signifikan memengaruhi nilai properti dan kondisi kehidupan. Tim kami yang terdiri dari teknolog dan ilmuwan lingkungan yang berdedikasi bersatu untuk menjawab kesenjangan ini di pasar properti.",
+    "SmartProperty lahir dari kesadaran bahwa perubahan iklim secara signifikan memengaruhi nilai properti dan kondisi kehidupan. Tim kami yang terdiri dari engineer dan spatial analyst yang berdedikasi bersatu untuk menjawab kesenjangan ini di pasar properti.",
   approach:
     "Dengan menggunakan Sistem Informasi Geografis (GIS) tingkat lanjut, kami menganalisis berbagai parameter lingkungan untuk menghasilkan penilaian risiko iklim yang komprehensif bagi properti.",
 };

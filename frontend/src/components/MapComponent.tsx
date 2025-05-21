@@ -186,7 +186,7 @@ const MapComponent = memo(
         image: "/peta-landuse.jpg",
       },
       ndbi: {
-        name: "Kerapatan Bangunan",
+        name: "Kerapatan Bangunan - NDBI",
         colors: ["#FFFFE5", "#FEE391", "#FE9929", "#CC4C02", "#662506"],
         gridcodeCount: 5,
         legendLabels: [
@@ -953,7 +953,7 @@ const MapComponent = memo(
             <div className="space-y-1 px-2 pb-4">
               {Object.entries(layerConfig)
                 .filter(([key]) =>
-                  ["lst", "ndvi", "utfvi", "uhi"].includes(key)
+                  ["lst", "ndvi", "utfvi", "uhi", "ndbi"].includes(key)
                 )
                 .map(([key, layer]) => (
                   <div
@@ -1034,7 +1034,6 @@ const MapComponent = memo(
                     "landuse",
                     "kemiringan_lereng",
                     "rtrw",
-                    "ndbi",
                   ].includes(key)
                 )
                 .map(([key, layer]) => (

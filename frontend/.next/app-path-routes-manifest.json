@@ -1,11 +1,11 @@
 {
   "/_not-found": "/_not-found",
   "/page": "/",
-  "/about-us/page": "/about-us",
-  "/developer/page": "/developer",
-  "/analytics/page": "/analytics",
-  "/maps/page": "/maps",
   "/game/page": "/game",
   "/comparison/page": "/comparison",
+  "/developer/page": "/developer",
+  "/about-us/page": "/about-us",
+  "/analytics/page": "/analytics",
+  "/maps/page": "/maps",
   "/properties/[id]/page": "/properties/[id]"
 }

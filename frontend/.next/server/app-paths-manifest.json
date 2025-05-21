@@ -1,11 +1,11 @@
 {
   "/_not-found": "app/_not-found.js",
   "/page": "app/page.js",
-  "/about-us/page": "app/about-us/page.js",
-  "/developer/page": "app/developer/page.js",
-  "/analytics/page": "app/analytics/page.js",
-  "/maps/page": "app/maps/page.js",
   "/game/page": "app/game/page.js",
   "/comparison/page": "app/comparison/page.js",
+  "/developer/page": "app/developer/page.js",
+  "/about-us/page": "app/about-us/page.js",
+  "/analytics/page": "app/analytics/page.js",
+  "/maps/page": "app/maps/page.js",
   "/properties/[id]/page": "app/properties/[id]/page.js"
 }

@@ -186,7 +186,7 @@ const MapComponent = memo(
         image: "/peta-landuse.jpg",
       },
       ndbi: {
-        name: "Kerapatan Bangunan - NDBI",
+        name: "Kerapatan Bangunan",
         colors: ["#FFFFE5", "#FEE391", "#FE9929", "#CC4C02", "#662506"],
         gridcodeCount: 5,
         legendLabels: [
@@ -231,36 +231,42 @@ const MapComponent = memo(
         image: "/peta-kemiringan-lereng.jpg",
       },
       rtrw: {
-        name: "Ruang Tata Ruang Wilayah",
+        name: "Rencana Tata Ruang Wilayah",
         colors: {
-          Bandara: "#F4B183", // Orange for Bandara
-          "Hutan Lindung": "#007A33", // Dark green for Hutan Lindung
-          "Industri dan Pergudangan": "#7F7F7F", // Gray for Industri dan Pergudangan
-          Kesehatan: "#FFFFFF", // White for Kesehatan
-          Pendidikan: "#000066", // Dark blue for Pendidikan
-          Perdagangan: "#FF0000", // Red for Perdagangan
-          Perkantoran: "#F4B6E6", // Light pink for Perkantoran
-          "Pertahanan dan Keamanan": "#7F5A3D", // Brown for Pertahanan dan Keamanan
-          Pertanian: "#A6D785", // Light green for Pertanian
-          "Perumahan Kepadatan Rendah": "#FFD1DC", // Pale pink for Perumahan
-          "Ruang Terbuka Hijau": "#00FF01", // Bright green for RTH
-          "Ruang Terbuka Non Hijau": "#B7E97C", // Light green for RTnH
+          Jalan: "#FFA77F",
+          Bandara: "#FD8B20",
+          "Hutan Lindung": "#00A884",
+          "Industri Gudang": "#FDCDB3",
+          Kesehatan: "#B6C7FD",
+          Pendidikan: "#44418C",
+          Perdagangan: "#E03500",
+          Perkantoran: "#A900E6",
+          "Permukiman Padat": "#E6C600",
+          "Pertahanan dan Keamanan": "#A87000",
+          Pertanian: "#38A800",
+          "Perumahan Kerapan Rendah": "#FFFF00",
+          RTnH: "#737300",
+          RTH: "#00FFC5",
+          Sungai: "#0070FF",
         },
         legendLabels: [
+          "Jalan",
           "Bandara",
           "Hutan Lindung",
-          "Industri dan Pergudangan",
+          "Industri Gudang",
           "Kesehatan",
           "Pendidikan",
           "Perdagangan",
           "Perkantoran",
+          "Permukiman Padat",
           "Pertahanan dan Keamanan",
           "Pertanian",
-          "Perumahan Kepadatan Rendah",
-          "Ruang Terbuka Hijau",
-          "Ruang Terbuka Non Hijau",
+          "Perumahan Kerapan Rendah",
+          "RTH",
+          "RTnH",
+          "Sungai",
         ],
-        image: "/foto-rtrw.jpg", // You'll need to create this image
+        image: "/foto-rtrw.jpg",
       },
     };
 
@@ -277,7 +283,7 @@ const MapComponent = memo(
         "Jaringan Jalan menampilkan jalan utama dan sekunder di area tersebut, membantu Anda memahami aksesibilitas dan potensi kebisingan/polusi.",
       kemiringan_lereng:
         "Kemiringan Lereng menunjukkan tingkat kecuraman tanah. Area yang lebih datar (skor rendah) biasanya lebih aman dari risiko longsor dan lebih mudah untuk pembangunan.",
-      rtrw: "Ruang Tata Ruang Wilayah menunjukkan rencana penggunaan lahan resmi dari pemerintah, termasuk zona perumahan, komersial, ruang terbuka, dll. Penting untuk memastikan properti sesuai dengan perencanaan kota.",
+      rtrw: "Rencana Tata Ruang Wilayah menunjukkan rencana penggunaan lahan resmi dari pemerintah, termasuk zona perumahan, komersial, ruang terbuka, dll. Penting untuk memastikan properti sesuai dengan perencanaan kota.",
     };
 
     // Initialize map
@@ -483,8 +489,8 @@ const MapComponent = memo(
                         layerConfig.rtrw.colors["Bandara"],
                         "Hutan Lindung",
                         layerConfig.rtrw.colors["Hutan Lindung"],
-                        "Industri dan Pergudangan",
-                        layerConfig.rtrw.colors["Industri dan Pergudangan"],
+                        "Industri Gudang",
+                        layerConfig.rtrw.colors["Industri Gudang"],
                         "Kesehatan",
                         layerConfig.rtrw.colors["Kesehatan"],
                         "Pendidikan",
@@ -497,13 +503,13 @@ const MapComponent = memo(
                         layerConfig.rtrw.colors["Pertahanan dan Keamanan"],
                         "Pertanian",
                         layerConfig.rtrw.colors["Pertanian"],
-                        "Perumahan Kepadatan Rendah",
-                        layerConfig.rtrw.colors["Perumahan Kepadatan Rendah"],
-                        "Ruang Terbuka Hijau",
-                        layerConfig.rtrw.colors["Ruang Terbuka Hijau"],
-                        "Ruang Terbuka Non Hijau",
-                        layerConfig.rtrw.colors["Ruang Terbuka Non Hijau"],
-                        "#CCCCCC", // default color for unknown values
+                        "Perumahan Kerapan Rendah",
+                        layerConfig.rtrw.colors["Perumahan Kerapan Rendah"],
+                        "RTH",
+                        layerConfig.rtrw.colors["RTH"],
+                        "RTnH",
+                        layerConfig.rtrw.colors["RTnH"],
+                        "#E6C600", // default color for unknown values
                       ],
                       "fill-opacity": 0.7,
                     },
@@ -583,9 +589,9 @@ const MapComponent = memo(
                   source: sourceId,
                   layout: { visibility: "visible" },
                   paint: {
-                    "line-color": "#000",
-                    "line-width": 0,
-                    "line-opacity": 0.3,
+                  "line-color": "#000",
+                  "line-width": layerType === "rtrw" ? 1 : 0,
+                  "line-opacity": 0.3,
                   },
                 });
               } else {
@@ -887,8 +893,9 @@ const MapComponent = memo(
                             className="pb-2 border-b border-gray-100"
                           >
                             <p className="font-medium text-gray-800 mb-1">
-                              {key in layerConfig 
-                                ? layerConfig[key as keyof typeof layerConfig].name 
+                              {key in layerConfig
+                                ? layerConfig[key as keyof typeof layerConfig]
+                                    .name
                                 : key}
                             </p>
                             <p className="text-gray-600 text-xs">
@@ -946,7 +953,7 @@ const MapComponent = memo(
             <div className="space-y-1 px-2 pb-4">
               {Object.entries(layerConfig)
                 .filter(([key]) =>
-                  ["lst", "ndvi", "utfvi", "uhi", "ndbi"].includes(key)
+                  ["lst", "ndvi", "utfvi", "uhi"].includes(key)
                 )
                 .map(([key, layer]) => (
                   <div
@@ -1027,6 +1034,7 @@ const MapComponent = memo(
                     "landuse",
                     "kemiringan_lereng",
                     "rtrw",
+                    "ndbi",
                   ].includes(key)
                 )
                 .map(([key, layer]) => (

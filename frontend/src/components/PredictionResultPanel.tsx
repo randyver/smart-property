@@ -42,7 +42,7 @@ export default function PredictionResultPanel({
       const OPENROUTER_API_URL =
         "https://openrouter.ai/api/v1/chat/completions";
       const OPENROUTER_API_KEY =
-        "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";
+        "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";
 
       // Create a detailed prompt based on the prediction data
       const propertyDetails = `
